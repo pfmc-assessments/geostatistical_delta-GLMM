@@ -1,0 +1,60 @@
+PlotMap_Fn <-
+function(MappingDetails, Report, MapSizeRatio, Xlim, Ylim, FileName, Year_Set, Rotate=0, Format="png", Res=200, ...){
+  D_it = Report$D_xt[NN_Extrap$nn.idx,]
+  R1_it = Report$R1_xt[NN_Extrap$nn.idx,]
+  R2_it = Report$R2_xt[NN_Extrap$nn.idx,]
+  f = function(Num) ((Num)-min((Num),na.rm=TRUE))/diff(range((Num),na.rm=TRUE))
+  Col = colorRampPalette(colors=c("darkblue","blue","lightblue","lightgreen","yellow","orange","red"))
+  for(RespI in 1:5){
+    if(RespI==1) Mat = R1_it
+    if(RespI==2){
+      Mat = log(R2_it+quantile(R2_it,0.01))
+      Mat = ifelse(Mat<(-5),-5,Mat)
+    }
+    if(RespI==3){
+      Mat = log(D_it+quantile(D_it,0.01))
+      Mat = ifelse(Mat<(-5),-5,Mat)
+    }
+    if(RespI==4) Mat = log(R2_it+quantile(R2_it,0.25))   # 
+    if(RespI==5) Mat = log(D_it+quantile(D_it,0.25))  # 
+    # Plot 
+    Par = par(...)
+    if(Format=="png") png(file=paste0(FileName,switch(RespI, "Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled"),".png"), width=Par$mfrow[2]*MapSizeRatio['Width(in)'], height=Par$mfrow[1]*MapSizeRatio['Height(in)'], res=Res, units='in')
+    if(Format=="jpg") jpeg(file=paste0(FileName,switch(RespI, "Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled"),".jpg"), width=Par$mfrow[2]*MapSizeRatio['Width(in)'], height=Par$mfrow[1]*MapSizeRatio['Height(in)'], res=Res, units='in')
+      par( Par )
+      for(t in 1:length(Year_Set)){
+        Which = which(Data_Extrap[,'Include']>0)
+        if(FALSE){
+          map(MappingDetails[[1]], MappingDetails[[2]], ylim=Ylim, xlim=Xlim, col="grey90", fill=TRUE, main="", mar=c(0,0,2,0),interior=TRUE)#, main=Year_Set[t])
+          points(x=Data_Extrap[Which,'Lon'], y=Data_Extrap[Which,'Lat'], col=Col(n=50)[ceiling(f(Mat[Which,])[,t]*49)+1], cex=0.01)
+        }else{
+          Map = map(MappingDetails[[1]], MappingDetails[[2]], plot=FALSE, ylim=mean(Ylim)+1*c(-0.5,0.5)*diff(Ylim), xlim=mean(Xlim)+1*c(-0.5,0.5)*diff(Xlim), fill=TRUE) # , orientation=c(mean(y.lim),mean(x.lim),15)
+          Tmp1 = na.omit( cbind('PID'=cumsum(is.na(Map$x)), 'POS'=1:length(Map$x), 'X'=Map$x, 'Y'=Map$y, matrix(0,ncol=length(Year_Set),nrow=length(Map$x),dimnames=list(NULL,Year_Set))) ) 
+          Tmp2 = rbind( Tmp1, cbind('PID'=max(Tmp1[,1])+1,'POS'=1:length(Which)+max(Tmp1[,2]),'X'=Data_Extrap[Which,'Lon'], 'Y'=Data_Extrap[Which,'Lat'], Mat[Which,]) )
+          attr(Tmp2,"projection") = "LL"
+          attr(Tmp2,"zone") = "10"
+          tmpUTM = suppressMessages(convUL(Tmp2))                                                         #$ 
+          coordinates(tmpUTM) = c("X","Y")
+          tmp <- elide( tmpUTM, rotate=Rotate)
+          plot(tmp[-c(1:nrow(Tmp1)),], pch="", xlim=range(tmp@coords[-c(1:nrow(Tmp1)),'x']), ylim=range(tmp@coords[-c(1:nrow(Tmp1)),'y']) )
+          points(x=tmp@coords[-c(1:nrow(Tmp1)),'x'], y=tmp@coords[-c(1:nrow(Tmp1)),'y'], col=Col(n=50)[ceiling(f(tmp@data[-c(1:nrow(Tmp1)),paste0("X",Year_Set)])[,t]*49)+1], cex=0.01)
+          lev = levels(as.factor(tmp@data$PID))
+          for(levI in 1:(length(lev)-1)) {
+            indx = which(tmpUTM$PID == lev[levI])
+            polygon(tmp@coords[indx,'x'], tmp@coords[indx,'y'], col = "grey")
+          }
+        }
+        title( Year_Set[t], line=0.1, cex.main=1.5 )
+        box()
+        #if(t==1) compassRose( x=c(0.75,0.25)%*%par()$usr[1:2], y=c(0.25,0.75)%*%par()$usr[3:4], rotate=Rotate)
+      }
+      mtext(side=1, outer=TRUE, c("Longitude","Eastings")[2], cex=1.75, line=par()$oma[1]/2)
+      mtext(side=2, outer=TRUE, c("Latitude","Northings")[2], cex=1.75, line=par()$oma[2]/2)
+    dev.off()
+    # Legend
+    if(Format=="png") png(file=paste0(FileName,switch(RespI, "Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled"),"_Legend.png",sep=""), width=1, height=2*MapSizeRatio['Height(in)'], res=200, units='in')
+    if(Format=="jpg") jpeg(file=paste0(FileName,switch(RespI, "Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled"),"_Legend.jpg",sep=""), width=1, height=2*MapSizeRatio['Height(in)'], res=200, units='in')
+      Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), margintext=switch(RespI, "Encounter probability","log(Positive catch rate)",expression(paste("log Density, log(kg. / ",km^2,")",sep="")),NULL,NULL) )
+    dev.off()
+  }
+}
