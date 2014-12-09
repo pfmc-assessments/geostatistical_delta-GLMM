@@ -8,7 +8,7 @@
 
 # Install geostatistical delta-GLMM package
 library(devtools)
-install_github("James-Thorson/geostatistical_delta-GLMM", auth_token="8da0b0f3838f1e4b77dd422b1d824bdf7cdba44a")
+install_github("nwfsc-assess/geostatistical_delta-GLMM")
 
 # Load libraries
 library(TMB)
