@@ -17,12 +17,12 @@ Next, please use R version >=3.1.1 and install the package:
     # Install package
     install.packages("devtools")
     library("devtools")
-    install_github("James-Thorson/geostatistical_delta-GLMM")
+    install_github("nwfsc-assess/geostatistical_delta-GLMM")
     # Load package
     library(SpatialDeltaGLMM)
 
 Please see examples folder for an example of how to run the model:
-https://github.com/James-Thorson/geostatistical_Delta-GLMM/blob/master/examples/example_for_NWFSC_shelf-slope_data.R
+https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/example_for_NWFSC_shelf-slope_data.R
 
 Known installation/usage issues
 =============
