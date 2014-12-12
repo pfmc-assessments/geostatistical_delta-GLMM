@@ -18,7 +18,6 @@ First, install the "devtools" package from CRAN
     library("devtools")
 
 Second, please install the following:
-* JAGS (Just Another Gibbs Sampler) here: http://mcmc-jags.sourceforge.net/
 * TMB (Template Model Builder): https://github.com/kaskr/adcomp
 * INLA (integrated nested Laplace approximations): http://www.r-inla.org/download
 
