@@ -9,14 +9,26 @@ SpatialDeltaGLMM
 
 Instructions
 =============
-First, please install JAGS (Just Another Gibbs Sampler) here: http://mcmc-jags.sourceforge.net/
+This function depends on R version >=3.1.1 and a variety of other tools.
 
-Next, please use R version >=3.1.1 and install the package:
-
+First, install the "devtools" package from CRAN
 
     # Install package
     install.packages("devtools")
     library("devtools")
+
+Second, please install the following:
+* JAGS (Just Another Gibbs Sampler) here: http://mcmc-jags.sourceforge.net/
+* TMB (Template Model Builder): https://github.com/kaskr/adcomp
+* INLA (integrated nested Laplace approximations): http://www.r-inla.org/download
+
+Note: at the moment, TMP and INLA can be installed using the commands 
+
+    install_github("kaskr/adcomp/TMB") # devtools command to get TMB from GitHub
+    source("http://www.math.ntnu.no/inla/givemeINLA.R")  # script to get INLA from the web
+    
+Next, please install the geostatistical_delta-GLMM package from this GitHub repository using a function in the "devtools" package:
+
     install_github("nwfsc-assess/geostatistical_delta-GLMM")
     # Load package
     library(SpatialDeltaGLMM)
