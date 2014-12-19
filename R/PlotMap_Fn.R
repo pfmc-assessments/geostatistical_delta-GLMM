@@ -1,26 +1,58 @@
 PlotMap_Fn <-
-function(MappingDetails, Report, MapSizeRatio, Xlim, Ylim, FileName, Year_Set, Rotate=0, Format="png", Res=200, ...){
+function(MappingDetails, Report, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
+         Rotate=0, Format="png", Res=200, ...){
   D_it = Report$D_xt[NN_Extrap$nn.idx,]
   R1_it = Report$R1_xt[NN_Extrap$nn.idx,]
   R2_it = Report$R2_xt[NN_Extrap$nn.idx,]
+  # adding Epsilon surfaces showing annual differences from shared distribution
+  Eps1_it = Report$Epsilon1_st[NN_Extrap$nn.idx,]
+  Eps2_it = Report$Epsilon2_st[NN_Extrap$nn.idx,]
   f = function(Num) ((Num)-min((Num),na.rm=TRUE))/diff(range((Num),na.rm=TRUE))
   Col = colorRampPalette(colors=c("darkblue","blue","lightblue","lightgreen","yellow","orange","red"))
-  for(RespI in 1:5){
-    if(RespI==1) Mat = R1_it
+  plot_codes <- c("Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled","Eps_Pres","Eps_Pos")
+  for(RespI in 1:7){
+    if(RespI==1){
+      # Presence/absence ("Pres")
+      Mat = R1_it 
+    }
     if(RespI==2){
+      # Positive values ("Pos")
       Mat = log(R2_it+quantile(R2_it,0.01))
       Mat = ifelse(Mat<(-5),-5,Mat)
     }
     if(RespI==3){
+      # Density ("Dens")
       Mat = log(D_it+quantile(D_it,0.01))
       Mat = ifelse(Mat<(-5),-5,Mat)
     }
-    if(RespI==4) Mat = log(R2_it+quantile(R2_it,0.25))   # 
-    if(RespI==5) Mat = log(D_it+quantile(D_it,0.25))  # 
+    if(RespI==4){
+      # Positive values rescaled ("Pos_Rescaled")
+      Mat = log(R2_it+quantile(R2_it,0.25))
+    }
+    if(RespI==5){
+      # Density rescaled ("Dens_Rescaled")
+      Mat = log(D_it+quantile(D_it,0.25))
+    }
+    if(RespI==6){
+      # Epsilon for presence/absence ("Eps_Pres")
+      Mat = Eps1_it # maybe should be exponentiated?
+    }
+    if(RespI==7){
+      # Epsilon for positive values ("Eps_Pos")
+      Mat = Eps2_it # maybe should be exponentiated?
+    }
     # Plot 
     Par = par(...)
-    if(Format=="png") png(file=paste0(FileName,switch(RespI, "Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled"),".png"), width=Par$mfrow[2]*MapSizeRatio['Width(in)'], height=Par$mfrow[1]*MapSizeRatio['Height(in)'], res=Res, units='in')
-    if(Format=="jpg") jpeg(file=paste0(FileName,switch(RespI, "Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled"),".jpg"), width=Par$mfrow[2]*MapSizeRatio['Width(in)'], height=Par$mfrow[1]*MapSizeRatio['Height(in)'], res=Res, units='in')
+    if(Format=="png"){
+      png(file=paste0(FileName, plot_codes[RespI], ".png"),
+          width=Par$mfrow[2]*MapSizeRatio['Width(in)'],
+          height=Par$mfrow[1]*MapSizeRatio['Height(in)'], res=Res, units='in')
+    }
+    if(Format=="jpg"){
+      jpeg(file=paste0(FileName, plot_codes[RespI],".jpg"),
+           width=Par$mfrow[2]*MapSizeRatio['Width(in)'],
+           height=Par$mfrow[1]*MapSizeRatio['Height(in)'], res=Res, units='in')
+    }
       par( Par )
       for(t in 1:length(Year_Set)){
         Which = which(Data_Extrap[,'Include']>0)
@@ -52,9 +84,15 @@ function(MappingDetails, Report, MapSizeRatio, Xlim, Ylim, FileName, Year_Set, R
       mtext(side=2, outer=TRUE, c("Latitude","Northings")[2], cex=1.75, line=par()$oma[2]/2)
     dev.off()
     # Legend
-    if(Format=="png") png(file=paste0(FileName,switch(RespI, "Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled"),"_Legend.png",sep=""), width=1, height=2*MapSizeRatio['Height(in)'], res=200, units='in')
-    if(Format=="jpg") jpeg(file=paste0(FileName,switch(RespI, "Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled"),"_Legend.jpg",sep=""), width=1, height=2*MapSizeRatio['Height(in)'], res=200, units='in')
-      Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), margintext=switch(RespI, "Encounter probability","log(Positive catch rate)",expression(paste("log Density, log(kg. / ",km^2,")",sep="")),NULL,NULL) )
+    if(Format=="png"){
+      png(file=paste0(FileName, plot_codes[RespI], "_Legend.png",sep=""),
+          width=1, height=2*MapSizeRatio['Height(in)'], res=200, units='in')
+    }
+    if(Format=="jpg"){
+      jpeg(file=paste0(FileName, plot_codes[RespI], "_Legend.jpg",sep=""),
+           width=1, height=2*MapSizeRatio['Height(in)'], res=200, units='in')
+    }
+    Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), margintext=switch(RespI, "Encounter probability","log(Positive catch rate)",expression(paste("log Density, log(kg. / ",km^2,")",sep="")),NULL,NULL) )
     dev.off()
   }
 }
