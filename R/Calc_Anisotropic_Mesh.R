@@ -1,8 +1,11 @@
 Calc_Anisotropic_Mesh <-
 function(loc_x){
+  # Check and load INLA
+  if( require(INLA)==FALSE ) stop("Must install INLA from: source('http://www.math.ntnu.no/inla/givemeINLA.R')")
+  
   # Create the SPDE mesh
-  mesh = inla.mesh.create( loc_x, plot.delay=NULL, refine=FALSE)
-  spde = inla.spde2.matern(mesh, alpha=2)
+  mesh = INLA::inla.mesh.create( loc_x, plot.delay=NULL, refine=FALSE)
+  spde = INLA::inla.spde2.matern(mesh, alpha=2)
 
   # Pre-processing in R for anisotropy
   Dset = 1:2
