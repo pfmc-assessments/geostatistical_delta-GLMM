@@ -4,7 +4,7 @@ function(n_x, Kmeans_Config, Data_Geostat, Data_Extrap){
   options( "warn" = -1 ) 
   on.exit( options(old.options) )   
   if( paste0("Kmeans-",n_x,".RData") %in% list.files(getwd()) ){
-    load( file=paste(DateFile,"Kmeans.RData",sep=""))
+    load( file=paste0("Kmeans-",n_x,".RData") )
   }else{
     Kmeans = list( "tot.withinss"=Inf )
     for(i in 1:Kmeans_Config[["nstart"]]){       
