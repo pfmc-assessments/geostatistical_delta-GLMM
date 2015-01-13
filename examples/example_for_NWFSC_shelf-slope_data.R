@@ -161,7 +161,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Obj$env$inner.control$grad.tol <- c(1e-8,1e-12,1e-15)[ConvergeTol[1]] # # Default : 1e-8  # Maximum gradient limit inner optimization
 
   # Run model
-  Opt = nlminb(start=Obj$par, objective=Obj$fn, gradient=Obj$gr_mod, lower=Lower, upper=Upper, control=list(eval.max=1e4, iter.max=1e4, trace=1, rel.tol=c(1e-8,1e-10,1e-14)[ConvergeTol[2]]))  # , rel.tol=1e-20
+  Opt = nlminb(start=Obj$par, objective=Obj$fn, gradient=Obj$gr, lower=Lower, upper=Upper, control=list(eval.max=1e4, iter.max=1e4, trace=1, rel.tol=c(1e-8,1e-10,1e-14)[ConvergeTol[2]]))  # , rel.tol=1e-20
     
   # Reports
   Report = Obj$report()                                      
