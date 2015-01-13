@@ -1,4 +1,14 @@
 #include <TMB.hpp>
+
+// dlnorm
+template<class Type>
+Type dlnorm(Type x, Type meanlog, Type sdlog, int give_log=0){
+  Type logres;
+  logres = dnorm( log(x), meanlog, sdlog, true) - log(x);
+  //return 1/(sqrt(2*M_PI)*sd)*exp(-.5*pow((x-mean)/sd,2));
+  if(give_log)return logres; else return exp(logres);
+}
+
 // Space time 
 template<class Type>
 Type objective_function<Type>::operator() ()
@@ -242,9 +252,9 @@ Type objective_function<Type>::operator() ()
       // Positive density likelihood -- models with continuous positive support
       if( b_i(i) > 0 ){    // 1e-500 causes overflow on laptop
         if(ObsModel(0)==0) LogProb2_i(i) = dnorm(b_i(i), R2_i(i)*a_i(i), SigmaM(0), true);
-        if(ObsModel(0)==1) LogProb2_i(i) = dnorm(log(b_i(i)), P2_i(i)+log(a_i(i))-pow(SigmaM(0),2)/2, SigmaM(0), true); // log-space
+        if(ObsModel(0)==1) LogProb2_i(i) = dlnorm(b_i(i), P2_i(i)+log(a_i(i))-pow(SigmaM(0),2)/2, SigmaM(0), true); // log-space
         if(ObsModel(0)==2) LogProb2_i(i) = dgamma(b_i(i), 1/pow(SigmaM(0),2), R2_i(i)*a_i(i)*pow(SigmaM(0),2), true); // shape = 1/CV^2, scale = mean*CV^2
-        if(ObsModel(0)==11) LogProb2_i(i) = log( 1e-250 + SigmaM(1)*dnorm(log(b_i(i)),P2_i(i)+log(a_i(i))-pow(SigmaM(0),2)/2, SigmaM(0), false) + (1-SigmaM(1))*dnorm(log(b_i(i)),P2_i(i)+log(a_i(i))+log(1+SigmaM(2))-pow(SigmaM(3),2)/2, SigmaM(3), false) ); // log-space
+        if(ObsModel(0)==11) LogProb2_i(i) = log( 1e-250 + SigmaM(1)*dlnorm(b_i(i),P2_i(i)+log(a_i(i))-pow(SigmaM(0),2)/2, SigmaM(0), false) + (1-SigmaM(1))*dlnorm(b_i(i),P2_i(i)+log(a_i(i))+log(1+SigmaM(2))-pow(SigmaM(3),2)/2, SigmaM(3), false) ); // log-space
         if(ObsModel(0)==12) LogProb2_i(i) = log( 1e-250 + SigmaM(1)*dgamma(b_i(i), 1/pow(SigmaM(0),2), R2_i(i)*a_i(i)*pow(SigmaM(0),2), false) + (1-SigmaM(1))*dgamma(b_i(i), 1/pow(SigmaM(3),2), R2_i(i)*a_i(i)*(1+SigmaM(2))*pow(SigmaM(3),2), false) ); // shape = 1/CV^2, scale = mean/CV^2
       }else{
         LogProb2_i(i) = 0;
