@@ -31,7 +31,7 @@ Note: at the moment, TMB and INLA can be installed using the commands
 Next, please install the geostatistical_delta-GLMM package from this GitHub repository using a function in the "devtools" package:
 
     # Install package
-    install_github("nwfsc-assess/geostatistical_delta-GLMM", ref="1.0.0")
+    install_github("nwfsc-assess/geostatistical_delta-GLMM", ref="1.1.0")
     # Load package
     library(SpatialDeltaGLMM)
 
