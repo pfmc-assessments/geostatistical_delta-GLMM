@@ -36,10 +36,10 @@ function( VesselConfig, TmbData, FieldConfig, CovConfig, CovConception, ObsModel
     Map[["gamma2_j"]] = factor(NA)
   }
   if(ObsModel%in%c(0,1,2)){
-    Map[["logSigmaM"]] = factor( c(1,NA,NA) )
+    Map[["logSigmaM"]] = factor( c(1,NA,NA,NA) )
   }
   if(ObsModel%in%c(4,5)){
-    Map[["logSigmaM"]] = factor( c(1,NA,2) )
+    Map[["logSigmaM"]] = factor( c(1,NA,2,NA) )
   }
   if(Aniso==0 | all(FieldConfig==0)) Map[['ln_H_input']] = factor( rep(NA,2) )
   return(Map)
