@@ -25,7 +25,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 
   Data_Set = c("NWFSC", "Sim")[1]
   #Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
-  Version = "geo_index_v3a"
+  Version = "geo_index_v3b"
   n_x = c(250, 500, 1000, 2000)[3] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
   CovConfig = c("Depth_km"=0, "Depth_km2"=0, "N_km"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
@@ -92,7 +92,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Voronoi = calcVoronoi( xydata=cbind("X"=loc_x[,'E_km'],"Y"=loc_x[,'N_km']), xlim=range(Data_Extrap[,'E_km']), ylim=range(Data_Extrap[,'N_km']))
   NN = nn2( data=loc_x[,c('E_km','N_km')], query=Data_Geostat[,c('E_km','N_km')], k=1 )
   NN_Extrap = nn2( data=loc_x[,c('E_km','N_km')], query=Data_Extrap[,c('E_km','N_km')], k=1 )
-  a_x = 4 * tapply(Data_Extrap[,'propInWCGBTS'], INDEX=NN_Extrap$nn.idx, FUN=sum)  # Each cell is 2km x 2km = 4 km^2
+  a_xl = cbind(4*tapply(Data_Extrap[,'propInWCGBTS'], INDEX=NN_Extrap$nn.idx, FUN=sum))  # Each cell is 2km x 2km = 4 km^2
   
 # Make design matrix (X_xj)
   X_xj = NULL
@@ -125,7 +125,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 ################
 
   # Data
-  TmbData = list("n_i"=nrow(Data_Geostat), "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=length(unique(Data_Geostat[,'Year'])), "n_v"=length(unique(Data_Geostat[,'Vessel'])), "n_j"=ncol(X_xj), "n_k"=ncol(Q_ik), "Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=NN$nn.idx[,1]-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_x"=a_x, "X_xj"=X_xj, "Q_ik"=Q_ik, "n_tri"=nrow(MeshList$mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0_inv"=as(diag(1/diag(MeshList$spde$param.inla$M0)),"dgTMatrix"), "G0"=MeshList$spde$param.inla$M0, "G1"=MeshList$spde$param.inla$M1, "G2"=MeshList$spde$param.inla$M2)
+  TmbData = list("n_i"=nrow(Data_Geostat), "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=length(unique(Data_Geostat[,'Year'])), "n_v"=length(unique(Data_Geostat[,'Vessel'])), "n_j"=ncol(X_xj), "n_k"=ncol(Q_ik), "n_l"=ncol(a_xl), "Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=NN$nn.idx[,1]-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "n_tri"=nrow(MeshList$mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0_inv"=as(diag(1/diag(MeshList$spde$param.inla$M0)),"dgTMatrix"), "G0"=MeshList$spde$param.inla$M0, "G1"=MeshList$spde$param.inla$M1, "G2"=MeshList$spde$param.inla$M2)
 
   # Parameters
   Parameters = list("ln_H_input"=c(0,0), "beta1_t"=qlogis(tapply(ifelse(TmbData$b_i>0,1,0),INDEX=TmbData$t_i,FUN=mean)), "gamma1_j"=rep(0,TmbData$n_j), "lambda1_k"=rep(0,TmbData$n_k), "logetaE1"=0, "logetaO1"=0, "logkappa1"=0, "logsigmaV1"=log(1), "logsigmaVT1"=log(1), "nu1_v"=rep(0,TmbData$n_v), "nu1_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput1_s"=rep(0,TmbData$n_s), "Epsiloninput1_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t), "beta2_t"=log(tapply(ifelse(TmbData$b_i>0,TmbData$b_i/TmbData$a_i,NA),INDEX=TmbData$t_i,FUN=mean,na.rm=TRUE)), "gamma2_j"=rep(0,TmbData$n_j), "lambda2_k"=rep(0,TmbData$n_k), "logetaE2"=0, "logetaO2"=0, "logkappa2"=0, "logsigmaV2"=log(1), "logsigmaVT2"=log(1), "logSigmaM"=c(log(5),qlogis(0.8),log(2),log(5)), "nu2_v"=rep(0,TmbData$n_v), "nu2_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput2_s"=rep(0,TmbData$n_s), "Epsiloninput2_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t))
