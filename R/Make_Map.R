@@ -36,8 +36,8 @@ function( VesselConfig, TmbData, FieldConfig, CovConfig, CovConception, ObsModel
     Map[["gamma2_j"]] = factor(NA)
   }
   if( sum(Q_Config)==0 ){
-    Map[["lambda1_j"]] = factor(NA)
-    Map[["lambda2_j"]] = factor(NA)
+    Map[["lambda1_k"]] = factor(NA)
+    Map[["lambda2_k"]] = factor(NA)
   }
   if(ObsModel%in%c(0,1,2)){
     Map[["logSigmaM"]] = factor( c(1,NA,NA,NA) )

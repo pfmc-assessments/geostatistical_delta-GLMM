@@ -84,6 +84,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Data_Geostat = cbind( Data_Geostat, Data_Extrap[NN_Tmp$nn.idx,c('Depth_km','Depth_km2','E_km','N_km')] )
 
 # Calculate k-means centroids (but only once for all species)
+  setwd( DateFile ) 
   Kmeans = Calc_Kmeans(n_x=n_x, Kmeans_Config=Kmeans_Config, Data_Geostat=Data_Geostat, Data_Extrap=Data_Extrap)
   loc_x = Kmeans$centers
 
