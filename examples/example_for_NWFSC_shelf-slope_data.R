@@ -25,10 +25,11 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 
   Data_Set = c("NWFSC", "Sim")[1]
   #Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
-  Version = "geo_index_v2j"
+  Version = "geo_index_v3a"
   n_x = c(250, 500, 1000, 2000)[3] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
   CovConfig = c("Depth_km"=0, "Depth_km2"=0, "N_km"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
+  Q_Config = c("Pass"=0)
   VesselConfig = c("Vessel"=0, "VesselYear"=1)
   ObsModel = 2  # 0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture
   Aniso = 1 # 0=No; 1=Yes
@@ -108,6 +109,13 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   # Make filler matrix if necessary
   if(ncol(X_xj)==0) X_xj = cbind( "Dummy"=rep(0,n_x) )
     
+# Make catchability matrix (Q_i)
+  if( sum(Q_Config)==0 ){
+    Q_ik = matrix(0, ncol=1, nrow=nrow(Data_Extrap))
+  }else{
+    ## NOT IMPLEMENTED IN EXAMPLE ##
+  }
+    
 # Make mesh and info for anisotropy
   MeshList = Calc_Anisotropic_Mesh(loc_x=loc_x)
 
@@ -115,11 +123,11 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Make and Run TMB model
 ################
 
-  # Covariates
-  TmbData = list("n_i"=nrow(Data_Geostat), "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=length(unique(Data_Geostat[,'Year'])), "n_v"=length(unique(Data_Geostat[,'Vessel'])), "n_j"=ncol(X_xj), "Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=NN$nn.idx[,1]-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_x"=a_x, "X_xj"=X_xj, "n_tri"=nrow(MeshList$mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0_inv"=as(diag(1/diag(MeshList$spde$param.inla$M0)),"dgTMatrix"), "G0"=MeshList$spde$param.inla$M0, "G1"=MeshList$spde$param.inla$M1, "G2"=MeshList$spde$param.inla$M2)
+  # Data
+  TmbData = list("n_i"=nrow(Data_Geostat), "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=length(unique(Data_Geostat[,'Year'])), "n_v"=length(unique(Data_Geostat[,'Vessel'])), "n_j"=ncol(X_xj), "n_k"=ncol(Q_ik), "Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=NN$nn.idx[,1]-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_x"=a_x, "X_xj"=X_xj, "Q_ik"=Q_ik, "n_tri"=nrow(MeshList$mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0_inv"=as(diag(1/diag(MeshList$spde$param.inla$M0)),"dgTMatrix"), "G0"=MeshList$spde$param.inla$M0, "G1"=MeshList$spde$param.inla$M1, "G2"=MeshList$spde$param.inla$M2)
 
   # Parameters
-  Parameters = list("ln_H_input"=c(0,0), "beta1_t"=qlogis(tapply(ifelse(TmbData$b_i>0,1,0),INDEX=TmbData$t_i,FUN=mean)), "gamma1_j"=rep(0,TmbData$n_j), "logetaE1"=0, "logetaO1"=0, "logkappa1"=0, "logsigmaV1"=log(1), "logsigmaVT1"=log(1), "nu1_v"=rep(0,TmbData$n_v), "nu1_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput1_s"=rep(0,TmbData$n_s), "Epsiloninput1_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t), "beta2_t"=log(tapply(ifelse(TmbData$b_i>0,TmbData$b_i/TmbData$a_i,NA),INDEX=TmbData$t_i,FUN=mean,na.rm=TRUE)), "gamma2_j"=rep(0,TmbData$n_j), "logetaE2"=0, "logetaO2"=0, "logkappa2"=0, "logsigmaV2"=log(1), "logsigmaVT2"=log(1), "logSigmaM"=c(log(5),qlogis(0.8),log(2),log(5)), "nu2_v"=rep(0,TmbData$n_v), "nu2_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput2_s"=rep(0,TmbData$n_s), "Epsiloninput2_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t))
+  Parameters = list("ln_H_input"=c(0,0), "beta1_t"=qlogis(tapply(ifelse(TmbData$b_i>0,1,0),INDEX=TmbData$t_i,FUN=mean)), "gamma1_j"=rep(0,TmbData$n_j), "lambda1_k"=rep(0,TmbData$n_k), "logetaE1"=0, "logetaO1"=0, "logkappa1"=0, "logsigmaV1"=log(1), "logsigmaVT1"=log(1), "nu1_v"=rep(0,TmbData$n_v), "nu1_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput1_s"=rep(0,TmbData$n_s), "Epsiloninput1_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t), "beta2_t"=log(tapply(ifelse(TmbData$b_i>0,TmbData$b_i/TmbData$a_i,NA),INDEX=TmbData$t_i,FUN=mean,na.rm=TRUE)), "gamma2_j"=rep(0,TmbData$n_j), "lambda2_k"=rep(0,TmbData$n_k), "logetaE2"=0, "logetaO2"=0, "logkappa2"=0, "logsigmaV2"=log(1), "logsigmaVT2"=log(1), "logSigmaM"=c(log(5),qlogis(0.8),log(2),log(5)), "nu2_v"=rep(0,TmbData$n_v), "nu2_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput2_s"=rep(0,TmbData$n_s), "Epsiloninput2_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t))
 
   # Which are random
   Random = c("Epsiloninput1_st", "Omegainput1_s", "Epsiloninput2_st", "Omegainput2_s", "nu1_v", "nu2_v", "nu1_vt", "nu2_vt")
@@ -142,17 +150,25 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   # Declare upper and lower bounds for parameter search
   Lower = rep(-50, length(Obj$par))
   Lower[grep("logsigmaV",names(Obj$par))] = log(0.01)
-  if( "gamma1" %in% names(Obj$par) ){
-    Lower[grep("gamma1",names(Obj$par))] = -20
-    Upper[grep("gamma1",names(Obj$par))] = 20
-  }
   Upper = rep( 50, length(Obj$par))
   Upper[grep("logtau",names(Obj$par))] = 10   # Version < v2i
   Upper[grep("logeta",names(Obj$par))] = log(1/(1e-2*sqrt(4*pi))) # Version >= v2i: Lower bound on margSD = 1e-4
   Upper[grep("SigmaM",names(Obj$par))] = 10 # ZINB can crash if it gets > 20
+  if( "gamma1" %in% names(Obj$par) ){
+    Lower[grep("gamma1",names(Obj$par))] = -20
+    Upper[grep("gamma1",names(Obj$par))] = 20
+  }
   if( "gamma2" %in% names(Obj$par) ){
     Lower[grep("gamma2",names(Obj$par))] = -20
     Upper[grep("gamma2",names(Obj$par))] = 20
+  }
+  if( "lambda1" %in% names(Obj$par) ){
+    Lower[grep("lambda1",names(Obj$par))] = -20
+    Upper[grep("lambda1",names(Obj$par))] = 20
+  }
+  if( "lambda2" %in% names(Obj$par) ){
+    Lower[grep("lambda2",names(Obj$par))] = -20
+    Upper[grep("lambda2",names(Obj$par))] = 20
   }
 
   # Change convergence tolerance
