@@ -188,7 +188,7 @@ Type objective_function<Type>::operator() ()
   Eigen::SparseMatrix<Type> Q2;
   if(Aniso==0){
     Q1 = kappa1_pow4*G0 + Type(2.0)*kappa1_pow2*G1 + G2;
-    Q2 = kappa1_pow4*G0 + Type(2.0)*kappa1_pow2*G1 + G2;
+    Q2 = kappa2_pow4*G0 + Type(2.0)*kappa2_pow2*G1 + G2;
   }
   if(Aniso==1){
     Q1 = kappa1_pow4*G0 + Type(2.0)*kappa1_pow2*G1_aniso + G2_aniso;
