@@ -59,6 +59,14 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   data( extrapolation_data )
   Data_Extrap <- extrapolation_data
 
+# Augment with strata for each extrapolation cell
+  Tmp = cbind("BEST_DEPTH_M"=(-1000)*Data_Extrap[,'Depth_km'], "BEST_LAT_DD"=Data_Extrap[,'Lat'], "propInWCGBTS"=Data_Extrap[,'propInWCGBTS'])
+  a_el = as.data.frame(matrix(NA, nrow=nrow(Data_Extrap), ncol=nrow(strata.limits)))
+  for(l in 1:ncol(a_el)){
+    a_el[,l] = apply(Tmp , MARGIN=1, FUN=nwfscDeltaGLM::strata.fn, Strata.df=strata.limits[l,])
+    a_el[,l] = ifelse( is.na(a_el[,l]), 0, 4*Data_Extrap[,'propInWCGBTS'])
+  }
+
 # Convert extrapolation-data to an Eastings-Northings coordinate system
   Tmp = cbind('PID'=1,'POS'=1:nrow(Data_Extrap),'X'=Data_Extrap[,'Lon'],'Y'=Data_Extrap[,'Lat'])
   attr(Tmp,"projection") = "LL"
@@ -98,7 +106,8 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   Voronoi = calcVoronoi( xydata=cbind("X"=loc_x[,'E_km'],"Y"=loc_x[,'N_km']), xlim=range(Data_Extrap[,'E_km']), ylim=range(Data_Extrap[,'N_km']))
   NN = nn2( data=loc_x[,c('E_km','N_km')], query=Data_Geostat[,c('E_km','N_km')], k=1 )
   NN_Extrap = nn2( data=loc_x[,c('E_km','N_km')], query=Data_Extrap[,c('E_km','N_km')], k=1 )
-  a_xl = cbind(4*tapply(Data_Extrap[,'propInWCGBTS'], INDEX=NN_Extrap$nn.idx, FUN=sum))  # Each cell is 2km x 2km = 4 km^2
+  a_xl = matrix(NA, ncol=ncol(a_el), nrow=n_x)
+  for(l in 1:ncol(a_xl)) a_xl[,l] = tapply(a_el[,l], INDEX=NN_Extrap$nn.idx, FUN=sum)
   
 # Make design matrix (X_xj)
   if( sum(CovConfig)==0 ){
