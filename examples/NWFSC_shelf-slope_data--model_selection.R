@@ -44,13 +44,14 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   # In this case, it will calculate a coastwide index, and also a separate index for each state (although the state lines are approximate)
 strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   STRATA  NLat SLat MinDepth MaxDepth
-  Coastwide 49.0 32.0  55       366
-  CA        42.0 32.0  55       366
-  OR        46.0 42.0  55       366
-  WA        49.0 46.0  55       366
+  Coastwide 49.0 32.0  55       1280
+  CA        42.0 32.0  55       1280
+  OR        46.0 42.0  55       1280
+  WA        49.0 46.0  55       1280
 
 # Compile TMB software
-  setwd( system.file("executables", package="SpatialDeltaGLMM") )
+  #setwd( system.file("executables", package="SpatialDeltaGLMM") )
+  setwd( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables" )
   compile( paste(Version,".cpp",sep="") )
       
 
@@ -109,6 +110,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   Voronoi = calcVoronoi( xydata=cbind("X"=loc_x[,'E_km'],"Y"=loc_x[,'N_km']), xlim=range(Data_Extrap[,'E_km']), ylim=range(Data_Extrap[,'N_km']))
   NN = nn2( data=loc_x[,c('E_km','N_km')], query=Data_Geostat[,c('E_km','N_km')], k=1 )
   NN_Extrap = nn2( data=loc_x[,c('E_km','N_km')], query=Data_Extrap[,c('E_km','N_km')], k=1 )
+  #a_x = 4 * tapply(Data_Extrap[,'propInWCGBTS'], INDEX=NN_Extrap$nn.idx, FUN=sum)  # Each cell is 2km x 2km = 4 km^2
   a_xl = matrix(NA, ncol=ncol(a_el), nrow=n_x)
   for(l in 1:ncol(a_xl)) a_xl[,l] = tapply(a_el[,l], INDEX=NN_Extrap$nn.idx, FUN=sum)
   
@@ -142,7 +144,8 @@ for(ConfigI in 1:length(ObsModel_Set)){
   dir.create(ConfigFile)
   
   # Data
-  TmbData = list("n_i"=nrow(Data_Geostat), "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=length(unique(Data_Geostat[,'Year'])), "n_v"=length(unique(Data_Geostat[,'Vessel'])), "n_j"=ncol(X_xj), "n_k"=ncol(Q_ik), "n_l"=ncol(a_xl), "Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=NN$nn.idx[,1]-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "n_tri"=nrow(MeshList$mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0_inv"=as(diag(1/diag(MeshList$spde$param.inla$M0)),"dgTMatrix"), "G0"=MeshList$spde$param.inla$M0, "G1"=MeshList$spde$param.inla$M1, "G2"=MeshList$spde$param.inla$M2)
+  TmbData = list("n_i"=nrow(Data_Geostat), "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=length(unique(Data_Geostat[,'Year'])), "n_v"=length(unique(Data_Geostat[,'Vessel'])), "n_j"=ncol(X_xj), "n_k"=ncol(Q_ik), "n_l"=ncol(a_xl), "Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=NN$nn.idx[,1]-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "spde"=list(), "G0"=MeshList$spde$param.inla$M0, "G1"=MeshList$spde$param.inla$M1, "G2"=MeshList$spde$param.inla$M2)
+  TmbData[['spde']] = list("n_s"=MeshList$spde$n.spde, "n_tri"=nrow(MeshList$mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0"=MeshList$spde$param.inla$M0, "G0_inv"=as(diag(1/diag(MeshList$spde$param.inla$M0)),"dgTMatrix"))
 
   # Parameters
   Parameters = list("ln_H_input"=c(0,0), "beta1_t"=qlogis(tapply(ifelse(TmbData$b_i>0,1,0),INDEX=TmbData$t_i,FUN=mean)), "gamma1_j"=rep(0,TmbData$n_j), "lambda1_k"=rep(0,TmbData$n_k), "logetaE1"=0, "logetaO1"=0, "logkappa1"=0, "logsigmaV1"=log(1), "logsigmaVT1"=log(1), "nu1_v"=rep(0,TmbData$n_v), "nu1_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput1_s"=rep(0,TmbData$n_s), "Epsiloninput1_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t), "beta2_t"=log(tapply(ifelse(TmbData$b_i>0,TmbData$b_i/TmbData$a_i,NA),INDEX=TmbData$t_i,FUN=mean,na.rm=TRUE)), "gamma2_j"=rep(0,TmbData$n_j), "lambda2_k"=rep(0,TmbData$n_k), "logetaE2"=0, "logetaO2"=0, "logkappa2"=0, "logsigmaV2"=log(1), "logsigmaVT2"=log(1), "logSigmaM"=c(log(5),qlogis(0.8),log(2),log(5)), "nu2_v"=rep(0,TmbData$n_v), "nu2_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput2_s"=rep(0,TmbData$n_s), "Epsiloninput2_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t))
@@ -151,10 +154,11 @@ for(ConfigI in 1:length(ObsModel_Set)){
   Random = c("Epsiloninput1_st", "Omegainput1_s", "Epsiloninput2_st", "Omegainput2_s", "nu1_v", "nu2_v", "nu1_vt", "nu2_vt")
 
   # Which parameters are turned off
-  Map = Make_Map( VesselConfig=VesselConfig, TmbData=TmbData, FieldConfig=FieldConfig, CovConfig=CovConfig, CovConception=CovConception, ObsModel=ObsModel, Aniso=Aniso)
+  Map = Make_Map( VesselConfig=VesselConfig, TmbData=TmbData, FieldConfig=FieldConfig, CovConfig=CovConfig, CovConception=FALSE, ObsModel=ObsModel, Aniso=Aniso)
 
   # Build object                                                              
-  dyn.load( paste0(system.file("executables", package="SpatialDeltaGLMM"),"/",dynlib(Version)) )
+  #dyn.load( paste0(system.file("executables", package="SpatialDeltaGLMM"),"/",dynlib(Version)) )
+  dyn.load( paste0("C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables","/",dynlib(Version)) )
   if(any(FieldConfig!=0)|any(VesselConfig!=0)){
     Obj <- MakeADFun(data=TmbData, parameters=Parameters, random=Random, hessian=FALSE, map=Map, inner.method="newton")
   }else{
@@ -201,6 +205,13 @@ for(ConfigI in 1:length(ObsModel_Set)){
   # Reports
   Report = Obj$report()                                      
   Sdreport = sdreport(Obj)
+  
+  # Save stuff
+  Save = list("Opt"=Opt, "Report"=Report, "Sdreport"=Sdreport)
+  save(Save, file=paste0(ConfigFile,"Save.RData"))
+  capture.output( Opt, file=paste0(ConfigFile,"Opt.txt"))
+  capture.output( summary(Sdreport), file=paste0(ConfigFile,"summary-Sdreport.txt"))
+  file.copy( from=paste0(system.file("executables", package="SpatialDeltaGLMM"),"/",dynlib(Version)), to=paste0(ConfigFile,Version,".cpp"), overwrite=TRUE)
   
 ################
 # Make diagnostic plots

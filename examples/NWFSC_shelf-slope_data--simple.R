@@ -41,10 +41,10 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   # In this case, it will calculate a coastwide index, and also a separate index for each state (although the state lines are approximate)
 strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   STRATA  NLat SLat MinDepth MaxDepth
-  Coastwide 49.0 32.0  55       366
-  CA        42.0 32.0  55       366
-  OR        46.0 42.0  55       366
-  WA        49.0 46.0  55       366
+  Coastwide 49.0 32.0  55       1280
+  CA        42.0 32.0  55       1280
+  OR        46.0 42.0  55       1280
+  WA        49.0 46.0  55       1280
 
 # Compile TMB software
   setwd( system.file("executables", package="SpatialDeltaGLMM") )
@@ -140,7 +140,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   Random = c("Epsiloninput1_st", "Omegainput1_s", "Epsiloninput2_st", "Omegainput2_s", "nu1_v", "nu2_v", "nu1_vt", "nu2_vt")
 
   # Which parameters are turned off
-  Map = Make_Map( VesselConfig=VesselConfig, TmbData=TmbData, FieldConfig=FieldConfig, CovConfig=CovConfig, CovConception=CovConception, ObsModel=ObsModel, Aniso=Aniso)
+  Map = Make_Map( VesselConfig=VesselConfig, TmbData=TmbData, FieldConfig=FieldConfig, CovConfig=CovConfig, CovConception=FALSE, ObsModel=ObsModel, Aniso=Aniso)
 
   # Build object                                                              
   dyn.load( paste0(system.file("executables", package="SpatialDeltaGLMM"),"/",dynlib(Version)) )
