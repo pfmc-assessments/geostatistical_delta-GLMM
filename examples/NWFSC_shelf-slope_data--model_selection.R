@@ -28,7 +28,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Version = "geo_index_v3b"
   n_x = c(250, 500, 1000, 2000)[3] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
-  CovConfig = c("Depth_km"=0, "Depth_km2"=0, "N_km"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
+  CovConfig = c("SST"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
   Q_Config = c("Pass"=0)   # Include pass as a fixed effect? (0: don't include; 1: do include)
   VesselConfig = c("Vessel"=0, "VesselYear"=1) # Include vessel or vessel-year interaction as a random effect? (0: don't include; 1: do include)
   #ObsModel = 2  # 0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture
@@ -59,7 +59,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
 # Prepare data
 ################
 
-# Read extrapolation data
+# Read extrapolation grid
   data( extrapolation_data )
   Data_Extrap <- extrapolation_data
 
@@ -71,7 +71,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
     a_el[,l] = ifelse( is.na(a_el[,l]), 0, 4*Data_Extrap[,'propInWCGBTS'])
   }
 
-# Convert extrapolation-data to an Eastings-Northings coordinate system
+# Convert extrapolation grid to an Eastings-Northings coordinate system
   Tmp = cbind('PID'=1,'POS'=1:nrow(Data_Extrap),'X'=Data_Extrap[,'Lon'],'Y'=Data_Extrap[,'Lat'])
   attr(Tmp,"projection") = "LL"
   attr(Tmp,"zone") = "10"
@@ -97,11 +97,11 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   attr(Tmp,"zone") = "10"
   tmpUTM = convUL(Tmp)                                                         #$ 
   Data_Geostat = cbind( Data_Geostat, 'E_tmp'=tmpUTM[,'X'], 'N_tmp'=tmpUTM[,'Y'])
-  # Find nearest knot in extrapolation data, and define covariates via nearest knot
+  # Find nearest knot in extrapolation grid, and define covariates via nearest knot
   NN_Tmp = nn2( data=Data_Extrap[,c('E_tmp','N_tmp')], query=Data_Geostat[,c('E_tmp','N_tmp')], k=1 )
   Data_Geostat = cbind( Data_Geostat, Data_Extrap[NN_Tmp$nn.idx,c('Depth_km','Depth_km2','E_km','N_km')] )
 
-# Calculate k-means centroids (but only once for all species)
+# Calculate k-means centroids
   setwd( DateFile ) 
   Kmeans = Calc_Kmeans(n_x=n_x, Kmeans_Config=Kmeans_Config, Data_Geostat=Data_Geostat, Data_Extrap=Data_Extrap)
   loc_x = Kmeans$centers
@@ -110,7 +110,6 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   Voronoi = calcVoronoi( xydata=cbind("X"=loc_x[,'E_km'],"Y"=loc_x[,'N_km']), xlim=range(Data_Extrap[,'E_km']), ylim=range(Data_Extrap[,'N_km']))
   NN = nn2( data=loc_x[,c('E_km','N_km')], query=Data_Geostat[,c('E_km','N_km')], k=1 )
   NN_Extrap = nn2( data=loc_x[,c('E_km','N_km')], query=Data_Extrap[,c('E_km','N_km')], k=1 )
-  #a_x = 4 * tapply(Data_Extrap[,'propInWCGBTS'], INDEX=NN_Extrap$nn.idx, FUN=sum)  # Each cell is 2km x 2km = 4 km^2
   a_xl = matrix(NA, ncol=ncol(a_el), nrow=n_x)
   for(l in 1:ncol(a_xl)) a_xl[,l] = tapply(a_el[,l], INDEX=NN_Extrap$nn.idx, FUN=sum)
   
@@ -144,8 +143,7 @@ for(ConfigI in 1:length(ObsModel_Set)){
   dir.create(ConfigFile)
   
   # Data
-  TmbData = list("n_i"=nrow(Data_Geostat), "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=length(unique(Data_Geostat[,'Year'])), "n_v"=length(unique(Data_Geostat[,'Vessel'])), "n_j"=ncol(X_xj), "n_k"=ncol(Q_ik), "n_l"=ncol(a_xl), "Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=NN$nn.idx[,1]-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "spde"=list(), "G0"=MeshList$spde$param.inla$M0, "G1"=MeshList$spde$param.inla$M1, "G2"=MeshList$spde$param.inla$M2)
-  TmbData[['spde']] = list("n_s"=MeshList$spde$n.spde, "n_tri"=nrow(MeshList$mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0"=MeshList$spde$param.inla$M0, "G0_inv"=as(diag(1/diag(MeshList$spde$param.inla$M0)),"dgTMatrix"))
+  TmbData = DataFn("n_i"=nrow(Data_Geostat), "n_x"=n_x, "n_t"=length(unique(Data_Geostat[,'Year'])), "n_v"=length(unique(Data_Geostat[,'Vessel'])), "n_j"=ncol(X_xj), "n_k"=ncol(Q_ik), "n_l"=ncol(a_xl), "Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=NN$nn.idx[,1]-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "MeshList"=MeshList)
 
   # Parameters
   Parameters = list("ln_H_input"=c(0,0), "beta1_t"=qlogis(tapply(ifelse(TmbData$b_i>0,1,0),INDEX=TmbData$t_i,FUN=mean)), "gamma1_j"=rep(0,TmbData$n_j), "lambda1_k"=rep(0,TmbData$n_k), "logetaE1"=0, "logetaO1"=0, "logkappa1"=0, "logsigmaV1"=log(1), "logsigmaVT1"=log(1), "nu1_v"=rep(0,TmbData$n_v), "nu1_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput1_s"=rep(0,TmbData$n_s), "Epsiloninput1_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t), "beta2_t"=log(tapply(ifelse(TmbData$b_i>0,TmbData$b_i/TmbData$a_i,NA),INDEX=TmbData$t_i,FUN=mean,na.rm=TRUE)), "gamma2_j"=rep(0,TmbData$n_j), "lambda2_k"=rep(0,TmbData$n_k), "logetaE2"=0, "logetaO2"=0, "logkappa2"=0, "logsigmaV2"=log(1), "logsigmaVT2"=log(1), "logSigmaM"=c(log(5),qlogis(0.8),log(2),log(5)), "nu2_v"=rep(0,TmbData$n_v), "nu2_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput2_s"=rep(0,TmbData$n_s), "Epsiloninput2_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t))
@@ -154,7 +152,7 @@ for(ConfigI in 1:length(ObsModel_Set)){
   Random = c("Epsiloninput1_st", "Omegainput1_s", "Epsiloninput2_st", "Omegainput2_s", "nu1_v", "nu2_v", "nu1_vt", "nu2_vt")
 
   # Which parameters are turned off
-  Map = Make_Map( VesselConfig=VesselConfig, TmbData=TmbData, FieldConfig=FieldConfig, CovConfig=CovConfig, CovConception=FALSE, ObsModel=ObsModel, Aniso=Aniso)
+  Map = Make_Map( VesselConfig=VesselConfig, TmbData=TmbData, FieldConfig=FieldConfig, CovConfig=CovConfig, ObsModel=ObsModel, Aniso=Aniso)
 
   # Build object                                                              
   #dyn.load( paste0(system.file("executables", package="SpatialDeltaGLMM"),"/",dynlib(Version)) )

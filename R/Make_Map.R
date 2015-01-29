@@ -1,5 +1,5 @@
 Make_Map <-
-function( VesselConfig, TmbData, FieldConfig, CovConfig, CovConception, ObsModel, Aniso){
+function( VesselConfig, TmbData, FieldConfig, CovConfig, CovConception=FALSE, ObsModel, Aniso){
   Map = list()
   if(VesselConfig['Vessel']==0){
     Map[["nu1_v"]] = factor(rep(NA,TmbData$n_v)) 
