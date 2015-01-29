@@ -143,7 +143,7 @@ for(ConfigI in 1:length(ObsModel_Set)){
   dir.create(ConfigFile)
   
   # Data
-  TmbData = DataFn("n_i"=nrow(Data_Geostat), "n_x"=n_x, "n_t"=length(unique(Data_Geostat[,'Year'])), "n_v"=length(unique(Data_Geostat[,'Vessel'])), "n_j"=ncol(X_xj), "n_k"=ncol(Q_ik), "n_l"=ncol(a_xl), "Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=NN$nn.idx[,1]-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "MeshList"=MeshList)
+  TmbData = Data_Fn("n_i"=nrow(Data_Geostat), "n_x"=n_x, "n_t"=length(unique(Data_Geostat[,'Year'])), "n_v"=length(unique(Data_Geostat[,'Vessel'])), "n_j"=ncol(X_xj), "n_k"=ncol(Q_ik), "n_l"=ncol(a_xl), "Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=NN$nn.idx[,1]-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "MeshList"=MeshList)
 
   # Parameters
   Parameters = list("ln_H_input"=c(0,0), "beta1_t"=qlogis(tapply(ifelse(TmbData$b_i>0,1,0),INDEX=TmbData$t_i,FUN=mean)), "gamma1_j"=rep(0,TmbData$n_j), "lambda1_k"=rep(0,TmbData$n_k), "logetaE1"=0, "logetaO1"=0, "logkappa1"=0, "logsigmaV1"=log(1), "logsigmaVT1"=log(1), "nu1_v"=rep(0,TmbData$n_v), "nu1_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput1_s"=rep(0,TmbData$n_s), "Epsiloninput1_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t), "beta2_t"=log(tapply(ifelse(TmbData$b_i>0,TmbData$b_i/TmbData$a_i,NA),INDEX=TmbData$t_i,FUN=mean,na.rm=TRUE)), "gamma2_j"=rep(0,TmbData$n_j), "lambda2_k"=rep(0,TmbData$n_k), "logetaE2"=0, "logetaO2"=0, "logkappa2"=0, "logsigmaV2"=log(1), "logsigmaVT2"=log(1), "logSigmaM"=c(log(5),qlogis(0.8),log(2),log(5)), "nu2_v"=rep(0,TmbData$n_v), "nu2_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput2_s"=rep(0,TmbData$n_s), "Epsiloninput2_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t))
@@ -164,8 +164,10 @@ for(ConfigI in 1:length(ObsModel_Set)){
   }
   Obj$control <- list(trace=1, parscale=1, REPORT=1, reltol=1e-12, maxit=100)
   
-  # Run first time
+  # Run first time -- marginal likelihood
   Obj$fn(Obj$par)
+  # Run first time -- gradient with respect to fixed effects
+  Obj$gr(Obj$par)
 
   # Declare upper and lower bounds for parameter search
   Lower = rep(-50, length(Obj$par))

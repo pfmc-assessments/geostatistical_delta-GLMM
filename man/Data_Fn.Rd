@@ -47,9 +47,6 @@ This function generates the named list that is then used by MakeADFun() to gener
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
 function (n_i, n_x, n_t, n_v, n_j, n_k, n_l, Aniso, FieldConfig, 
