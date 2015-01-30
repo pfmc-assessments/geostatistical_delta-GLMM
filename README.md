@@ -54,6 +54,8 @@ https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/e
 
 This code illustrates how to loop through different default model configurations, plot diagnostics for each model, and obtain the AIC for each model.
 
+Please also read the [Guidelines for West Coast users](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/wiki/West-Coast-Guidelines) wiki page, which is a living document and evolve over time as best practices become apparent.
+
 
 Further reading
 =============
