@@ -8,7 +8,7 @@
 
 # Install geostatistical delta-GLMM package
 library(devtools)
-install_github("nwfsc-assess/geostatistical_delta-GLMM")
+install_github("nwfsc-assess/geostatistical_delta-GLMM") # This is the developement version.  Please check GitHub for the latest release number.
 
 # Load libraries
 library(TMB)
