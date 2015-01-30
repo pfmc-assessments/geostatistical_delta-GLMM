@@ -1,8 +1,13 @@
 Data_Fn <-
 function( Aniso, FieldConfig, ObsModel, Options=c(0,0), b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q_ik, MeshList, CheckForErrors=TRUE ){
+  # Check for bad data entry
+  if( CheckForErrors==TRUE ){
+    if( !is.matrix(a_xl) | !is.matrix(X_xj) | !is.matrix(Q_ik) ) stop("a_xl, X_xj, and Q_ik should be matrices")
+    if( max(s_i)-1 > MeshList$mesh$n | min(s_i)<0 ) stop("s_i exceeds bounds in MeshList")
+  }
   # Determine dimensions
-  n_t = max(t_i) - 1
-  n_v = max(v_i) - 1
+  n_t = max(t_i) + 1
+  n_v = max(v_i) + 1
   n_i = length(b_i)
   n_x = nrow(a_xl)
   n_j = ncol(X_xj)
@@ -10,12 +15,12 @@ function( Aniso, FieldConfig, ObsModel, Options=c(0,0), b_i, a_i, v_i, s_i, t_i,
   n_l = ncol(a_xl)
   # Check for bad data entry
   if( CheckForErrors==TRUE ){
-    if( length(b_i)!=n_i | length(a_i)!=n_i | length(v_i)!=n_i | length(s_i)!=n_i | length(t_i)!=n_i ) error("b_i, a_i, v_i, s_i, or t_i doesn't have length n_i")
-    if( nrow(a_xl)!=n_x | ncol(a_xl)!=n_l ) error("a_xl has wrong dimensions")
-    if( nrow(X_xj)!=n_x | ncol(X_xj)!=n_j ) error("X_xj has wrong dimensions")
-    if( nrow(Q_ik)!=n_i | ncol(Q_ik)!=n_k ) error("Q_ik has wrong dimensions")
-    if( length(unique(t_i))!=n_t ) error("Please renumber t_i consecutively from 0 to final year minus 1")
-    if( length(unique(v_i))!=n_v ) error("Please renumber v_i consecutively from 0 to final vessel minus 1")
+    if( length(b_i)!=n_i | length(a_i)!=n_i | length(v_i)!=n_i | length(s_i)!=n_i | length(t_i)!=n_i ) stop("b_i, a_i, v_i, s_i, or t_i doesn't have length n_i")
+    if( nrow(a_xl)!=n_x | ncol(a_xl)!=n_l ) stop("a_xl has wrong dimensions")
+    if( nrow(X_xj)!=n_x | ncol(X_xj)!=n_j ) stop("X_xj has wrong dimensions")
+    if( nrow(Q_ik)!=n_i | ncol(Q_ik)!=n_k ) stop("Q_ik has wrong dimensions")
+    if( length(unique(t_i))!=n_t ) stop("Please renumber t_i consecutively from 0 to final year minus 1")
+    if( length(unique(v_i))!=n_v ) stop("Please renumber v_i consecutively from 0 to final vessel minus 1")
   }
   # Output tagged list
   if(Version=="geo_index_v3a"){
@@ -30,7 +35,7 @@ function( Aniso, FieldConfig, ObsModel, Options=c(0,0), b_i, a_i, v_i, s_i, t_i,
   }
   # Check for NAs
   if( CheckForErrors==TRUE ){
-    if( any(sapply(TmbData, FUN=function(Array){any(is.na(Array))})==TRUE) ) error("Please find and eliminate the NA from your inputs") 
+    if( any(sapply(Return, FUN=function(Array){any(is.na(Array))})==TRUE) ) stop("Please find and eliminate the NA from your inputs") 
   }
   return( Return )
 }
