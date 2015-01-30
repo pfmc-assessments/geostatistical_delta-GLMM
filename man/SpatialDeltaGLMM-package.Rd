@@ -15,14 +15,13 @@ SpatialDeltaGLMM:
 (3) is intended to improve analysis speed, replicability, peer-review, and interpretation of index standardization methods
 }
 \details{
-}
 \tabular{ll}{
 Package: \tab tmp\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
 Date: \tab 2014-10-25\cr
 License: \tab What license is it under?\cr
-}
+}}
 \author{
 James Thorson, 
 
