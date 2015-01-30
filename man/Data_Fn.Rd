@@ -1,22 +1,16 @@
 \name{Data_Fn}
 \alias{Data_Fn}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{ Generates input data list for use by TMB }
+\title{ Data inputs for TMB }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Generates a tagged list representing data inputs for use by TMB, and tries to check validity of inputs 
 }
 \usage{
 Data_Fn(n_i, n_x, n_t, n_v, n_j, n_k, n_l, Aniso, FieldConfig, ObsModel, Options, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q_ik, MeshList)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{n_i}{Number of observations in data set }
-  \item{n_x}{Number of 'polygons' (i.e., areas with constant density) used to approximate spatial variation (typically 500-2000)}
   \item{n_t}{Number of time periods (typically years) in data set}
   \item{n_v}{Number of vessels in data set}
-  \item{n_j}{Number of spatial covariates describing spatial variation in density}
-  \item{n_k}{Number of 'catchability' covariates describing variation in catch rates independent of density}
-  \item{n_l}{Number of indices to calculate. If you do not want to post-process results to calculate indices, set to 0}
   \item{Aniso}{Use geometric anisotropy for spatial variation (0=no, 1=yes) }
   \item{FieldConfig}{Vector describing what types of spatial variation to estimate}
   \item{ObsModel}{Integer for distribution of residual 'measurement' error (0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture)}
@@ -34,13 +28,27 @@ Data_Fn(n_i, n_x, n_t, n_v, n_j, n_k, n_l, Aniso, FieldConfig, ObsModel, Options
 \details{
 This function generates the named list that is then used by MakeADFun() to generate the TMB object.
 
-There are three matrix inputs (a_xl, X_xj, and Q_ik) that require specification.
+There are three matrix inputs (a_xl, X_xj, and Q_ik) that require specification:
 
-a_xl is used when post-processing results to calculate indices that are informed by subsets of the data. Using a conventional area-weighting approach, the l-th index is calculated as the sum of a_xl[x,l]*D_x[x], where D_x[x] is the density in each polygon x.  For example, if a_xl is a vector of 1s, then all polygons are calculated as having equal weight when calculating an index.
+* a_xl is used when post-processing results to calculate indices that are informed by subsets of the data. Using a conventional area-weighting approach, the l-th index is calculated as the sum of a_xl[x,l]*D_x[x], where D_x[x] is the density in each polygon x.  For example, if a_xl is a vector of 1s, then all polygons are calculated as having equal weight when calculating an index.
 
-X_xj is a matrix of j measured covariates that contribute to spatial variation in density. These covariates are then used when calculating density D_x for each polygon x. 
+* X_xj is a matrix of j measured covariates that contribute to spatial variation in density. These covariates are then used when calculating density D_x for each polygon x. 
 
-Q_ik is a matrix of k covariates that represent variation in catch rates but not variation in density, e.g., gear efficient and catchability.  This could include vessel horsepower, bottom temperature, etc.  These variables are NOT used when calculating D_x for each polygon x.  Instead, D_x is calculated for a reference value of Q_ik = 0 (i.e., when controling for variables in Q_ik). 
+* Q_ik is a matrix of k covariates that represent variation in catch rates but not variation in density, e.g., gear efficient and catchability.  This could include vessel horsepower, bottom temperature, etc.  These variables are NOT used when calculating D_x for each polygon x.  Instead, D_x is calculated for a reference value of Q_ik = 0 (i.e., when controling for variables in Q_ik). 
+
+This function also calculates five dimensions that are needed in TMB:
+
+* n_i is the number of observations in the data set
+
+* n_x is the number of polygons used to summarize spatial variation
+
+* n_s is the number of vertices ('knots') in the triangulated mesh calculated by Calc_Anisotropic_Mesh()
+
+* n_j is the number of covariates for spatial variation
+
+* n_k is the number of covariates describing variation in catchability among samples
+
+* n_l is the number of indices to be calculated via post-processing results 
 
 }
 \value{
