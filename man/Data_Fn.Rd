@@ -6,11 +6,9 @@
 Generates a tagged list representing data inputs for use by TMB, and tries to check validity of inputs 
 }
 \usage{
-Data_Fn(n_i, n_x, n_t, n_v, n_j, n_k, n_l, Aniso, FieldConfig, ObsModel, Options, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q_ik, MeshList)
+Data_Fn(Aniso, FieldConfig, ObsModel, Options, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q_ik, MeshList)
 }
 \arguments{
-  \item{n_t}{Number of time periods (typically years) in data set}
-  \item{n_v}{Number of vessels in data set}
   \item{Aniso}{Use geometric anisotropy for spatial variation (0=no, 1=yes) }
   \item{FieldConfig}{Vector describing what types of spatial variation to estimate}
   \item{ObsModel}{Integer for distribution of residual 'measurement' error (0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture)}
@@ -29,26 +27,20 @@ Data_Fn(n_i, n_x, n_t, n_v, n_j, n_k, n_l, Aniso, FieldConfig, ObsModel, Options
 This function generates the named list that is then used by MakeADFun() to generate the TMB object.
 
 There are three matrix inputs (a_xl, X_xj, and Q_ik) that require specification:
-
-* a_xl is used when post-processing results to calculate indices that are informed by subsets of the data. Using a conventional area-weighting approach, the l-th index is calculated as the sum of a_xl[x,l]*D_x[x], where D_x[x] is the density in each polygon x.  For example, if a_xl is a vector of 1s, then all polygons are calculated as having equal weight when calculating an index.
-
-* X_xj is a matrix of j measured covariates that contribute to spatial variation in density. These covariates are then used when calculating density D_x for each polygon x. 
-
-* Q_ik is a matrix of k covariates that represent variation in catch rates but not variation in density, e.g., gear efficient and catchability.  This could include vessel horsepower, bottom temperature, etc.  These variables are NOT used when calculating D_x for each polygon x.  Instead, D_x is calculated for a reference value of Q_ik = 0 (i.e., when controling for variables in Q_ik). 
+  \item{a_xl}{a matrix used when post-processing results to calculate indices that are informed by subsets of the data. Using a conventional area-weighting approach, the l-th index is calculated as the sum of a_xl[x,l]*D_x[x], where D_x[x] is the density in each polygon x.  For example, if a_xl is a vector of 1s, then all polygons are calculated as having equal weight when calculating an index. }
+  \item{X_xj}{a matrix of j measured covariates that contribute to spatial variation in density. These covariates are then used when calculating density D_x for each polygon x. } 
+  \item{Q_ik}{a matrix of k covariates that represent variation in catch rates but not variation in density, e.g., gear efficient and catchability.  This could include vessel horsepower, bottom temperature, etc.  These variables are NOT used when calculating D_x for each polygon x.  Instead, D_x is calculated for a reference value of Q_ik = 0 (i.e., when controling for variables in Q_ik). }
 
 This function also calculates five dimensions that are needed in TMB:
 
-* n_i is the number of observations in the data set
-
-* n_x is the number of polygons used to summarize spatial variation
-
-* n_s is the number of vertices ('knots') in the triangulated mesh calculated by Calc_Anisotropic_Mesh()
-
-* n_j is the number of covariates for spatial variation
-
-* n_k is the number of covariates describing variation in catchability among samples
-
-* n_l is the number of indices to be calculated via post-processing results 
+  \item{n_t}{Number of time periods (typically years) in data set}
+  \item{n_v}{Number of vessels in data set}
+  \item{n_i}{the number of observations in the data set}
+  \item{n_x}{the number of polygons used to summarize spatial variation}
+  \item{n_s}{the number of vertices ('knots') in the triangulated mesh calculated by Calc_Anisotropic_Mesh()}
+  \item{n_j}{the number of covariates for spatial variation }
+  \item{n_k}{the number of covariates describing variation in catchability among samples }
+  \item{n_l}{the number of indices to be calculated via post-processing results }
 
 }
 \value{
@@ -65,39 +57,6 @@ This function also calculates five dimensions that are needed in TMB:
 }
 \examples{
 
-## The function is currently defined as
-function (n_i, n_x, n_t, n_v, n_j, n_k, n_l, Aniso, FieldConfig, 
-    ObsModel, Options, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q_ik, 
-    n_tri, MeshList) 
-{
-    if (Version == "geo_index_v3b") {
-        Return = list(n_i = n_i, n_s = MeshList$spde$n.spde, 
-            n_x = n_x, n_t = n_t, n_v = n_v, n_j = n_j, n_k = n_k, 
-            n_l = n_l, Aniso = Aniso, FieldConfig = FieldConfig, 
-            ObsModel = ObsModel, Options = Options, b_i = b_i, 
-            a_i = a_i, v_i = v_i, s_i = s_i, t_i = t_i, a_xl = a_xl, 
-            X_xj = X_xj, Q_ik = Q_ik, n_tri = nrow(MeshList$mesh$graph$tv), 
-            Tri_Area = MeshList$Tri_Area, E0 = MeshList$E0, E1 = MeshList$E1, 
-            E2 = MeshList$E2, TV = MeshList$TV - 1, G0_inv = as(diag(1/diag(MeshList$spde$param.inla$M0)), 
-                "dgTMatrix"), G0 = MeshList$spde$param.inla$M0, 
-            G1 = MeshList$spde$param.inla$M1, G2 = MeshList$spde$param.inla$M2)
-    }
-    if (Version == "geo_index_v3c") {
-        Return = list(n_i = n_i, n_s = MeshList$spde$n.spde, 
-            n_x = n_x, n_t = n_t, n_v = n_v, n_j = n_j, n_k = n_k, 
-            n_l = n_l, Aniso = Aniso, FieldConfig = FieldConfig, 
-            ObsModel = ObsModel, Options = Options, b_i = b_i, 
-            a_i = a_i, v_i = v_i, s_i = s_i, t_i = t_i, a_xl = a_xl, 
-            X_xj = X_xj, Q_ik = Q_ik, spde = list(), G0 = MeshList$spde$param.inla$M0, 
-            G1 = MeshList$spde$param.inla$M1, G2 = MeshList$spde$param.inla$M2)
-        Return[["spde"]] = list(n_s = MeshList$spde$n.spde, n_tri = nrow(MeshList$mesh$graph$tv), 
-            Tri_Area = MeshList$Tri_Area, E0 = MeshList$E0, E1 = MeshList$E1, 
-            E2 = MeshList$E2, TV = MeshList$TV - 1, G0 = MeshList$spde$param.inla$M0, 
-            G0_inv = as(diag(1/diag(MeshList$spde$param.inla$M0)), 
-                "dgTMatrix"))
-    }
-    return(Return)
-  }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
