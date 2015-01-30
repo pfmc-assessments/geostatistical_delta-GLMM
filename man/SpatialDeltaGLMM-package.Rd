@@ -27,9 +27,10 @@ Please see https://github.com/nwfsc-assess/geostatistical_delta-GLMM for an up-t
 }
 \keyword{ package }
 \seealso{
-\code{\link{<Data_Fn>}} 
-\code{\link{<Param_Fn>}} 
+See \code{\link{Data_Fn}} for an explanation of data inputs
+ 
+See \code{\link{Param_Fn}} for an explanation of coefficients (fixed and random effects) estimated by TMB 
 }
 \examples{
-Please see https://github.com/nwfsc-assess/geostatistical_delta-GLMM/tree/master/examples for examples of how to run
+Please see https://github.com/nwfsc-assess/geostatistical_delta-GLMM/tree/master/examples for examples of how to prepare data, run the model, and process results
 }
