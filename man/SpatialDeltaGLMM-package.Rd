@@ -12,7 +12,7 @@ SpatialDeltaGLMM:
 
 (2) built in diagnostic functions and model-comparison tools, and 
 
-(3) is intended to improve analysis speed, replicability, peer-review, and interpretation of index standardization methods}
+(3) is intended to improve analysis speed, replicability, peer-review, and interpretation of index standardization methods
 }
 \details{
 }
