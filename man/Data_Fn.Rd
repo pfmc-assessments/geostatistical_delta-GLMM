@@ -26,6 +26,8 @@ Data_Fn(Aniso, FieldConfig, ObsModel, Options, b_i, a_i, v_i, s_i, t_i, a_xl, X_
 \details{
 This function generates the named list that is then used by MakeADFun() to generate the TMB object.
 
+}
+\value{
 There are three matrix inputs (a_xl, X_xj, and Q_ik) that require specification:
   \item{a_xl}{a matrix used when post-processing results to calculate indices that are informed by subsets of the data. Using a conventional area-weighting approach, the l-th index is calculated as the sum of a_xl[x,l]*D_x[x], where D_x[x] is the density in each polygon x.  For example, if a_xl is a vector of 1s, then all polygons are calculated as having equal weight when calculating an index. }
   \item{X_xj}{a matrix of j measured covariates that contribute to spatial variation in density. These covariates are then used when calculating density D_x for each polygon x. } 
@@ -42,8 +44,6 @@ This function also calculates five dimensions that are needed in TMB:
   \item{n_k}{the number of covariates describing variation in catchability among samples }
   \item{n_l}{the number of indices to be calculated via post-processing results }
 
-}
-\value{
 }
 \references{
 }
