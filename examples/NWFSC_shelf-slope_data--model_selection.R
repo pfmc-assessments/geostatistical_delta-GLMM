@@ -123,7 +123,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
     
 # Make catchability matrix (Q_i)
   if( sum(Q_Config)==0 ){
-    Q_ik = matrix(0, ncol=1, nrow=nrow(Data_Extrap))
+    Q_ik = matrix(0, ncol=1, nrow=nrow(Data_Geostat))
   }else{
     ## NOT IMPLEMENTED IN EXAMPLE ##
   }
