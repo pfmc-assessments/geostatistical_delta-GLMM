@@ -75,10 +75,10 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   Data_Extrap = cbind( Data_Extrap, 'E_tmp'=tmpUTM[,'X'], 'N_tmp'=tmpUTM[,'Y'], 'Include'=(Data_Extrap[,'Cowcod']==0 & Data_Extrap[,'Ngdc_m']<(-35)))
 
 # Read or simulate trawl data
-  if(Data_Set=="NWFSC"){
-    data( Example_NWFSC_shelf_slope_trawl )
-    NWFSC_Trawl <- Example_NWFSC_shelf_slope_trawl
-    Data_Geostat = cbind( "Catch_KG"=NWFSC_Trawl[,'HAUL_WT_KG'], "Year"=as.numeric(sapply(NWFSC_Trawl[,'PROJECT_CYCLE'],FUN=function(Char){strsplit(as.character(Char)," ")[[1]][2]})), "Vessel"=NWFSC_Trawl[,"VESSEL"], "AreaSwept_km2"=NWFSC_Trawl[,"AREA_SWEPT_HA"]/1e2, "Lat"=NWFSC_Trawl[,'BEST_LAT_DD'], "Lon"=NWFSC_Trawl[,'BEST_LON_DD'])
+  if(Data_Set=="Canary_rockfish"){
+    data( WCGBTS_Canary_example )
+    NWFSC_Trawl <- WCGBTS_Canary_example
+    Data_Geostat = cbind( "Catch_KG"=NWFSC_Trawl[,'HAUL_WT_KG'], "Year"=as.numeric(sapply(NWFSC_Trawl[,'PROJECT_CYCLE'],FUN=function(Char){strsplit(as.character(Char)," ")[[1]][2]})), "Vessel"=NWFSC_Trawl[,"VESSEL"], "AreaSwept_km2"=NWFSC_Trawl[,"AREA_SWEPT_HA"]/1e2, "Lat"=NWFSC_Trawl[,'BEST_LAT_DD'], "Lon"=NWFSC_Trawl[,'BEST_LON_DD'], "Pass"=NWFSC_Trawl[,'PASS']-1.5)
   }
   if(Data_Set=="Sim"){ #names(Sim_Settings)
     Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, MakePlot=TRUE)
@@ -120,7 +120,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   if( sum(Q_Config)==0 ){
     Q_ik = matrix(0, ncol=1, nrow=nrow(Data_Geostat))
   }else{
-    ## NOT IMPLEMENTED IN EXAMPLE ##
+    Q_ik = as.matrix(Data_Geostat[,names(Q_Config)[which(Q_Config==1)],drop=FALSE])
   }
     
 # Make mesh and info for anisotropy
