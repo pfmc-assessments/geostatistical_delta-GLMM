@@ -199,7 +199,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   Save = list("Opt"=Opt, "Report"=Report, "Sdreport"=Sdreport)
   save(Save, file=paste0(ConfigFile,"Save.RData"))
   capture.output( Opt, file=paste0(ConfigFile,"Opt.txt"))
-  capture.output( summary(Sdreport), file=paste0(ConfigFile,"summary-Sdreport.txt"))
+  capture.output( Sdreport file=paste0(ConfigFile,"Sdreport.txt"))
   file.copy( from=paste0(system.file("executables", package="SpatialDeltaGLMM"),"/",dynlib(Version)), to=paste0(ConfigFile,Version,".cpp"), overwrite=TRUE)
   
 ################
