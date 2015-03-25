@@ -203,6 +203,7 @@ for(ConfigI in 1:length(ObsModel_Set)){
   # Run model
   Opt = nlminb(start=Obj$par, objective=Obj$fn, gradient=Obj$gr, lower=Lower, upper=Upper, control=list(eval.max=1e4, iter.max=1e4, trace=1, rel.tol=c(1e-8,1e-10,1e-14)[ConvergeTol[2]]))  # , rel.tol=1e-20
   Opt[["final_diagnostics"]] = cbind( "Name"=names(Opt$par), "Lwr"=Lower, "Est"=Opt$par, "Upr"=Upper, "Gradient"=Obj$gr(Opt$par) )
+  capture.output( Opt, file=paste0(DateFile,"Opt.txt"))
     
   # Reports
   Report = Obj$report()                                      

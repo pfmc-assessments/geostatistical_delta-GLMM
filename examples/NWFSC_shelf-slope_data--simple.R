@@ -189,10 +189,18 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   # Run model
   Opt = nlminb(start=Obj$par, objective=Obj$fn, gradient=Obj$gr, lower=Lower, upper=Upper, control=list(eval.max=1e4, iter.max=1e4, trace=1, rel.tol=c(1e-8,1e-10,1e-14)[ConvergeTol[2]]))  # , rel.tol=1e-20
   Opt[["final_diagnostics"]] = cbind( "Name"=names(Opt$par), "Lwr"=Lower, "Est"=Opt$par, "Upr"=Upper, "Gradient"=Obj$gr(Opt$par) )
+  capture.output( Opt, file=paste0(DateFile,"Opt.txt"))
     
   # Reports
   Report = Obj$report()                                      
   Sdreport = sdreport(Obj)
+  
+  # Save stuff
+  Save = list("Opt"=Opt, "Report"=Report, "Sdreport"=Sdreport)
+  save(Save, file=paste0(ConfigFile,"Save.RData"))
+  capture.output( Opt, file=paste0(ConfigFile,"Opt.txt"))
+  capture.output( summary(Sdreport), file=paste0(ConfigFile,"summary-Sdreport.txt"))
+  file.copy( from=paste0(system.file("executables", package="SpatialDeltaGLMM"),"/",dynlib(Version)), to=paste0(ConfigFile,Version,".cpp"), overwrite=TRUE)
   
 ################
 # Make diagnostic plots
