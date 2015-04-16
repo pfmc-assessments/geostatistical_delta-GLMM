@@ -1,10 +1,11 @@
 Calc_Kmeans <-
-function(n_x, Kmeans_Config, Data_Geostat, Data_Extrap){
+function(n_x, Kmeans_Config, Data_Geostat, Data_Extrap, DirPath=NULL, Save_Results=TRUE){
   old.options <- options()
   options( "warn" = -1 ) 
   on.exit( options(old.options) )   
-  if( paste0("Kmeans-",n_x,".RData") %in% list.files(getwd()) ){
-    load( file=paste0("Kmeans-",n_x,".RData") )
+  if( is.null(DirPath) ) DirPath = getwd()
+  if( paste0("Kmeans-",n_x,".RData") %in% list.files(DirPath) ){
+    load( file=paste0(DirPath,"/","Kmeans-",n_x,".RData") )
   }else{
     Kmeans = list( "tot.withinss"=Inf )
     for(i in 1:Kmeans_Config[["nstart"]]){       
@@ -19,6 +20,7 @@ function(n_x, Kmeans_Config, Data_Geostat, Data_Extrap){
         Kmeans = Tmp
       }
     }
+    if(Save_Results==TRUE) save( Kmeans, file=paste0(DirPath,"/","Kmeans-",n_x,".RData"))
   }
   return( Kmeans )
 }
