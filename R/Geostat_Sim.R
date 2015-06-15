@@ -1,12 +1,20 @@
 Geostat_Sim <-
 function(Sim_Settings, MakePlot=TRUE){
+  # Terminology
+  # O: Spatial component; E: spatiotemporal component
+  # O1: presence-absence; O2: positive catch rate
+  # P1 : linear predictor of presence/absence in link-space
+  # R1: predictor of presence/absence in natural-space (transformed out of link-space)
+  # v_i: vessel for sample i
+  # t_i: year for sample i
+
   # Initialize GM models
   model_O1 = RMgauss(var=Sim_Settings[['SigmaO1']]^2, scale=Sim_Settings[['Range1']])
   model_E1 = RMgauss(var=Sim_Settings[['SigmaE1']]^2, scale=Sim_Settings[['Range1']])
   model_O2 = RMgauss(var=Sim_Settings[['SigmaO2']]^2, scale=Sim_Settings[['Range2']])
   model_E2 = RMgauss(var=Sim_Settings[['SigmaE2']]^2, scale=Sim_Settings[['Range2']])
 
-  # Generate indices
+  # Generate locations, years, vessel for each sample i
   s_i = sample(1:nrow(Data_Extrap), size=Sim_Settings[['Nyears']]*Sim_Settings[['Nsamp_per_year']]) #, nrow=Sim_Settings[['Nsamp_per_year']], ncol=Sim_Settings[['Nyears']])
   loc_i = Data_Extrap[s_i,c('E_km','N_km','Lat','Lon')]
   t_i = rep( 1:Sim_Settings[['Nyears']], each=Sim_Settings[['Nsamp_per_year']])
@@ -20,13 +28,14 @@ function(Sim_Settings, MakePlot=TRUE){
     E1_i[which(t_i==t)] = RFsimulate(model=model_E1, x=loc_i[which(t_i==t),'E_km'], y=loc_i[which(t_i==t),'N_km'])@data[,1]
     E2_i[which(t_i==t)] = RFsimulate(model=model_E2, x=loc_i[which(t_i==t),'E_km'], y=loc_i[which(t_i==t),'N_km'])@data[,1]
   }
-  X_i = Data_Extrap[s_i,c('Depth_km','Depth_km2','Dist_sqrtkm')]
+  X_ij = as.matrix(Data_Extrap[s_i,c('Depth_km','Depth_km2','Rock_dist_')])
+  X_ij = ifelse( is.na(X_ij), outer(rep(1,nrow(X_ij)),colMeans(X_ij,na.rm=TRUE)), X_ij)
   Vessel_vyc = array( rnorm( n=4*Sim_Settings[['Nyears']]*2, mean=0, sd=Sim_Settings[['SigmaVY1']]), dim=c(4,Sim_Settings[['Nyears']],2))
 
   # Calculate expected values, and simulate
-  P1_i = O1_i + E1_i + as.matrix(X_i)%*%unlist(Sim_Settings[c('Depth_km','Depth_km2','Dist_sqrtkm')])
+  P1_i = O1_i + E1_i + as.matrix(X_ij)%*%unlist(Sim_Settings[c('Depth_km','Depth_km2','Dist_sqrtkm')])
   R1_i = plogis( P1_i + Vessel_vyc[v_i[which(t_i==t)],t,1] )
-  P2_i = O1_i + E1_i + as.matrix(X_i)%*%unlist(Sim_Settings[c('Depth_km','Depth_km2','Dist_sqrtkm')])
+  P2_i = O1_i + E1_i + as.matrix(X_ij)%*%unlist(Sim_Settings[c('Depth_km','Depth_km2','Dist_sqrtkm')])
   R2_i = exp( P2_i + Vessel_vyc[v_i[which(t_i==t)],t,2] )
   CPUE_i = rlnorm( n=length(R2_i), meanlog=log(R2_i), sdlog=Sim_Settings[['SigmaM']]) * rbinom( n=length(R1_i), size=1, prob=R1_i )
   Data_Geostat = cbind( "Catch_KG"=CPUE_i, "Year"=t_i, "Vessel"=v_i, "AreaSwept_km2"=1/1e2, "Lat"=loc_i[,'Lat'], "Lon"=loc_i[,'Lon'] )
