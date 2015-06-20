@@ -104,7 +104,8 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
 
 # Calculate k-means centroids
   setwd( DateFile ) 
-  Kmeans = Calc_Kmeans(n_x=n_x, loc_orig=list(Data_Geostat,Data_Extrap)[[ifelse(Kmeans_Config[["Locs"]]=="Samples",1,2)]], nstart=Kmeans_Config[["nstart"]], iter.max=Kmeans_Config[["iter.max"]])
+  loc_orig = list(Data_Geostat,Data_Extrap)[[ifelse(Kmeans_Config[["Locs"]]=="Samples",1,2)]][,c("E_km", "N_km")]
+  Kmeans = Calc_Kmeans(n_x=n_x, loc_orig=loc_orig, nstart=Kmeans_Config[["nstart"]], iter.max=Kmeans_Config[["iter.max"]])
   loc_x = Kmeans$centers
 
 # Calculate areas and average characteristics
@@ -226,7 +227,7 @@ for(ConfigI in 1:length(ObsModel_Set)){
   }
 
   # Plot surface
-  PlotMap_Fn(MappingDetails=list("state", c("Oregon","Washington","California")), Report=Report, MapSizeRatio=c("Height(in)"=4,"Width(in)"=1.55), Xlim=c(-126,-117), Ylim=c(32,49), FileName=paste0(ConfigFile,"Field_"), Year_Set=Year_Set, Rotate=20, mfrow=c(3,4), mar=c(0,0,2,0), oma=c(3.5,3.5,0,0))
+  PlotResultsOnMap_Fn(MappingDetails=list("state",c("Oregon","Washington","California")), Report=Report, MapSizeRatio=c("Height(in)"=4,"Width(in)"=1.55), Xlim=c(-126,-117), Ylim=c(32,49), FileName=paste0(ConfigFile,"Field_"), Year_Set=Year_Set, Rotate=20, mfrow=c(3,4), mar=c(0,0,2,0), oma=c(3.5,3.5,0,0))
 
   # Covariate effect
   PlotCov_Fn(Report=Report, NN_Extrap=NN_Extrap, X_xj=X_xj, FileName=paste0(ConfigFile,"Cov_"))

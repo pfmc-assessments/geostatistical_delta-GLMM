@@ -3,7 +3,7 @@ function(n_x, loc_orig, nstart=100, iter.max=1000, DirPath=NULL, Save_Results=TR
   old.options <- options()
   options( "warn" = -1 )
   on.exit( options(old.options) )
-  if( is.null(DirPath) ) DirPath = getwd()
+  if( is.null(DirPath) ) DirPath = paste0(getwd(),"/")
   if( length(unique(paste(loc_orig[,1],loc_orig[,2],sep="_")))<=n_x ){
     Unique = unique(paste(loc_orig[,1],loc_orig[,2],sep="_"))
     Kmeans = NULL

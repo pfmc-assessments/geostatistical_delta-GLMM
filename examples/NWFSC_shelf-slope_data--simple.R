@@ -23,10 +23,10 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Settings
 ###############
 
-  Data_Set = c("Canary_rockfish", "Sim")[2]
+  Data_Set = c("Canary_rockfish", "Sim")[1]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3b"
-  n_x = c(250, 500, 1000, 2000)[3] # Number of stations
+  n_x = c(250, 500, 1000, 2000)[1] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
   CovConfig = c("SST"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
   Q_Config = c("Pass"=1)
@@ -99,7 +99,8 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
 
 # Calculate k-means centroids (but only once for all species)
   setwd( DateFile )                                                                                                  
-  Kmeans = Calc_Kmeans(n_x=n_x, loc_orig=list(Data_Geostat,Data_Extrap)[[ifelse(Kmeans_Config[["Locs"]]=="Samples",1,2)]], nstart=Kmeans_Config[["nstart"]], iter.max=Kmeans_Config[["iter.max"]])
+  loc_orig = list(Data_Geostat,Data_Extrap)[[ifelse(Kmeans_Config[["Locs"]]=="Samples",1,2)]][,c("E_km", "N_km")]
+  Kmeans = Calc_Kmeans(n_x=n_x, loc_orig=loc_orig, nstart=Kmeans_Config[["nstart"]], iter.max=Kmeans_Config[["iter.max"]])
   loc_x = Kmeans$centers
 
 # Calculate areas and average characteristics
@@ -212,7 +213,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   }
 
   # Plot surface
-  PlotMap_Fn(MappingDetails=list("state", c("Oregon","Washington","California")), Report=Report, MapSizeRatio=c("Height(in)"=4,"Width(in)"=1.55), Xlim=c(-126,-117), Ylim=c(32,49), FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=20, mfrow=c(3,4), mar=c(0,0,2,0), oma=c(3.5,3.5,0,0))
+  PlotResultsOnMap_Fn(MappingDetails=list("state",c("Oregon","Washington","California")), Report=Report, MapSizeRatio=c("Height(in)"=4,"Width(in)"=1.55), Xlim=c(-126,-117), Ylim=c(32,49), FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=20, mfrow=c(3,4), mar=c(0,0,2,0), oma=c(3.5,3.5,0,0))
 
   # Covariate effect
   PlotCov_Fn(Report=Report, NN_Extrap=NN_Extrap, X_xj=X_xj, FileName=paste0(DateFile,"Cov_"))
