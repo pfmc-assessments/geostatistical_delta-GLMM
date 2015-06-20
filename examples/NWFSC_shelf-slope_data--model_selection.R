@@ -104,7 +104,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
 
 # Calculate k-means centroids
   setwd( DateFile ) 
-  Kmeans = Calc_Kmeans(n_x=n_x, Kmeans_Config=Kmeans_Config, Data_Geostat=Data_Geostat, Data_Extrap=Data_Extrap)
+  Kmeans = Calc_Kmeans(n_x=n_x, loc_orig=list(Data_Geostat,Data_Extrap)[[ifelse(Kmeans_Config[["Locs"]]=="Samples",1,2)]], nstart=Kmeans_Config[["nstart"]], iter.max=Kmeans_Config[["iter.max"]])
   loc_x = Kmeans$centers
 
 # Calculate areas and average characteristics

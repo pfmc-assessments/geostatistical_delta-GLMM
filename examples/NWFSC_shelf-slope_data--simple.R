@@ -35,7 +35,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Aniso = 1 # 0=No; 1=Yes
   Kmeans_Config = list( "Locs"=c("Samples","Domain")[1], "nstart"=100, "iter.max"=1e3)     # Samples: Do K-means on trawl locs; Domain: Do K-means on extrapolation grid
   ConvergeTol = c(1,2) # 1:Default; 2:Increased; 3:High
-
+                                                   
 # Decide on strata for use when calculating indices
   # In this case, it will calculate a coastwide index, and also a separate index for each state (although the state lines are approximate)
 strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
@@ -98,8 +98,8 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   Data_Geostat = cbind( Data_Geostat, Data_Extrap[NN_Tmp$nn.idx,c('Depth_km','Depth_km2','E_km','N_km')] )
 
 # Calculate k-means centroids (but only once for all species)
-  setwd( DateFile ) 
-  Kmeans = Calc_Kmeans(n_x=n_x, Kmeans_Config=Kmeans_Config, Data_Geostat=Data_Geostat, Data_Extrap=Data_Extrap)
+  setwd( DateFile )                                                                                                  
+  Kmeans = Calc_Kmeans(n_x=n_x, loc_orig=list(Data_Geostat,Data_Extrap)[[ifelse(Kmeans_Config[["Locs"]]=="Samples",1,2)]], nstart=Kmeans_Config[["nstart"]], iter.max=Kmeans_Config[["iter.max"]])
   loc_x = Kmeans$centers
 
 # Calculate areas and average characteristics

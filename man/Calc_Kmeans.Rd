@@ -6,7 +6,7 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-Calc_Kmeans(n_x, Kmeans_Config, Data_Geostat, Data_Extrap)
+Calc_Kmeans(n_x, loc_orig, nstart=100, iter.max=1000, DirPath=NULL, Save_Results=TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
