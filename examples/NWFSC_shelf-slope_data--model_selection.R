@@ -227,6 +227,7 @@ for(ConfigI in 1:length(ObsModel_Set)){
   }
 
   # Plot surface
+  par( mfrow=c(3,4) )
   PlotResultsOnMap_Fn(MappingDetails=list("state",c("Oregon","Washington","California")), Report=Report, MapSizeRatio=c("Height(in)"=4,"Width(in)"=1.55), Xlim=c(-126,-117), Ylim=c(32,49), FileName=paste0(ConfigFile,"Field_"), Year_Set=Year_Set, Rotate=20, mfrow=c(3,4), mar=c(0,0,2,0), oma=c(3.5,3.5,0,0))
 
   # Covariate effect
