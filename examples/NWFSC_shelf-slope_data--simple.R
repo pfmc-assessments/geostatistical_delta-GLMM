@@ -1,4 +1,5 @@
 
+# setwd("C:/Users/James.Thorson/Desktop/")
 
 # Install TMB
 # Must be installed from: https://github.com/kaskr/adcomp
@@ -25,11 +26,11 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 
   Data_Set = c("Canary_rockfish", "Sim")[1]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
-  Version = "geo_index_v3b"
-  n_x = c(250, 500, 1000, 2000)[3] # Number of stations
+  Version = "geo_index_v3c"
+  n_x = c(250, 500, 1000, 2000)[2] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
   CovConfig = c("SST"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
-  Q_Config = c("Pass"=1)
+  Q_Config = c("Pass"=0)
   VesselConfig = c("Vessel"=0, "VesselYear"=1)
   ObsModel = 2  # 0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture
   Aniso = 1 # 0=No; 1=Yes
@@ -46,7 +47,9 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   WA        49.0 46.0  55       1280
 
 # Compile TMB software
-  setwd( system.file("executables", package="SpatialDeltaGLMM") )
+  #TmbFile = system.file("executables", package="SpatialDeltaGLMM")
+  TmbFile = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
+  setwd( TmbFile )
   compile( paste(Version,".cpp",sep="") )
       
 
@@ -133,6 +136,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
 ################
 
   # Data
+  #b_i=Data_Geostat[,'Catch_KG']; a_i=Data_Geostat[,'AreaSwept_km2']; v_i=as.numeric(Data_Geostat[,'Vessel'])-1; s_i=NN$nn.idx[,1]-1; t_i=Data_Geostat[,'Year']-min(Data_Geostat[,'Year'])
   TmbData = Data_Fn("Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=NN$nn.idx[,1]-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "MeshList"=MeshList)
 
   # Parameters
@@ -145,7 +149,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   Map = Make_Map( VesselConfig=VesselConfig, TmbData=TmbData, FieldConfig=FieldConfig, CovConfig=CovConfig, ObsModel=ObsModel, Aniso=Aniso)
 
   # Build object                                                              
-  dyn.load( paste0(system.file("executables", package="SpatialDeltaGLMM"),"/",dynlib(Version)) )
+  dyn.load( paste0(TmbFile,"/",dynlib(Version)) )
   if(any(FieldConfig!=0)|any(VesselConfig!=0)){
     Obj <- MakeADFun(data=TmbData, parameters=Parameters, random=Random, hessian=FALSE, map=Map, inner.method="newton")
   }else{
@@ -198,10 +202,10 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   
   # Save stuff
   Save = list("Opt"=Opt, "Report"=Report, "Sdreport"=Sdreport)
-  save(Save, file=paste0(ConfigFile,"Save.RData"))
-  capture.output( Opt, file=paste0(ConfigFile,"Opt.txt"))
-  capture.output( Sdreport file=paste0(ConfigFile,"Sdreport.txt"))
-  file.copy( from=paste0(system.file("executables", package="SpatialDeltaGLMM"),"/",dynlib(Version)), to=paste0(ConfigFile,Version,".cpp"), overwrite=TRUE)
+  save(Save, file=paste0(DateFile,"Save.RData"))
+  capture.output( Opt, file=paste0(DateFile,"Opt.txt"))
+  capture.output( Sdreport, file=paste0(DateFile,"Sdreport.txt"))
+  file.copy( from=paste0(system.file("executables", package="SpatialDeltaGLMM"),"/",dynlib(Version)), to=paste0(DateFile,Version,".cpp"), overwrite=TRUE)
   
 ################
 # Make diagnostic plots
