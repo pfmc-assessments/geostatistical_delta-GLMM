@@ -2,6 +2,8 @@ QQ_Fn <-
 function(TmbData, Report, FileName_PP=NULL, FileName_Phist=NULL, FileName_QQ=NULL, FileName_Qhist=NULL){
   attach(TmbData)
   attach(Report)
+  on.exit( detach(TmbData) )
+  on.exit( detach(Report), add=TRUE )
   pow = function(a,b) a^b
   Which = which(b_i>0)
   Q = rep(NA, length(Which) ) # vector to track quantiles for each observation
@@ -63,8 +65,6 @@ function(TmbData, Report, FileName_PP=NULL, FileName_Phist=NULL, FileName_QQ=NUL
   if( !is.null(FileName_Qhist) ) dev.off()
   
   # Return stuff
-  detach(TmbData)
-  detach(Report)
   Return = list( "Q"=Q )
   return( Return )
 }

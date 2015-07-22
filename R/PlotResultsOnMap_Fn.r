@@ -40,6 +40,6 @@ function(MappingDetails, Report, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
       Mat = Eps2_it # maybe should be exponentiated?
     }
     # Do plot
-    PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[RespI]), Year_Set=Year_Set, Rotate=Rotate, Format=Format, Res=Res)
+    PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[RespI]), Year_Set=Year_Set, Rotate=Rotate, Format=Format, Res=Res, ...)
   }
 }

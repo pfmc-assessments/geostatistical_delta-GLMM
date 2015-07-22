@@ -24,7 +24,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Settings
 ###############
 
-  Data_Set = c("Canary_rockfish", "Sim")[1]
+  Data_Set = c("Canary_rockfish", "Sim")[2]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3c"
   n_x = c(250, 500, 1000, 2000)[2] # Number of stations
@@ -136,7 +136,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
 ################
 
   # Data
-  #b_i=Data_Geostat[,'Catch_KG']; a_i=Data_Geostat[,'AreaSwept_km2']; v_i=as.numeric(Data_Geostat[,'Vessel'])-1; s_i=NN$nn.idx[,1]-1; t_i=Data_Geostat[,'Year']-min(Data_Geostat[,'Year'])
+  #Data_Geostat[,'AreaSwept_km2'] = Data_Geostat[,'AreaSwept_km2'] * exp(rnorm(nrow(Data_Geostat),mean=0,sd=0.1))
   TmbData = Data_Fn("Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=NN$nn.idx[,1]-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "MeshList"=MeshList)
 
   # Parameters
