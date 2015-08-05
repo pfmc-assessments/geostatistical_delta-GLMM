@@ -29,7 +29,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Version = "geo_index_v3c"
   n_x = c(250, 500, 1000, 2000)[2] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
-  CovConfig = c("SST"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
+  CovConfig = c("SST"=0, "RandomNoise"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
   Q_Config = c("Pass"=0)
   VesselConfig = c("Vessel"=0, "VesselYear"=1)
   ObsModel = 2  # 0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture
@@ -116,8 +116,9 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
 # Make design matrix (X_xj)
   if( sum(CovConfig)==0 ){
     X_xj = cbind( "Dummy"=rep(0,n_x) )
-  }else{
-    ## NOT IMPLEMENTED IN EXAMPLE ##  
+  }
+  if( CovConfig['RandomNoise']==1 )
+    X_xj = matrix( rnorm(n_x), ncol=1 )  
   }
     
 # Make catchability matrix (Q_i)
