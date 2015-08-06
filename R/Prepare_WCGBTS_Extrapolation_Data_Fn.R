@@ -1,4 +1,4 @@
-Prepare_WCGBTS_data_Fn <-
+Prepare_WCGBTS_Extrapolation_Data_Fn <-
 function( strata.limits ){
   # Read extrapolation data
   data( extrapolation_data )

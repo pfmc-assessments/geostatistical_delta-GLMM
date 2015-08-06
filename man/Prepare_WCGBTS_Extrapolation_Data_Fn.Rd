@@ -8,7 +8,7 @@ Function to load and process extrapolation grid for West Coast groundfish bottom
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-Prepare_WCGBTS_data_Fn(strata.limits)
+Prepare_WCGBTS_Extrapolation_Data_Fn(strata.limits)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
