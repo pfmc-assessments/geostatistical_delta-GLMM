@@ -1,5 +1,6 @@
 Calc_Kmeans <-
-function(n_x, loc_orig, nstart=100, iter.max=1000, DirPath=NULL, Save_Results=TRUE){
+function(n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=NULL, Save_Results=TRUE){
+  if( !is.null(randomseed) ) set.seed( round(randomseed) )
   old.options <- options()
   options( "warn" = -1 )
   on.exit( options(old.options) )
