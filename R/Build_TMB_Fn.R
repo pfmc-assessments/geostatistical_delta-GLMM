@@ -1,5 +1,5 @@
 Build_TMB_Fn <-
-function( TmbData, TmbFile, Version, VesselConfig, CovConfig, Aniso, ConvergeTol=2, Parameters=NULL ){
+function( TmbData, TmbFile, Version, VesselConfig, CovConfig, Q_Config, Aniso, ConvergeTol=2, Parameters=NULL ){
 
   # Parameters
   if( is.null(Parameters) ) Parameters = list("ln_H_input"=c(0,0), "beta1_t"=qlogis(tapply(ifelse(TmbData$b_i>0,1,0),INDEX=TmbData$t_i,FUN=mean)), "gamma1_j"=rep(0,TmbData$n_j), "lambda1_k"=rep(0,TmbData$n_k), "logetaE1"=0, "logetaO1"=0, "logkappa1"=0, "logsigmaV1"=log(1), "logsigmaVT1"=log(1), "nu1_v"=rep(0,TmbData$n_v), "nu1_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput1_s"=rep(0,TmbData$n_s), "Epsiloninput1_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t), "beta2_t"=log(tapply(ifelse(TmbData$b_i>0,TmbData$b_i/TmbData$a_i,NA),INDEX=TmbData$t_i,FUN=mean,na.rm=TRUE)), "gamma2_j"=rep(0,TmbData$n_j), "lambda2_k"=rep(0,TmbData$n_k), "logetaE2"=0, "logetaO2"=0, "logkappa2"=0, "logsigmaV2"=log(1), "logsigmaVT2"=log(1), "logSigmaM"=c(log(5),qlogis(0.8),log(2),log(5)), "nu2_v"=rep(0,TmbData$n_v), "nu2_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput2_s"=rep(0,TmbData$n_s), "Epsiloninput2_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t))
@@ -8,7 +8,7 @@ function( TmbData, TmbFile, Version, VesselConfig, CovConfig, Aniso, ConvergeTol
   Random = c("Epsiloninput1_st", "Omegainput1_s", "Epsiloninput2_st", "Omegainput2_s", "nu1_v", "nu2_v", "nu1_vt", "nu2_vt")
 
   # Which parameters are turned off
-  Map = Make_Map( TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Aniso=Aniso)
+  Map = Make_Map( TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, Aniso=Aniso)
 
   # Build object
   dyn.load( paste0(TmbFile,"/",dynlib(Version)) )
@@ -49,6 +49,6 @@ function( TmbData, TmbFile, Version, VesselConfig, CovConfig, Aniso, ConvergeTol
   Obj$env$inner.control$grad.tol <- c(1e-8,1e-12,1e-15)[ConvergeTol] # # Default : 1e-8  # Maximum gradient limit inner optimization
 
   # Return stuff
-  Return = list("Obj"=Obj, "Upper"=Upper, "Lower"=Lower)
+  Return = list("Obj"=Obj, "Upper"=Upper, "Lower"=Lower, "Parameters"=Parameters, "Map"=Map, "Random"=Random)
   return( Return )
 }

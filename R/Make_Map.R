@@ -1,5 +1,5 @@
 Make_Map <-
-function( TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), CovConfig=0, Aniso=1){
+function( TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=0, CovConfig=0, Aniso=1){
   Map = list()
   if(VesselConfig['Vessel']==0){
     Map[["nu1_v"]] = factor(rep(NA,TmbData$n_v)) 
@@ -45,7 +45,8 @@ function( TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), CovConfig=0, Aniso
     Map[["gamma1_j"]] = factor(NA)
     Map[["gamma2_j"]] = factor(NA)
   }
-  if( Var_j==0 || sum(Q_Config)==0 ){
+  Var_k = apply( TmbData[["Q_ik"]], MARGIN=2, FUN=var )
+  if( Var_k==0 || sum(Q_Config)==0 ){
     Map[["lambda1_k"]] = factor(NA)
     Map[["lambda2_k"]] = factor(NA)
   }
