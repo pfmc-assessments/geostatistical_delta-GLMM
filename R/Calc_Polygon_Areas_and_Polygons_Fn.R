@@ -27,5 +27,5 @@ function( loc_x, Data_Extrap, Covariates="none", a_el=NULL ){
   }
 
   # Return stuff
-  Return = list( "X_xj"=X_xj, "a_xl"=a_xl )
+  Return = list( "X_xj"=X_xj, "a_xl"=a_xl, "NN_Extrap"=NN_Extrap )
 }
