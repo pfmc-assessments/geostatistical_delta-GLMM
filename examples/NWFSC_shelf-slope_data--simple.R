@@ -26,14 +26,15 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 
   Data_Set = c("Canary_rockfish", "Sim")[1]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
-  Version = "geo_index_v3c"
+  Version = "geo_index_v3e"
   n_x = c(250, 500, 1000, 2000)[2] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
   CovConfig = c("SST"=0, "RandomNoise"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
   Q_Config = c("Pass"=0)
   VesselConfig = c("Vessel"=0, "VesselYear"=1)
   ObsModel = 2  # 0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture
-  Aniso = 1 # 0=No; 1=Yes
+  Aniso = 1   # 0=No, 1=Yes
+  R2_interpretation = 1   # 0=R2 is positive_density, 1=R2 is density (including zeros)
   Kmeans_Config = list( "randomseed"=1, "nstart"=100, "iter.max"=1e3)     # Samples: Do K-means on trawl locs; Domain: Do K-means on extrapolation grid
   ConvergeTol = 1 # 1:Default; 2:Increased; 3:High
                                                    
@@ -47,8 +48,8 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   WA        49.0 46.0  55       1280
 
 # Compile TMB software
-  TmbFile = system.file("executables", package="SpatialDeltaGLMM")
-  #TmbFile = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
+  #TmbFile = system.file("executables", package="SpatialDeltaGLMM")
+  TmbFile = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
   setwd( TmbFile )
   compile( paste(Version,".cpp",sep="") )
       
@@ -107,7 +108,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
 ################
 
   # Make TMB data list
-  TmbData = Data_Fn("Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "MeshList"=MeshList)
+  TmbData = Data_Fn("Version"=Version, "Aniso"=Aniso, "R2_interpretation"=R2_interpretation, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "MeshList"=MeshList)
 
   # Make TMB object
   TmbList = Build_TMB_Fn(TmbData, TmbFile=TmbFile, Version=Version, VesselConfig=VesselConfig, CovConfig=0, Aniso=Aniso, ConvergeTol=ConvergeTol)
@@ -120,7 +121,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
 
   # Run model
   Opt = nlminb(start=Obj$par, objective=Obj$fn, gradient=Obj$gr, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]], control=list(eval.max=1e4, iter.max=1e4, trace=1, rel.tol=c(1e-8,1e-10,1e-14)[ConvergeTol]))  # , rel.tol=1e-20
-  Opt[["final_diagnostics"]] = cbind( "Name"=names(Opt$par), "Lwr"=TmbList[["Lower"]], "Est"=Opt$par, "Upr"=TmbList[["Upper"]], "Gradient"=Obj$gr(Opt$par) )
+  Opt[["final_diagnostics"]] = data.frame( "Name"=names(Opt$par), "Lwr"=TmbList[["Lower"]], "Est"=Opt$par, "Upr"=TmbList[["Upper"]], "Gradient"=Obj$gr(Opt$par) )
   capture.output( Opt, file=paste0(DateFile,"Opt.txt"))
     
   # Reports
