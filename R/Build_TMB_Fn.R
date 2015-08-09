@@ -1,17 +1,17 @@
 Build_TMB_Fn <-
-function( TmbData, TmbFile, Version, VesselConfig, CovConfig, Q_Config, Aniso, ConvergeTol=2, Parameters=NULL ){
+function( TmbData, TmbDir, Version, VesselConfig, CovConfig, Q_Config, RhoConfig=c("Epsilon1"=0,"Epsilon2"=0), Aniso, ConvergeTol=2, Parameters=NULL ){
 
   # Parameters
-  if( is.null(Parameters) ) Parameters = list("ln_H_input"=c(0,0), "beta1_t"=qlogis(tapply(ifelse(TmbData$b_i>0,1,0),INDEX=TmbData$t_i,FUN=mean)), "gamma1_j"=rep(0,TmbData$n_j), "lambda1_k"=rep(0,TmbData$n_k), "logetaE1"=0, "logetaO1"=0, "logkappa1"=0, "logsigmaV1"=log(1), "logsigmaVT1"=log(1), "nu1_v"=rep(0,TmbData$n_v), "nu1_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput1_s"=rep(0,TmbData$n_s), "Epsiloninput1_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t), "beta2_t"=log(tapply(ifelse(TmbData$b_i>0,TmbData$b_i/TmbData$a_i,NA),INDEX=TmbData$t_i,FUN=mean,na.rm=TRUE)), "gamma2_j"=rep(0,TmbData$n_j), "lambda2_k"=rep(0,TmbData$n_k), "logetaE2"=0, "logetaO2"=0, "logkappa2"=0, "logsigmaV2"=log(1), "logsigmaVT2"=log(1), "logSigmaM"=c(log(5),qlogis(0.8),log(2),log(5)), "nu2_v"=rep(0,TmbData$n_v), "nu2_vt"=matrix(0,nrow=TmbData$n_v,ncol=TmbData$n_t), "Omegainput2_s"=rep(0,TmbData$n_s), "Epsiloninput2_st"=matrix(0,nrow=TmbData$n_s,ncol=TmbData$n_t))
+  if( is.null(Parameters) ) Parameters = Param_Fn( Version=Version, DataList=TmbData )
 
   # Which are random
   Random = c("Epsiloninput1_st", "Omegainput1_s", "Epsiloninput2_st", "Omegainput2_s", "nu1_v", "nu2_v", "nu1_vt", "nu2_vt")
 
   # Which parameters are turned off
-  Map = Make_Map( TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, Aniso=Aniso)
+  Map = Make_Map( Version=Version, TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, RhoConfig=RhoConfig, Aniso=Aniso)
 
   # Build object
-  dyn.load( paste0(TmbFile,"/",dynlib(Version)) )
+  dyn.load( paste0(TmbDir,"/",dynlib(Version)) )
   if(any(FieldConfig!=0)|any(VesselConfig!=0)){
     Obj <- MakeADFun(data=TmbData, parameters=Parameters, random=Random, hessian=FALSE, map=Map, inner.method="newton")
   }else{
@@ -21,8 +21,10 @@ function( TmbData, TmbFile, Version, VesselConfig, CovConfig, Q_Config, Aniso, C
 
   # Declare upper and lower bounds for parameter search
   Lower = rep(-50, length(Obj$par))
-  Lower[grep("logsigmaV",names(Obj$par))] = log(0.01)
   Upper = rep( 50, length(Obj$par))
+  names(Lower) = names(Upper) = names(Obj$par)
+  Lower[grep("logsigmaV",names(Obj$par))] = log(0.01)
+  Lower[grep("logsigmaVT",names(Obj$par))] = log(0.01)
   Upper[grep("logtau",names(Obj$par))] = 10   # Version < v2i
   Upper[grep("logeta",names(Obj$par))] = log(1/(1e-2*sqrt(4*pi))) # Version >= v2i: Lower bound on margSD = 1e-4
   Upper[grep("SigmaM",names(Obj$par))] = 10 # ZINB can crash if it gets > 20
@@ -41,6 +43,14 @@ function( TmbData, TmbFile, Version, VesselConfig, CovConfig, Q_Config, Aniso, C
   if( "lambda2" %in% names(Obj$par) ){
     Lower[grep("lambda2",names(Obj$par))] = -20
     Upper[grep("lambda2",names(Obj$par))] = 20
+  }
+  if( "Erho1" %in% names(Obj$par) ){
+    Lower[grep("Erho1",names(Obj$par))] = -1
+    Upper[grep("Erho1",names(Obj$par))] = 1
+  }
+  if( "Erho2" %in% names(Obj$par) ){
+    Lower[grep("Erho2",names(Obj$par))] = -1
+    Upper[grep("Erho2",names(Obj$par))] = 1
   }
 
   # Change convergence tolerance

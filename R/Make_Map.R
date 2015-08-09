@@ -1,5 +1,5 @@
 Make_Map <-
-function( TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=0, CovConfig=0, Aniso=1){
+function( Version, TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=0, RhoConfig=c("Epsilon1"=0,"Epsilon2"=0), CovConfig=0, Aniso=1){
   Map = list()
   if(VesselConfig['Vessel']==0){
     Map[["nu1_v"]] = factor(rep(NA,TmbData$n_v)) 
@@ -38,6 +38,12 @@ function( TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=0, CovCon
     Map[["logSigmaM"]] = factor( c(1,NA,2,NA) )
   }
   if(Aniso==0 | all(TmbData[["FieldConfig"]]==0)) Map[['ln_H_input']] = factor( rep(NA,2) )
+  if( RhoConfig["Epsilon1"]==0 && Version=="geo_index_v3f"){
+    Map[["Erho1"]] = factor( NA )
+  }
+  if( RhoConfig["Epsilon2"]==0 && Version=="geo_index_v3f"){
+    Map[["Erho2"]] = factor( NA )
+  }
   
   # Covariates
   Var_j = apply( TmbData[["X_xj"]], MARGIN=2, FUN=var )
