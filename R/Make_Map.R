@@ -118,7 +118,7 @@ function( Version, TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=
     }
     # Beta2 -- Fixed
     if( RhoConfig["Beta2"]==0 && Version=="geo_index_v3f"){
-      Map[["beta1_t"]] = fixval_fn( fixvalTF=YearNotInData ) 
+      Map[["beta2_t"]] = fixval_fn( fixvalTF=YearNotInData ) 
     }
     # Beta2 -- White-noise
     if( RhoConfig["Beta2"]==1 && Version=="geo_index_v3f"){
