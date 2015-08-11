@@ -1,5 +1,15 @@
 Make_Map <-
-function( Version, TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=0, RhoConfig=c("Epsilon1"=0,"Epsilon2"=0), CovConfig=0, Aniso=1){
+function( Version, TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=0, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), CovConfig=0, Aniso=1){
+  # Local functions
+  fixval_fn <- function( fixvalTF ){
+    vec = rep(0,length(fixvalTF))
+    vec[which(fixvalTF)] = NA
+    vec[which(!is.na(vec))] = 1:sum(!is.na(vec))
+    vec = factor( vec ) 
+    return( vec )
+  }
+  
+  # Create tagged-list in TMB format for fixing parameters
   Map = list()
   if(VesselConfig['Vessel']==0){
     Map[["nu1_v"]] = factor(rep(NA,TmbData$n_v)) 
@@ -38,11 +48,82 @@ function( Version, TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=
     Map[["logSigmaM"]] = factor( c(1,NA,2,NA) )
   }
   if(Aniso==0 | all(TmbData[["FieldConfig"]]==0)) Map[['ln_H_input']] = factor( rep(NA,2) )
+  if( RhoConfig["Beta1"]==0 && Version=="geo_index_v3f"){
+    Map[["Beta_mean1"]] = factor( NA )
+    Map[["Beta_rho1"]] = factor( NA )
+    Map[["logsigmaB1"]] = factor( NA )
+  }
+  if( RhoConfig["Beta2"]==0 && Version=="geo_index_v3f"){
+    Map[["Beta_mean2"]] = factor( NA )
+    Map[["Beta_rho2"]] = factor( NA )
+    Map[["logsigmaB2"]] = factor( NA )
+  }
   if( RhoConfig["Epsilon1"]==0 && Version=="geo_index_v3f"){
-    Map[["Erho1"]] = factor( NA )
+    Map[["Epsilon_rho1"]] = factor( NA )
   }
   if( RhoConfig["Epsilon2"]==0 && Version=="geo_index_v3f"){
-    Map[["Erho2"]] = factor( NA )
+    Map[["Epsilon_rho2"]] = factor( NA )
+  }
+  
+  # Beta1 -- Fixed
+  if( RhoConfig["Beta1"]==0 && Version=="geo_index_v3f"){
+    Map[["Beta_mean1"]] = factor( NA )
+    Map[["Beta_rho1"]] = factor( NA )
+    Map[["logsigmaB1"]] = factor( NA )
+  }
+  # Beta1 -- White-noise
+  if( RhoConfig["Beta1"]==1 && Version=="geo_index_v3f"){
+    Map[["Beta_rho1"]] = factor( NA )
+    Map[["beta1_t"]] = fixval_fn( fixvalTF=YearNotInData ) 
+  }
+  # Beta1 -- Random-walk
+  if( RhoConfig["Beta1"]==2 && Version=="geo_index_v3f"){
+    Map[["Beta_mean1"]] = factor( NA )
+    Map[["Beta_rho1"]] = factor( NA )
+  }
+  # Beta2 -- Fixed
+  if( RhoConfig["Beta2"]==0 && Version=="geo_index_v3f"){
+    Map[["Beta_mean2"]] = factor( NA )
+    Map[["Beta_rho2"]] = factor( NA )
+    Map[["logsigmaB2"]] = factor( NA )
+  }
+  # Beta2 -- White-noise
+  if( RhoConfig["Beta2"]==1 && Version=="geo_index_v3f"){
+    Map[["Beta_rho2"]] = factor( NA )
+    Map[["beta2_t"]] = fixval_fn( fixvalTF=YearNotInData ) 
+  }
+  # Beta2 -- Random-walk
+  if( RhoConfig["Beta2"]==2 && Version=="geo_index_v3f"){
+    Map[["Beta_mean2"]] = factor( NA )
+    Map[["Beta_rho2"]] = factor( NA )
+  }
+  # Epsilon1 -- White-noise
+  if( RhoConfig["Epsilon1"]==0 && Version=="geo_index_v3f"){
+    Map[["Epsilon_rho1"]] = factor( NA )
+  }
+  # Epsilon2 -- White-noise
+  if( RhoConfig["Epsilon2"]==0 && Version=="geo_index_v3f"){
+    Map[["Epsilon_rho2"]] = factor( NA )
+  }
+  # fix betas and/or epsilons for missing years if betas are fixed-effects
+  YearNotInData = !( (1:TmbData$n_t) %in% (unique(TmbData$t_i)+1) ) 
+  if( sum(YearNotInData)>0 ){
+    # Beta1 -- Fixed
+    if( RhoConfig["Beta1"]==0 && Version=="geo_index_v3f"){
+      Map[["beta1_t"]] = fixval_fn( fixvalTF=YearNotInData ) 
+    }
+    # Beta1 -- White-noise
+    if( RhoConfig["Beta1"]==1 && Version=="geo_index_v3f"){
+      Map[["beta1_t"]] = fixval_fn( fixvalTF=YearNotInData ) 
+    }
+    # Beta2 -- Fixed
+    if( RhoConfig["Beta2"]==0 && Version=="geo_index_v3f"){
+      Map[["beta1_t"]] = fixval_fn( fixvalTF=YearNotInData ) 
+    }
+    # Beta2 -- White-noise
+    if( RhoConfig["Beta2"]==1 && Version=="geo_index_v3f"){
+      Map[["beta2_t"]] = fixval_fn( fixvalTF=YearNotInData ) 
+    }
   }
   
   # Covariates

@@ -18,6 +18,6 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set, strata.lim
   dev.off()
 
   # Return stuff
-  Return = Table
+  Return = list( "Table"=Table, "log_Index"=log_Index, "Index"=Index)
   return( Return )
 }

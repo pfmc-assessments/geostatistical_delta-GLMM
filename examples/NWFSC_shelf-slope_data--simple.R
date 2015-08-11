@@ -8,9 +8,8 @@
 # Must be installed from: http://www.r-inla.org/download
 
 # Install geostatistical delta-GLMM package
-library(devtools)
-install_github("nwfsc-assess/geostatistical_delta-GLMM") # This is the developement version.  Please check GitHub for the latest release number.
-install_github("james-thorson/utilities") # This is the developement version.  Please check GitHub for the latest release number.
+devtools::install_github("nwfsc-assess/geostatistical_delta-GLMM") # This is the developement version.  Please check GitHub for the latest release number.
+devtools::install_github("james-thorson/utilities") # This is the developement version.  Please check GitHub for the latest release number.
 
 # Load libraries
 library(TMB)

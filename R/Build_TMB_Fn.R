@@ -1,57 +1,47 @@
 Build_TMB_Fn <-
-function( TmbData, TmbDir, Version, VesselConfig, CovConfig, Q_Config, RhoConfig=c("Epsilon1"=0,"Epsilon2"=0), Aniso, ConvergeTol=2, Parameters=NULL ){
+function( TmbData, TmbDir, Version, VesselConfig, CovConfig, Q_Config, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Aniso, ConvergeTol=2, Parameters="generate", Random="generate", Map="generate" ){
 
+  # Local functions
+  boundsifpresent_fn = function( par, map, name, lower, upper, bounds ){
+    if( name %in% names(par) ){
+      bounds[grep(name,names(par)),c('Lower','Upper')] = c(lower,upper)
+    }
+    return( bounds )
+  }
+  
   # Parameters
-  if( is.null(Parameters) ) Parameters = Param_Fn( Version=Version, DataList=TmbData )
+  if( length(Parameters)==1 && Parameters=="generate" ) Parameters = Param_Fn( Version=Version, DataList=TmbData, RhoConfig=RhoConfig )
 
   # Which are random
-  Random = c("Epsiloninput1_st", "Omegainput1_s", "Epsiloninput2_st", "Omegainput2_s", "nu1_v", "nu2_v", "nu1_vt", "nu2_vt")
+  if( length(Random)==1 && Random=="generate" ) Random = c("Epsiloninput1_st", "Omegainput1_s", "Epsiloninput2_st", "Omegainput2_s", "nu1_v", "nu2_v", "nu1_vt", "nu2_vt")
+  if( RhoConfig[["Beta1"]]!=0 ) Random = c(Random, "beta1_t")
+  if( RhoConfig[["Beta2"]]!=0 ) Random = c(Random, "beta2_t")
 
   # Which parameters are turned off
-  Map = Make_Map( Version=Version, TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, RhoConfig=RhoConfig, Aniso=Aniso)
+  if( length(Map)==1 && Map=="generate" ) Map = Make_Map( Version=Version, TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, RhoConfig=RhoConfig, Aniso=Aniso)
 
   # Build object
-  dyn.load( paste0(TmbDir,"/",dynlib(Version)) )
-  if(any(FieldConfig!=0)|any(VesselConfig!=0)){
-    Obj <- MakeADFun(data=TmbData, parameters=Parameters, random=Random, hessian=FALSE, map=Map, inner.method="newton")
-  }else{
-    Obj <- MakeADFun(data=TmbData, parameters=Parameters, hessian=FALSE, map=Map)
-  }
+  dyn.load( paste0(TmbDir,"/",dynlib(Version)) )                                     # random=Random, 
+  Obj <- MakeADFun(data=TmbData, parameters=Parameters, hessian=FALSE, map=Map, random=Random, inner.method="newton")
   Obj$control <- list(trace=1, parscale=1, REPORT=1, reltol=1e-12, maxit=100)
 
   # Declare upper and lower bounds for parameter search
-  Lower = rep(-50, length(Obj$par))
-  Upper = rep( 50, length(Obj$par))
-  names(Lower) = names(Upper) = names(Obj$par)
-  Lower[grep("logsigmaV",names(Obj$par))] = log(0.01)
-  Lower[grep("logsigmaVT",names(Obj$par))] = log(0.01)
-  Upper[grep("logtau",names(Obj$par))] = 10   # Version < v2i
-  Upper[grep("logeta",names(Obj$par))] = log(1/(1e-2*sqrt(4*pi))) # Version >= v2i: Lower bound on margSD = 1e-4
-  Upper[grep("SigmaM",names(Obj$par))] = 10 # ZINB can crash if it gets > 20
-  if( "gamma1" %in% names(Obj$par) ){
-    Lower[grep("gamma1",names(Obj$par))] = -20
-    Upper[grep("gamma1",names(Obj$par))] = 20
-  }
-  if( "gamma2" %in% names(Obj$par) ){
-    Lower[grep("gamma2",names(Obj$par))] = -20
-    Upper[grep("gamma2",names(Obj$par))] = 20
-  }
-  if( "lambda1" %in% names(Obj$par) ){
-    Lower[grep("lambda1",names(Obj$par))] = -20
-    Upper[grep("lambda1",names(Obj$par))] = 20
-  }
-  if( "lambda2" %in% names(Obj$par) ){
-    Lower[grep("lambda2",names(Obj$par))] = -20
-    Upper[grep("lambda2",names(Obj$par))] = 20
-  }
-  if( "Erho1" %in% names(Obj$par) ){
-    Lower[grep("Erho1",names(Obj$par))] = -1
-    Upper[grep("Erho1",names(Obj$par))] = 1
-  }
-  if( "Erho2" %in% names(Obj$par) ){
-    Lower[grep("Erho2",names(Obj$par))] = -1
-    Upper[grep("Erho2",names(Obj$par))] = 1
-  }
+  Bounds = matrix( NA, ncol=2, nrow=length(Obj$par), dimnames=list(names(Obj$par),c("Lower","Upper")) )
+  Bounds[,'Lower'] = rep(-50, length(Obj$par))
+  Bounds[,'Upper'] = rep( 50, length(Obj$par))
+  Bounds[grep("logsigmaV",names(Obj$par)),'Lower'] = log(0.01)
+  Bounds[grep("logsigmaVT",names(Obj$par)),'Lower'] = log(0.01)
+  Bounds[grep("logtau",names(Obj$par)),'Upper'] = 10   # Version < v2i
+  Bounds[grep("logeta",names(Obj$par)),'Upper'] = log(1/(1e-2*sqrt(4*pi))) # Version >= v2i: Lower bound on margSD = 1e-4
+  Bounds[grep("SigmaM",names(Obj$par)),'Upper'] = 10 # ZINB can crash if it gets > 20
+  Bounds = boundsifpresent_fn( par=Obj$par, name="gamma1", lower=-20, upper=20, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="gamma2", lower=-20, upper=20, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="lambda1", lower=-20, upper=20, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="lambda2", lower=-20, upper=20, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="Beta_rho1", lower=-1, upper=1, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="Beta_rho2", lower=-1, upper=1, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="Epsilon_rho1", lower=-1, upper=1, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="Epsilon_rho2", lower=-1, upper=1, bounds=Bounds)
 
   # Change convergence tolerance
   Obj$env$inner.control$step.tol <- c(1e-8,1e-12,1e-15)[ConvergeTol] # Default : 1e-8  # Change in parameters limit inner optimization
@@ -59,6 +49,6 @@ function( TmbData, TmbDir, Version, VesselConfig, CovConfig, Q_Config, RhoConfig
   Obj$env$inner.control$grad.tol <- c(1e-8,1e-12,1e-15)[ConvergeTol] # # Default : 1e-8  # Maximum gradient limit inner optimization
 
   # Return stuff
-  Return = list("Obj"=Obj, "Upper"=Upper, "Lower"=Lower, "Parameters"=Parameters, "Map"=Map, "Random"=Random)
+  Return = list("Obj"=Obj, "Upper"=Bounds[,'Upper'], "Lower"=Bounds[,'Lower'], "Parameters"=Parameters, "Map"=Map, "Random"=Random)
   return( Return )
 }

@@ -60,6 +60,7 @@ Type objective_function<Type>::operator() ()
   DATA_FACTOR( Options_vec );
   // Slot 0 -- Aniso: 0=No, 1=Yes
   // Slot 1 -- R2 interpretation: 0=R2 is positive_density, 1=R2 is density (including zeros)
+  // Slot 2 -- AR1 on betas (year intercepts) to deal with missing years: 0=No, 1=Yes
   DATA_FACTOR(FieldConfig);  // Input settings
   DATA_FACTOR(ObsModel);    // Observation model
   DATA_FACTOR(Options);    // Reporting options
@@ -93,7 +94,10 @@ Type objective_function<Type>::operator() ()
   PARAMETER(logkappa1);
   PARAMETER(logsigmaV1);
   PARAMETER(logsigmaVT1);
-  PARAMETER(Erho1);  // AR1 for presence/absence Epsilon component, Default=0
+  PARAMETER(Beta_mean1);  // mean-reversion for beta1_t
+  PARAMETER(logsigmaB1);  // SD of beta1_t (default: not included in objective function)
+  PARAMETER(Beta_rho1);  // AR1 for positive catch Epsilon component, Default=0
+  PARAMETER(Epsilon_rho1);  // AR1 for presence/absence Epsilon component, Default=0
   //  -- random
   PARAMETER_VECTOR(nu1_v);
   PARAMETER_MATRIX(nu1_vt);
@@ -109,7 +113,10 @@ Type objective_function<Type>::operator() ()
   PARAMETER(logkappa2);
   PARAMETER(logsigmaV2);
   PARAMETER(logsigmaVT2);
-  PARAMETER(Erho2);  // AR1 for positive catch Epsilon component, Default=0
+  PARAMETER(Beta_mean2);  // mean-reversion for beta2_t
+  PARAMETER(logsigmaB2);  // SD of beta2_t (default: not included in objective function)
+  PARAMETER(Beta_rho2);  // AR1 for positive catch Epsilon component, Default=0
+  PARAMETER(Epsilon_rho2);  // AR1 for positive catch Epsilon component, Default=0
   PARAMETER_VECTOR(logSigmaM);   // Slots: 0=mix1 CV, 1=prob-of-mix1, 2=
   // -- random
   PARAMETER_VECTOR(nu2_v);
@@ -192,9 +199,9 @@ Type objective_function<Type>::operator() ()
   GMRF_t<Type> Tmp1 = GMRF(Q1);
   GMRF_t<Type> Tmp2 = GMRF(Q2);
   if(FieldConfig(0)==1) NLL += Tmp1(Omegainput1_s);
-  if(FieldConfig(1)==1) NLL += SEPARABLE(AR1(Erho1),Tmp1)(Epsiloninput1_st);
+  if(FieldConfig(1)==1) NLL += SEPARABLE(AR1(Epsilon_rho1),Tmp1)(Epsiloninput1_st);
   if(FieldConfig(2)==1) NLL += Tmp2(Omegainput2_s);
-  if(FieldConfig(3)==1) NLL += SEPARABLE(AR1(Erho2),Tmp2)(Epsiloninput2_st);
+  if(FieldConfig(3)==1) NLL += SEPARABLE(AR1(Epsilon_rho2),Tmp2)(Epsiloninput2_st);
 
   // Random effect probabilities
   for(v=0;v<n_v;v++){
@@ -204,6 +211,16 @@ Type objective_function<Type>::operator() ()
       NLL -= dnorm( nu1_vt(v,t), Type(0.0), SigmaVT1, 1 );
       NLL -= dnorm( nu2_vt(v,t), Type(0.0), SigmaVT2, 1 );
     }
+  }
+  
+  // Possible structure on betas
+  if( Options_vec(2)!=0 ){
+    for(t=1;t<n_t;t++){
+      NLL -= dnorm( beta1_t(t), Beta_rho1*beta1_t(t-1) + Beta_mean1, exp(logsigmaB1), true );
+      NLL -= dnorm( beta2_t(t), Beta_rho2*beta2_t(t-1) + Beta_mean2, exp(logsigmaB2), true );
+    }
+    //NLL += AR1(Beta_rho1)(beta1_t);
+    //NLL += AR1(Beta_rho2)(beta2_t);
   }
   
   // Likelihood contribution from observations
@@ -375,6 +392,8 @@ Type objective_function<Type>::operator() ()
   REPORT( Range_raw2 );
   //REPORT( Range_major2 );
   //REPORT( Range_minor2 );
+  REPORT( beta1_t );
+  REPORT( beta2_t );
 
   ADREPORT( Range_raw1 );
   ADREPORT( Range_raw2 );
