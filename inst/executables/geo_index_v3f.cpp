@@ -1,5 +1,11 @@
 #include <TMB.hpp>
 
+// Function for detecting NAs
+template<class Type>
+bool isNA(Type x){
+  return R_IsNA(asDouble(x));
+}
+
 // plogis
 template<class Type>
 Type plogis(Type x){
@@ -74,6 +80,7 @@ Type objective_function<Type>::operator() ()
   DATA_MATRIX(a_xl);		     // Area for each "real" stratum(km^2) in each stratum
   DATA_MATRIX(X_xj);		    // Covariate design matrix (strata x covariate)
   DATA_MATRIX(Q_ik);        // Catchability matrix (observations x variable)
+  DATA_MATRIX(Z_xl);        // Derived quantity matrix
 
   // Aniso objects
   DATA_STRUCT(spde,spde_aniso_t);
@@ -88,7 +95,7 @@ Type objective_function<Type>::operator() ()
   //  -- presence/absence
   PARAMETER_VECTOR(beta1_t);  // Year effect
   PARAMETER_VECTOR(gamma1_j);        // Covariate effect
-  PARAMETER_VECTOR(lambda1_k);
+  PARAMETER_VECTOR(lambda1_k);       // Catchability coefficients
   PARAMETER(logetaE1);      
   PARAMETER(logetaO1);
   PARAMETER(logkappa1);
@@ -107,7 +114,7 @@ Type objective_function<Type>::operator() ()
   //  -- positive catch rates
   PARAMETER_VECTOR(beta2_t);  // Year effect
   PARAMETER_VECTOR(gamma2_j);        // Covariate effect
-  PARAMETER_VECTOR(lambda2_k);
+  PARAMETER_VECTOR(lambda2_k);       // Catchability coefficients
   PARAMETER(logetaE2);      
   PARAMETER(logetaO2);
   PARAMETER(logkappa2);
@@ -335,9 +342,9 @@ Type objective_function<Type>::operator() ()
   array<Type> Index_xtl(n_x,n_t,n_l);
   matrix<Type> Index_tl(n_t,n_l);
   matrix<Type> ln_Index_tl(n_t,n_l);
+  Index_tl.setZero();
   for(int t=0;t<n_t;t++){
   for(int l=0;l<n_l;l++){
-    Index_tl(t,l) = 0;
     for(int x=0;x<n_x;x++){
       Index_xtl(x,t,l) = D_xt(x,t) * a_xl(x,l) / 1000;  // Convert from kg to metric tonnes
       Index_tl(t,l) += Index_xtl(x,t,l); 
@@ -350,6 +357,25 @@ Type objective_function<Type>::operator() ()
   }
   if( Options(1)==1 ){
     ADREPORT( P2_xt );
+  }
+  
+  // Calculate other derived summaries
+  // Each is the weighted-average X_xl over polygons (x) with weights equal to abundance in each polygon and time
+  matrix<Type> Summary_tl(n_t,n_l);
+  Summary_tl.setZero();
+  int report_summary_TF = 0;
+  for(int t=0; t<n_t; t++){
+  for(int l=0; l<n_l; l++){
+    for(int x=0; x<n_x; x++){
+      if( Z_xl(x,l)!=0 ){
+        Summary_tl(t,l) += Z_xl(x,l) * Index_xtl(x,t,l)/Index_tl(t,l);  
+        report_summary_TF = true; 
+      }
+    }
+  }}
+  if( report_summary_TF==true ){
+    REPORT( Summary_tl );  
+    ADREPORT( Summary_tl );
   }
   
   // Diagnostic output

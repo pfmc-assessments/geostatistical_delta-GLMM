@@ -1,13 +1,17 @@
 PlotResultsOnMap_Fn <-
-function(MappingDetails, Report, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
+function(MappingDetails, Report, MapSizeRatio, Xlim, Ylim, FileName, Year_Set=NULL, Years2Include=NULL,
          Rotate=0, Format="png", Res=200, ...){
+  # FIll in missing inputs
+  if( is.null(Year_Set) ) Year_Set = 1:ncol(Report$D_xt)
+  if( is.null(Years2Include) ) Years2Include = 1:ncol(Report$D_xt)
+  # Extract elements
   D_it = Report$D_xt[NN_Extrap$nn.idx,]
   R1_it = Report$R1_xt[NN_Extrap$nn.idx,]
   R2_it = Report$R2_xt[NN_Extrap$nn.idx,]
-  # adding Epsilon surfaces showing annual differences from shared distribution
   Eps1_it = Report$Epsilon1_st[NN_Extrap$nn.idx,]
   Eps2_it = Report$Epsilon2_st[NN_Extrap$nn.idx,]
   plot_codes <- c("Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled","Eps_Pres","Eps_Pos")
+  # Loop through plots
   for(RespI in 1:7){
     if(RespI==1){
       # Presence/absence ("Pres")
@@ -40,6 +44,6 @@ function(MappingDetails, Report, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
       Mat = Eps2_it # maybe should be exponentiated?
     }
     # Do plot
-    PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[RespI]), Year_Set=Year_Set, Rotate=Rotate, Format=Format, Res=Res, ...)
+    PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat[,Years2Include], MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[RespI]), Year_Set=Year_Set[Years2Include], Rotate=Rotate, Format=Format, Res=Res, ...)
   }
 }

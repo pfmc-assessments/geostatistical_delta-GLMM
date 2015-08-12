@@ -21,7 +21,7 @@ function( TmbData, TmbDir, Version, VesselConfig, CovConfig, Q_Config, RhoConfig
   if( length(Map)==1 && Map=="generate" ) Map = Make_Map( Version=Version, TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, RhoConfig=RhoConfig, Aniso=Aniso)
 
   # Build object
-  dyn.load( paste0(TmbDir,"/",dynlib(Version)) )                                     # random=Random, 
+  dyn.load( paste0(TmbDir,"/",dynlib(Version)) ) # random=Random, 
   Obj <- MakeADFun(data=TmbData, parameters=Parameters, hessian=FALSE, map=Map, random=Random, inner.method="newton")
   Obj$control <- list(trace=1, parscale=1, REPORT=1, reltol=1e-12, maxit=100)
 

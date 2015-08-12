@@ -63,6 +63,11 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
 # (THIS WILL VARY FOR DIFFERENT DATA SETS) 
 ################
 
+# Get extrapolation data
+  Return = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits )
+  Data_Extrap = Return[["Data_Extrap"]]
+  a_el = Return[["a_el"]]
+
 # Read or simulate trawl data
   if(Data_Set=="Canary_rockfish"){
     data( WCGBTS_Canary_example )
@@ -75,11 +80,6 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
     True_Index = Sim_DataSet[['True_Index']]
   }
   Year_Set = sort(unique(Data_Geostat[,'Year']))
-
-# Get extrapolation data
-  Return = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits )
-  Data_Extrap = Return[["Data_Extrap"]]
-  a_el = Return[["a_el"]]
 
 # Convert to an Eastings-Northings coordinate system
   tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Geostat[,'Lon'], Lat=Data_Geostat[,'Lat'] )                                                         #$
@@ -117,7 +117,8 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   # Make TMB object
   TmbList = Build_TMB_Fn(TmbData, TmbDir=TmbDir, Version=Version, VesselConfig=VesselConfig, CovConfig=0, Aniso=Aniso, ConvergeTol=ConvergeTol)
   Obj = TmbList[["Obj"]]
-
+  #dyn.unload( paste0(TmbDir,"/",dynlib(Version)) )
+  
   # Run first time -- marginal likelihood
   Start_time = Sys.time()
   Obj$fn(Obj$par)
