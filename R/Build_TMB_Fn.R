@@ -1,5 +1,5 @@
 Build_TMB_Fn <-
-function( TmbData, TmbDir, Version, VesselConfig, CovConfig, Q_Config, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Aniso, ConvergeTol=2, Parameters="generate", Random="generate", Map="generate" ){
+function( TmbData, TmbDir, Version, VesselConfig, CovConfig, Q_Config, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Aniso, ConvergeTol=2, Use_REML=FALSE, Parameters="generate", Random="generate", Map="generate" ){
 
   # Local functions
   boundsifpresent_fn = function( par, map, name, lower, upper, bounds ){
@@ -16,6 +16,9 @@ function( TmbData, TmbDir, Version, VesselConfig, CovConfig, Q_Config, RhoConfig
   if( length(Random)==1 && Random=="generate" ) Random = c("Epsiloninput1_st", "Omegainput1_s", "Epsiloninput2_st", "Omegainput2_s", "nu1_v", "nu2_v", "nu1_vt", "nu2_vt")
   if( RhoConfig[["Beta1"]]!=0 ) Random = c(Random, "beta1_t")
   if( RhoConfig[["Beta2"]]!=0 ) Random = c(Random, "beta2_t")
+  if( Use_REML==TRUE ){
+    Random = union(Random, c("beta1_t","gamma1_j","lambda1_k","beta2_t","gamma2_j","lambda2_k")) 
+  }
 
   # Which parameters are turned off
   if( length(Map)==1 && Map=="generate" ) Map = Make_Map( Version=Version, TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, RhoConfig=RhoConfig, Aniso=Aniso)
