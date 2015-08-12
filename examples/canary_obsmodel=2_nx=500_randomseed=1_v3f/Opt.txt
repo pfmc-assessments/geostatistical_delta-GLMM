@@ -63,5 +63,5 @@ $final_diagnostics
 35   logSigmaM -50.00000  0.08882788 10.000000 -1.277497e-02
 
 $total_time_to_run
-Time difference of 10.88427 mins
+Time difference of 7.479833 mins
 

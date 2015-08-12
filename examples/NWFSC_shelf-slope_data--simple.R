@@ -117,7 +117,6 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   # Make TMB object
   TmbList = Build_TMB_Fn(TmbData, TmbDir=TmbDir, Version=Version, VesselConfig=VesselConfig, CovConfig=0, Aniso=Aniso, ConvergeTol=ConvergeTol)
   Obj = TmbList[["Obj"]]
-  #dyn.unload( paste0(TmbDir,"/",dynlib(Version)) )
   
   # Run first time -- marginal likelihood
   Start_time = Sys.time()

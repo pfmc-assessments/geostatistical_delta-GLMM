@@ -38,10 +38,10 @@ function( TmbData, TmbDir, Version, VesselConfig, CovConfig, Q_Config, RhoConfig
   Bounds = boundsifpresent_fn( par=Obj$par, name="gamma2", lower=-20, upper=20, bounds=Bounds)
   Bounds = boundsifpresent_fn( par=Obj$par, name="lambda1", lower=-20, upper=20, bounds=Bounds)
   Bounds = boundsifpresent_fn( par=Obj$par, name="lambda2", lower=-20, upper=20, bounds=Bounds)
-  Bounds = boundsifpresent_fn( par=Obj$par, name="Beta_rho1", lower=-1, upper=1, bounds=Bounds)
-  Bounds = boundsifpresent_fn( par=Obj$par, name="Beta_rho2", lower=-1, upper=1, bounds=Bounds)
-  Bounds = boundsifpresent_fn( par=Obj$par, name="Epsilon_rho1", lower=-1, upper=1, bounds=Bounds)
-  Bounds = boundsifpresent_fn( par=Obj$par, name="Epsilon_rho2", lower=-1, upper=1, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="Beta_rho1", lower=-0.9999, upper=0.9999, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="Beta_rho2", lower=-0.9999, upper=0.9999, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="Epsilon_rho1", lower=-0.9999, upper=0.9999, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="Epsilon_rho2", lower=-0.9999, upper=0.9999, bounds=Bounds)
 
   # Change convergence tolerance
   Obj$env$inner.control$step.tol <- c(1e-8,1e-12,1e-15)[ConvergeTol] # Default : 1e-8  # Change in parameters limit inner optimization
