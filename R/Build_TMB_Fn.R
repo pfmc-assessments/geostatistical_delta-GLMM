@@ -1,5 +1,5 @@
 Build_TMB_Fn <-
-function( TmbData, TmbDir, Version, VesselConfig, CovConfig, Q_Config, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Aniso, ConvergeTol=2, Use_REML=FALSE, Parameters="generate", Random="generate", Map="generate" ){
+function( TmbData, TmbDir, Version, VesselConfig, Q_Config=TRUE, CovConfig=TRUE, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), ConvergeTol=1, Use_REML=FALSE, loc_x=NULL, Parameters="generate", Random="generate", Map="generate" ){
 
   # Local functions
   boundsifpresent_fn = function( par, map, name, lower, upper, bounds ){
@@ -21,7 +21,7 @@ function( TmbData, TmbDir, Version, VesselConfig, CovConfig, Q_Config, RhoConfig
   }
 
   # Which parameters are turned off
-  if( length(Map)==1 && Map=="generate" ) Map = Make_Map( Version=Version, TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, RhoConfig=RhoConfig, Aniso=Aniso)
+  if( length(Map)==1 && Map=="generate" ) Map = Make_Map( Version=Version, TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, RhoConfig=RhoConfig, Aniso=TmbData[['Options_vec']]['Aniso'])
 
   # Build object
   dyn.load( paste0(TmbDir,"/",dynlib(Version)) ) # random=Random, 
@@ -37,14 +37,19 @@ function( TmbData, TmbDir, Version, VesselConfig, CovConfig, Q_Config, RhoConfig
   Bounds[grep("logtau",names(Obj$par)),'Upper'] = 10   # Version < v2i
   Bounds[grep("logeta",names(Obj$par)),'Upper'] = log(1/(1e-2*sqrt(4*pi))) # Version >= v2i: Lower bound on margSD = 1e-4
   Bounds[grep("SigmaM",names(Obj$par)),'Upper'] = 10 # ZINB can crash if it gets > 20
+  if( !is.null(loc_x) ){
+    Dist = dist(loc_x)
+    Bounds[grep("logkappa",names(Obj$par)),'Lower'] = log( sqrt(8)/max(Dist) ) # Range = nu*sqrt(8)/kappa
+    Bounds[grep("logkappa",names(Obj$par)),'Upper'] = log( sqrt(8)/min(Dist) ) # Range = nu*sqrt(8)/kappa
+  }
   Bounds = boundsifpresent_fn( par=Obj$par, name="gamma1", lower=-20, upper=20, bounds=Bounds)
   Bounds = boundsifpresent_fn( par=Obj$par, name="gamma2", lower=-20, upper=20, bounds=Bounds)
   Bounds = boundsifpresent_fn( par=Obj$par, name="lambda1", lower=-20, upper=20, bounds=Bounds)
   Bounds = boundsifpresent_fn( par=Obj$par, name="lambda2", lower=-20, upper=20, bounds=Bounds)
-  Bounds = boundsifpresent_fn( par=Obj$par, name="Beta_rho1", lower=-0.9999, upper=0.9999, bounds=Bounds)
-  Bounds = boundsifpresent_fn( par=Obj$par, name="Beta_rho2", lower=-0.9999, upper=0.9999, bounds=Bounds)
-  Bounds = boundsifpresent_fn( par=Obj$par, name="Epsilon_rho1", lower=-0.9999, upper=0.9999, bounds=Bounds)
-  Bounds = boundsifpresent_fn( par=Obj$par, name="Epsilon_rho2", lower=-0.9999, upper=0.9999, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="Beta_rho1", lower=-0.99, upper=0.99, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="Beta_rho2", lower=-0.99, upper=0.99, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="Epsilon_rho1", lower=-0.99, upper=0.99, bounds=Bounds)
+  Bounds = boundsifpresent_fn( par=Obj$par, name="Epsilon_rho2", lower=-0.99, upper=0.99, bounds=Bounds)
 
   # Change convergence tolerance
   Obj$env$inner.control$step.tol <- c(1e-8,1e-12,1e-15)[ConvergeTol] # Default : 1e-8  # Change in parameters limit inner optimization

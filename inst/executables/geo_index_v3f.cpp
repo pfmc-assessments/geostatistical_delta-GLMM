@@ -361,21 +361,32 @@ Type objective_function<Type>::operator() ()
   
   // Calculate other derived summaries
   // Each is the weighted-average X_xl over polygons (x) with weights equal to abundance in each polygon and time
-  matrix<Type> Summary_tl(n_t,n_l);
-  Summary_tl.setZero();
+  matrix<Type> mean_Z_tl(n_t,n_l);
+  array<Type> cov_Z_tl(n_t,n_l,n_l);
+  mean_Z_tl.setZero();
+  cov_Z_tl.setZero();
   int report_summary_TF = 0;
   for(int t=0; t<n_t; t++){
   for(int l=0; l<n_l; l++){
     for(int x=0; x<n_x; x++){
       if( Z_xl(x,l)!=0 ){
-        Summary_tl(t,l) += Z_xl(x,l) * Index_xtl(x,t,l)/Index_tl(t,l);  
+        mean_Z_tl(t,l) += Z_xl(x,l) * Index_xtl(x,t,l)/Index_tl(t,l);  
         report_summary_TF = true; 
       }
     }
   }}
   if( report_summary_TF==true ){
-    REPORT( Summary_tl );  
-    ADREPORT( Summary_tl );
+    for(int t=0; t<n_t; t++){
+    for(int l1=0; l1<n_l; l1++){
+    for(int l2=0; l2<n_l; l2++){
+      for(int x=0; x<n_x; x++){
+        cov_Z_tl(t,l1,l2) += (Z_xl(x,l1)-mean_Z_tl(t,l1))*(Z_xl(x,l2)-mean_Z_tl(t,l2)) * Index_xtl(x,t,l1)/Index_tl(t,l1);  
+      }
+    }}}
+    REPORT( mean_Z_tl );  
+    ADREPORT( mean_Z_tl );
+    REPORT( cov_Z_tl );  
+    ADREPORT( cov_Z_tl );
   }
   
   // Diagnostic output

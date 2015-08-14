@@ -34,9 +34,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Q_Config = c("Pass"=0)
   VesselConfig = c("Vessel"=0, "VesselYear"=1)
   ObsModel = 2  # 0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture
-  Aniso = 1   # 0=No, 1=Yes
-  Kmeans_Config = list( "randomseed"=1, "nstart"=100, "iter.max"=1e3)     # Samples: Do K-means on trawl locs; Domain: Do K-means on extrapolation grid
-  ConvergeTol = 1 # 1:Default; 2:Increased; 3:High
+  Kmeans_Config = list( "randomseed"=1, "nstart"=100, "iter.max"=1e3 )     # Samples: Do K-means on trawl locs; Domain: Do K-means on extrapolation grid
 
 # Save options for future records
   Record = bundlelist( c("Data_Set","Sim_Settings","Version","n_x","FieldConfig","CovConfig","Q_Config","VesselConfig","ObsModel","Aniso","Kmeans_Config","ConvergeTol") )
@@ -91,7 +89,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
   Data_Geostat = cbind( Data_Geostat, "knot_i"=Kmeans$cluster )
 
 # Calc design matrix and areas
-  PolygonList = Calc_Polygon_Areas_and_Polygons_Fn( loc_x=loc_x, Data_Extrap=Data_Extrap, Covariates="none", a_el=a_el)
+  PolygonList = Calc_Polygon_Areas_and_Polygons_Fn( loc_x=loc_x, Data_Extrap=Data_Extrap, Covariates=c("none"), a_el=a_el)
   X_xj = PolygonList[["X_xj"]]
   a_xl = PolygonList[["a_xl"]]
   NN_Extrap = PolygonList[["NN_Extrap"]]
@@ -112,10 +110,10 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
 ################
 
   # Make TMB data list
-  TmbData = Data_Fn("Version"=Version, "Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "MeshList"=MeshList)
+  TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "MeshList"=MeshList)
 
   # Make TMB object
-  TmbList = Build_TMB_Fn(TmbData, TmbDir=TmbDir, Version=Version, VesselConfig=VesselConfig, CovConfig=0, Aniso=Aniso, ConvergeTol=ConvergeTol)
+  TmbList = Build_TMB_Fn(TmbData, TmbDir=TmbDir, Version=Version, VesselConfig=VesselConfig)
   Obj = TmbList[["Obj"]]
   
   # Run first time -- marginal likelihood
