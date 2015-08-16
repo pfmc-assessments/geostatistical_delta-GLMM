@@ -1,5 +1,5 @@
 Build_TMB_Fn <-
-function( TmbData, TmbDir, Version, VesselConfig, Q_Config=TRUE, CovConfig=TRUE, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), ConvergeTol=1, Use_REML=FALSE, loc_x=NULL, Parameters="generate", Random="generate", Map="generate" ){
+function( TmbData, TmbDir, Version, VesselConfig, Q_Config=TRUE, CovConfig=TRUE, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), ConvergeTol=1, Use_REML=FALSE, loc_x=NULL, Parameters="generate", Random="generate", Map="generate", DiagnosticDir=NULL ){
 
   # Local functions
   boundsifpresent_fn = function( par, map, name, lower, upper, bounds ){
@@ -28,6 +28,22 @@ function( TmbData, TmbDir, Version, VesselConfig, Q_Config=TRUE, CovConfig=TRUE,
   Obj <- MakeADFun(data=TmbData, parameters=Parameters, hessian=FALSE, map=Map, random=Random, inner.method="newton")
   Obj$control <- list(trace=1, parscale=1, REPORT=1, reltol=1e-12, maxit=100)
 
+  # Diagnostic functions (optional)
+  if( !is.null(DiagnosticDir) ){
+    Obj$gr_orig = Obj$gr
+    Obj$fn_orig = Obj$fn
+    Obj$fn = function( vec ){
+      capture.output( matrix(vec,ncol=1,dimnames=list(names(Obj$par),NULL)), file=paste0(DiagnosticDir,"fn.txt") )
+      write.table( matrix(vec,nrow=1), row.names=FALSE, sep=",", col.names=FALSE, append=TRUE, file=paste0(DiagnosticDir,"trace.csv"))
+      return( Obj$fn_orig(vec) )
+    }
+    Obj$gr = function( vec ){
+      capture.output( matrix(vec,ncol=1,dimnames=list(names(Obj$par),NULL)), file=paste0(DiagnosticDir,"gr.txt") )
+      return( Obj$gr_orig(vec) )
+    }
+    write.table( matrix(Obj$par,nrow=1), row.names=FALSE, sep=",", col.names=FALSE, file=paste0(DiagnosticDir,"trace.csv"))
+  }
+  
   # Declare upper and lower bounds for parameter search
   Bounds = matrix( NA, ncol=2, nrow=length(Obj$par), dimnames=list(names(Obj$par),c("Lower","Upper")) )
   Bounds[,'Lower'] = rep(-50, length(Obj$par))
