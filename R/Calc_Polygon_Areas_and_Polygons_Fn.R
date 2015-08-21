@@ -17,12 +17,13 @@ function( loc_x, Data_Extrap, Covariates="none", a_el=NULL ){
   }
 
   # Calculate covariate for each knot
+  # Covariate j at location x is the average value in the extrapolation_grid for all grid cells s that are nearest to location x
   if( length(Covariates)==1 && Covariates=="none" ){
     X_xj = cbind( "Dummy"=rep(0,n_x) )
   }else{
     X_xj = matrix(NA, ncol=length(Covariates), nrow=n_x)
     for(j in 1:ncol(X_xj)){
-      X_xj[,j] = tapply(Data_Extrap[,Covariates[j]], INDEX=factor(NN_Extrap$nn.idx,levels=1:nrow(loc_x)), FUN=sum, na.rm=TRUE)
+      X_xj[,j] = tapply(Data_Extrap[,Covariates[j]], INDEX=factor(NN_Extrap$nn.idx,levels=1:nrow(loc_x)), FUN=mean, na.rm=TRUE)
     }
   }
 
