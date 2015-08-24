@@ -32,7 +32,7 @@ function(MappingDetails, Mat, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
         coordinates(tmpUTM) = c("X","Y")
         tmp <- elide( tmpUTM, rotate=Rotate)
         plot(tmp[-c(1:nrow(Tmp1)),], pch="", xlim=range(tmp@coords[-c(1:nrow(Tmp1)),'x']), ylim=range(tmp@coords[-c(1:nrow(Tmp1)),'y']) )
-        points(x=tmp@coords[-c(1:nrow(Tmp1)),'x'], y=tmp@coords[-c(1:nrow(Tmp1)),'y'], col=Col(n=50)[ceiling(f(tmp@data[-c(1:nrow(Tmp1)),paste0("X",Year_Set)])[,t]*49)+1], cex=0.01)
+        points(x=tmp@coords[-c(1:nrow(Tmp1)),'x'], y=tmp@coords[-c(1:nrow(Tmp1)),'y'], col=Col(n=50)[ceiling(f(tmp@data[-c(1:nrow(Tmp1)),-c(1:2),drop=FALSE])[,t]*49)+1], cex=0.01)
         lev = levels(as.factor(tmp@data$PID))
         for(levI in 1:(length(lev)-1)) {
           indx = which(tmpUTM$PID == lev[levI])
