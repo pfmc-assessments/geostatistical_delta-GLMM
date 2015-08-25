@@ -37,7 +37,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Kmeans_Config = list( "randomseed"=1, "nstart"=100, "iter.max"=1e3 )     # Samples: Do K-means on trawl locs; Domain: Do K-means on extrapolation grid
 
 # Save options for future records
-  Record = bundlelist( c("Data_Set","Sim_Settings","Version","n_x","FieldConfig","CovConfig","Q_Config","VesselConfig","ObsModel","Kmeans_Config","ConvergeTol") )
+  Record = bundlelist( c("Data_Set","Sim_Settings","Version","n_x","FieldConfig","CovConfig","Q_Config","VesselConfig","ObsModel","Kmeans_Config") )
   capture.output( Record, file=paste0(DateFile,"Record.txt"))
                                                    
 # Decide on strata for use when calculating indices
