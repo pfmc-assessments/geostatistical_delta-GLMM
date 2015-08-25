@@ -212,11 +212,11 @@ Type objective_function<Type>::operator() ()
 
   // Random effect probabilities
   for(v=0;v<n_v;v++){
-    NLL -= dnorm( nu1_v(v), Type(0.0), SigmaV1, 1 );
-    NLL -= dnorm( nu2_v(v), Type(0.0), SigmaV2, 1 );
+    NLL -= dnorm( nu1_v(v), Type(0.0), SigmaV1, true );
+    NLL -= dnorm( nu2_v(v), Type(0.0), SigmaV2, true );
     for(t=0;t<n_t;t++){
-      NLL -= dnorm( nu1_vt(v,t), Type(0.0), SigmaVT1, 1 );
-      NLL -= dnorm( nu2_vt(v,t), Type(0.0), SigmaVT2, 1 );
+      NLL -= dnorm( nu1_vt(v,t), Type(0.0), SigmaVT1, true );
+      NLL -= dnorm( nu2_vt(v,t), Type(0.0), SigmaVT2, true );
     }
   }
   
