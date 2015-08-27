@@ -3,7 +3,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
          Rescale=FALSE, Rotate=0, Format="png", Res=200, ...){
 
   # Transform to grid or other coordinates
-  Mat = Mat[ PlotDF[,'x2i'], ]
+  Mat = Mat[PlotDF[,'x2i'],,drop=FALSE]
   Which = which( PlotDF[,'Include']>0 )
   if( Rescale!=FALSE ) Mat = Mat / outer(rep(Rescale,nrow(Mat)), colMeans(Mat[Which,]))
   

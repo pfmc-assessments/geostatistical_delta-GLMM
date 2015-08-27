@@ -447,11 +447,21 @@ Type objective_function<Type>::operator() ()
   ADREPORT( SigmaVT1 );
   ADREPORT( SigmaVT2 );
   
+  // Additional miscellaneous outputs
   if( Options(0)==1 ){
     ADREPORT( Index_xtl );
   }
   if( Options(1)==1 ){
     ADREPORT( log(Index_xtl) );
+  }
+  if( Options(2)==1 ){
+    matrix<Type> mean_relative_Z_tl(n_t,n_l);
+    for(int t=0; t<n_t; t++){
+    for(int l=0; l<n_l; l++){
+      mean_relative_Z_tl(t,l) = mean_Z_tl(t,l) / mean_Z_tl(0,l)
+    }}
+    REPORT( mean_relative_Z_tl );
+    ADREPORT( mean_relative_Z_tl );
   }
   
   return jnll;
