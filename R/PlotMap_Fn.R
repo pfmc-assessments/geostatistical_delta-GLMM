@@ -1,9 +1,16 @@
 PlotMap_Fn <-
-function(MappingDetails, Mat, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
-         Rotate=0, Format="png", Res=200, ...){
+function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
+         Rescale=FALSE, Rotate=0, Format="png", Res=200, ...){
 
+  # Transform to grid or other coordinates
+  Mat = Mat[ PlotDF[,'x2i'], ]
+  Which = which( PlotDF[,'Include']>0 )
+  if( Rescale!=FALSE ) Mat = Mat / outer(rep(Rescale,nrow(Mat)), colMeans(Mat[Which,]))
+  
+  # Plotting functions
   f = function(Num) ((Num)-min((Num),na.rm=TRUE))/diff(range((Num),na.rm=TRUE))
   Col = colorRampPalette(colors=c("darkblue","blue","lightblue","lightgreen","yellow","orange","red"))
+  
   # Plot
   Par = par(...)
   if(Format=="png"){
@@ -18,14 +25,13 @@ function(MappingDetails, Mat, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
   }
     par( Par )
     for(t in 1:length(Year_Set)){
-      Which = which(Data_Extrap[,'Include']>0)
       if( is.null(MappingDetails) ){
         plot(1, type="n", ylim=Ylim, xlim=Xlim, main="", xlab="", ylab="")#, main=Year_Set[t])
-        points(x=Data_Extrap[Which,'Ngdc_m'], y=Data_Extrap[Which,'Lat'], col=Col(n=50)[ceiling(f(Mat[Which,])[,t]*49)+1], cex=0.01)
+        points(x=PlotDF[Which,'Lon'], y=PlotDF[Which,'Lat'], col=Col(n=50)[ceiling(f(Mat[Which,])[,t]*49)+1], cex=0.01)
       }else{
         Map = map(MappingDetails[[1]], MappingDetails[[2]], plot=FALSE, ylim=mean(Ylim)+1*c(-0.5,0.5)*diff(Ylim), xlim=mean(Xlim)+1*c(-0.5,0.5)*diff(Xlim), fill=TRUE) # , orientation=c(mean(y.lim),mean(x.lim),15)
         Tmp1 = na.omit( cbind('PID'=cumsum(is.na(Map$x)), 'POS'=1:length(Map$x), 'X'=Map$x, 'Y'=Map$y, matrix(0,ncol=length(Year_Set),nrow=length(Map$x),dimnames=list(NULL,Year_Set))) )
-        Tmp2 = rbind( Tmp1, cbind('PID'=max(Tmp1[,1])+1,'POS'=1:length(Which)+max(Tmp1[,2]),'X'=Data_Extrap[Which,'Lon'], 'Y'=Data_Extrap[Which,'Lat'], Mat[Which,]) )
+        Tmp2 = rbind( Tmp1, cbind('PID'=max(Tmp1[,1])+1,'POS'=1:length(Which)+max(Tmp1[,2]),'X'=PlotDF[Which,'Lon'], 'Y'=PlotDF[Which,'Lat'], Mat[Which,]) )
         attr(Tmp2,"projection") = "LL"
         attr(Tmp2,"zone") = "10"
         tmpUTM = suppressMessages(convUL(Tmp2))                                                         #$
@@ -36,7 +42,7 @@ function(MappingDetails, Mat, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
         lev = levels(as.factor(tmp@data$PID))
         for(levI in 1:(length(lev)-1)) {
           indx = which(tmpUTM$PID == lev[levI])
-          polygon(tmp@coords[indx,'x'], tmp@coords[indx,'y'], col = "grey")
+          polygon(tmp@coords[indx,'x'], tmp@coords[indx,'y'], col="grey")
         }
       }
       title( Year_Set[t], line=0.1, cex.main=1.5 )

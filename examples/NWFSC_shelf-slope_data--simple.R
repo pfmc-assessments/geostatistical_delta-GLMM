@@ -150,6 +150,7 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
 
   # Plot surface
   par( mfrow=c(3,4) )
+  PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=which(Data_Extrap[,'propInWCGBTS']>0))
   PlotResultsOnMap_Fn(MappingDetails=list("state",c("Oregon","Washington","California")), Report=Report, MapSizeRatio=c("Height(in)"=4,"Width(in)"=1.55), Xlim=c(-126,-117), Ylim=c(32,49), FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=20, mfrow=c(3,4), mar=c(0,0,2,0), oma=c(3.5,3.5,0,0))
 
   # Covariate effect
