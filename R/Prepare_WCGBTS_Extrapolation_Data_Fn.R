@@ -1,8 +1,8 @@
 Prepare_WCGBTS_Extrapolation_Data_Fn <-
 function( strata.limits, surveyname='propInWCGBTS' ){
   # Read extrapolation data
-  data( extrapolation_data )
-  Data_Extrap <- extrapolation_data
+  data( california_current_grid )
+  Data_Extrap <- california_current_grid
 
   # Survey areas
   Area_Tmp = 4*apply(Data_Extrap[,surveyname,drop=FALSE], MARGIN=1, FUN=min)

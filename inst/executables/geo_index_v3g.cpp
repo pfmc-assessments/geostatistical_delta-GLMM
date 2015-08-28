@@ -365,9 +365,7 @@ Type objective_function<Type>::operator() ()
   // Calculate other derived summaries
   // Each is the weighted-average X_xl over polygons (x) with weights equal to abundance in each polygon and time
   matrix<Type> mean_Z_tl(n_t,n_l);
-  array<Type> cov_Z_tl(n_t,n_l,n_l);
   mean_Z_tl.setZero();
-  cov_Z_tl.setZero();
   int report_summary_TF = 0;
   for(int t=0; t<n_t; t++){
   for(int l=0; l<n_l; l++){
@@ -379,6 +377,8 @@ Type objective_function<Type>::operator() ()
     }
   }}
   if( report_summary_TF==true ){
+    array<Type> cov_Z_tl(n_t,n_l,n_l);
+    cov_Z_tl.setZero();
     for(int t=0; t<n_t; t++){
     for(int l1=0; l1<n_l; l1++){
     for(int l2=0; l2<n_l; l2++){
@@ -458,7 +458,7 @@ Type objective_function<Type>::operator() ()
     matrix<Type> mean_relative_Z_tl(n_t,n_l);
     for(int t=0; t<n_t; t++){
     for(int l=0; l<n_l; l++){
-      mean_relative_Z_tl(t,l) = mean_Z_tl(t,l) / mean_Z_tl(0,l)
+      mean_relative_Z_tl(t,l) = mean_Z_tl(t,l) - mean_Z_tl(0,l);
     }}
     REPORT( mean_relative_Z_tl );
     ADREPORT( mean_relative_Z_tl );
