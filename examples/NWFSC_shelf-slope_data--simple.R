@@ -25,14 +25,14 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Settings
 ###############
 
-  Data_Set = c("Canary_rockfish", "Sim")[1]
+  Data_Set = c("WCGBTS_canary_rockfish", "EBS_pollock", "Sim")[2]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3g"
   n_x = c(250, 500, 1000, 2000)[2] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
   CovConfig = c("SST"=0, "RandomNoise"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
   Q_Config = c("Pass"=0)
-  VesselConfig = c("Vessel"=0, "VesselYear"=1)
+  VesselConfig = c("Vessel"=0, "VesselYear"=0)
   ObsModel = 2  # 0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture
   Kmeans_Config = list( "randomseed"=1, "nstart"=100, "iter.max"=1e3 )     # Samples: Do K-means on trawl locs; Domain: Do K-means on extrapolation grid
 
@@ -42,12 +42,21 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
                                                    
 # Decide on strata for use when calculating indices
   # In this case, it will calculate a coastwide index, and also a separate index for each state (although the state lines are approximate)
-strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
-  STRATA  NLat SLat MinDepth MaxDepth
-  Coastwide 49.0 32.0  55       1280
-  CA        42.0 32.0  55       1280
-  OR        46.0 42.0  55       1280
-  WA        49.0 46.0  55       1280
+if( Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
+  strata.limits <- data.frame(matrix(ncol=5, byrow=TRUE, dimnames=list(NULL, c("STRATA","NLat","SLat","MinDepth","MaxDepth")), c(
+    NA,        49.0, 32.0,  55,       1280,
+    NA,        42.0, 32.0,  55,       1280,
+    NA,        46.0, 42.0,  55,       1280,
+    NA,        49.0, 46.0,  55,       1280
+  )))
+  strata.limits[,'STRATA'] = c("Coastwide","CA","OR","WA")
+}
+if( Data_Set %in% c("EBS_pollock")){
+  strata.limits <- data.frame(matrix(ncol=5, byrow=TRUE, dimnames=list(NULL, c("STRATA","NLat","SLat","MinDepth","MaxDepth")), c(
+    NA,        Inf, -Inf,  0,       Inf
+  )))
+  strata.limits[,'STRATA'] = c("All_areas")
+}
 
 # Compile TMB software
   #TmbDir = system.file("executables", package="SpatialDeltaGLMM")
@@ -62,15 +71,28 @@ strata.limits <- nwfscDeltaGLM::readIn(ncol=5,nlines=5)
 ################
 
 # Get extrapolation data
-  Return = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits )
-  Data_Extrap = Return[["Data_Extrap"]]
-  a_el = Return[["a_el"]]
+  if( Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
+    Return = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Data_Extrap = Return[["Data_Extrap"]]
+    a_el = Return[["a_el"]]
+  }
+  if( Data_Set %in% c("EBS_pollock")){
+    Return = Prepare_EBS_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Data_Extrap = Return[["Data_Extrap"]]
+    a_el = Return[["a_el"]]
+  }
 
 # Read or simulate trawl data
-  if(Data_Set=="Canary_rockfish"){
+  if(Data_Set=="WCGBTS_canary_rockfish"){
     data( WCGBTS_Canary_example )
     NWFSC_Trawl <- WCGBTS_Canary_example
     Data_Geostat = data.frame( "Catch_KG"=NWFSC_Trawl[,'HAUL_WT_KG'], "Year"=as.numeric(sapply(NWFSC_Trawl[,'PROJECT_CYCLE'],FUN=function(Char){strsplit(as.character(Char)," ")[[1]][2]})), "Vessel"=NWFSC_Trawl[,"VESSEL"], "AreaSwept_km2"=NWFSC_Trawl[,"AREA_SWEPT_HA"]/1e2, "Lat"=NWFSC_Trawl[,'BEST_LAT_DD'], "Lon"=NWFSC_Trawl[,'BEST_LON_DD'], "Pass"=NWFSC_Trawl[,'PASS']-1.5)
+  }
+  if(Data_Set=="EBS_pollock"){
+    #data( EBS_pollock_data )
+    load( file=paste0(TmbDir,"../../data/EBS_pollock_data.rda") )
+    NWFSC_Trawl <- EBS_pollock_data
+    Data_Geostat = data.frame( "Catch_KG"=NWFSC_Trawl[,'catch'], "Year"=NWFSC_Trawl[,'year'], "Vessel"="missing", "AreaSwept_km2"=2, "Lat"=NWFSC_Trawl[,'lat'], "Lon"=NWFSC_Trawl[,'long'], "Pass"=0)
   }
   if(Data_Set=="Sim"){ #names(Sim_Settings)
     Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, MakePlot=TRUE)
