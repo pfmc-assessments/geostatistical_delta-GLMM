@@ -53,7 +53,7 @@ if( Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
 }
 if( Data_Set %in% c("EBS_pollock")){
   strata.limits <- data.frame(matrix(ncol=5, byrow=TRUE, dimnames=list(NULL, c("STRATA","NLat","SLat","MinDepth","MaxDepth")), c(
-    NA,        Inf, -Inf,  0,       Inf
+    NA,        Inf, -Inf,  -Inf,       Inf
   )))
   strata.limits[,'STRATA'] = c("All_areas")
 }
@@ -91,8 +91,8 @@ if( Data_Set %in% c("EBS_pollock")){
   if(Data_Set=="EBS_pollock"){
     #data( EBS_pollock_data )
     load( file=paste0(TmbDir,"../../data/EBS_pollock_data.rda") )
-    NWFSC_Trawl <- EBS_pollock_data
-    Data_Geostat = data.frame( "Catch_KG"=NWFSC_Trawl[,'catch'], "Year"=NWFSC_Trawl[,'year'], "Vessel"="missing", "AreaSwept_km2"=2, "Lat"=NWFSC_Trawl[,'lat'], "Lon"=NWFSC_Trawl[,'long'], "Pass"=0)
+    NWFSC_Trawl <- EBS_pollock_data                                                                                              # AreaSwept_km2=0.01 -> Converg kg/hectare to kg/km2
+    Data_Geostat = data.frame( "Catch_KG"=NWFSC_Trawl[,'catch'], "Year"=NWFSC_Trawl[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=NWFSC_Trawl[,'lat'], "Lon"=NWFSC_Trawl[,'long'], "Pass"=0)
   }
   if(Data_Set=="Sim"){ #names(Sim_Settings)
     Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, MakePlot=TRUE)
@@ -155,26 +155,41 @@ if( Data_Set %in% c("EBS_pollock")){
   Sdreport = sdreport(Obj)
   
   # Save stuff
-  Save = list("Opt"=Opt, "Report"=Report, "Sdreport"=Sdreport)
+  Save = list("Opt"=Opt, "Report"=Report, "Sdreport"=Sdreport, "ParHat"=Obj$env$parList(Opt$par))
   save(Save, file=paste0(DateFile,"Save.RData"))
   capture.output( Opt, file=paste0(DateFile,"Opt.txt"))
   capture.output( Sdreport, file=paste0(DateFile,"Sdreport.txt"))
-  file.copy( from=paste0(system.file("executables", package="SpatialDeltaGLMM"),"/",dynlib(Version)), to=paste0(DateFile,Version,".cpp"), overwrite=TRUE)
+  file.copy( from=paste0(system.file("executables", package="SpatialDeltaGLMM"),"/",Version,".cpp"), to=paste0(DateFile,Version,".cpp"), overwrite=TRUE)
   
 ################
 # Make diagnostic plots
 ################
 
   # Plot Anisotropy  
-  if(Aniso==1){
+  if( TmbData$Options_vec['Aniso']==1 ){
     PlotAniso_Fn( FileName=paste0(DateFile,"Aniso.png"), Report=Report )
   }
 
   # Plot surface
-  par( mfrow=c(3,4) )
-  PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=which(Data_Extrap[,'propInWCGBTS']>0))
-  PlotResultsOnMap_Fn(MappingDetails=list("state",c("Oregon","Washington","California")), Report=Report, MapSizeRatio=c("Height(in)"=4,"Width(in)"=1.55), Xlim=c(-126,-117), Ylim=c(32,49), FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=20, mfrow=c(3,4), mar=c(0,0,2,0), oma=c(3.5,3.5,0,0))
-
+  Dim = c("Nrow"=ceiling(sqrt(length(Year_Set)))); Dim = c(Dim,"Ncol"=ceiling(length(Year_Set)/Dim['Nrow']))
+  par( mfrow=Dim )
+  if(Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
+    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=which(Data_Extrap[,'propInWCGBTS']>0))
+    Map = list("state",c("Oregon","Washington","California"))
+    Xlim=c(-126,-117); Ylim=c(32,49)
+    MapSizeRatio = c("Height(in)"=4,"Width(in)"=1.55)
+    Rotate = 20
+  }
+  if(Data_Set=="EBS_pollock"){
+    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Data_Extrap[,'EBS_STRATUM']!=0))
+    PlotDF = PlotDF[which(PlotDF[,'Lon']<0),]
+    MappingDetails = list("world", NULL)
+    Xlim = c(-180,-158); Ylim=c(54,63)
+    MapSizeRatio = c("Height(in)"=4,"Width(in)"=5)
+    Rotate = 0
+  }
+  PlotResultsOnMap_Fn(MappingDetails=MappingDetails, Report=Report, PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=20, mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0))
+                                                                                                                           
   # Covariate effect
   PlotCov_Fn(Report=Report, NN_Extrap=NN_Extrap, X_xj=X_xj, FileName=paste0(DateFile,"Cov_"))
   

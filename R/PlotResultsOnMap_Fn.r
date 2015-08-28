@@ -1,6 +1,6 @@
 PlotResultsOnMap_Fn <-
 function(MappingDetails, Report, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set=NULL, Years2Include=NULL,
-         Rescale=FALSE, Rotate=0, Format="png", Res=200, ...){
+         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, ...){
 
   # Fill in missing inputs
   if( is.null(Year_Set) ) Year_Set = 1:ncol(Report$D_xt)
@@ -43,6 +43,6 @@ function(MappingDetails, Report, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Yea
       Mat = Epsilon2_st # maybe should be exponentiated?
     }
     # Do plot
-    PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat[,Years2Include], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[RespI]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, ...)
+    PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat[,Years2Include], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[RespI]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, ...)
   }
 }

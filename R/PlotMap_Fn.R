@@ -1,6 +1,6 @@
 PlotMap_Fn <-
 function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
-         Rescale=FALSE, Rotate=0, Format="png", Res=200, ...){
+         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, ...){
 
   # Transform to grid or other coordinates
   Mat = Mat[PlotDF[,'x2i'],,drop=FALSE]
@@ -33,7 +33,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
         Tmp1 = na.omit( cbind('PID'=cumsum(is.na(Map$x)), 'POS'=1:length(Map$x), 'X'=Map$x, 'Y'=Map$y, matrix(0,ncol=length(Year_Set),nrow=length(Map$x),dimnames=list(NULL,Year_Set))) )
         Tmp2 = rbind( Tmp1, cbind('PID'=max(Tmp1[,1])+1,'POS'=1:length(Which)+max(Tmp1[,2]),'X'=PlotDF[Which,'Lon'], 'Y'=PlotDF[Which,'Lat'], Mat[Which,]) )
         attr(Tmp2,"projection") = "LL"
-        attr(Tmp2,"zone") = "10"
+        attr(Tmp2,"zone") = zone
         tmpUTM = suppressMessages(convUL(Tmp2))                                                         #$
         coordinates(tmpUTM) = c("X","Y")
         tmp <- elide( tmpUTM, rotate=Rotate)
