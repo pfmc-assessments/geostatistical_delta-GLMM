@@ -5,7 +5,8 @@ function( strata.limits ){
   Data_Extrap <- eastern_bering_sea_grid
 
   # Survey areas
-  Area_Tmp = 4 * 1.852^2 * ifelse( Data_Extrap[,'EBS_STRATUM']!=0, 1, 0 )
+  #Area_Tmp = 4 * 1.852^2 * ifelse( Data_Extrap[,'EBS_STRATUM']!=0, 1, 0 )
+  Area_Tmp = Data_Extrap[,'Area_in_survey_km2']
   
   # Augment with strata for each extrapolation cell
   Tmp = cbind("BEST_DEPTH_M"=0, "BEST_LAT_DD"=Data_Extrap[,'Lat'], "propInSurvey"=1)
