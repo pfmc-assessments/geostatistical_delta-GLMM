@@ -1,9 +1,17 @@
 
 setwd("C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/")
 
+# read file
 eastern_bering_sea_grid = read.csv( "data/ebsgrid2nmx2nm.csv", header=TRUE )
 #write.csv(eastern_bering_sea_grid, file="data/ebsgrid2nmx2nm.csv", row.names=FALSE )
 
+# Remove unnecessary columns
+eastern_bering_sea_grid = eastern_bering_sea_grid[,c('POINT_X.N.19.11','POINT_Y.N.19.11','ELEVATION.N.10.0','MID_DEPTH.N.19.11','EBS_STRATU.N.5.0')]
+
+# Rename columns
+colnames(eastern_bering_sea_grid) = sapply(colnames(eastern_bering_sea_grid), FUN=function(char,...){ switch(char, ..., char)}, 'POINT_X.N.19.11'='Lon', 'POINT_Y.N.19.11'='Lat', 'ELEVATION.N.10.0'='Elevation', 'MID_DEPTH.N.19.11'='Mid_Depth', 'EBS_STRATU.N.5.0'='EBS_STRATUM')
+
+# Plot
 Which = which( eastern_bering_sea_grid[,'EBS_STRATUM']!=0 )
 plot( y=eastern_bering_sea_grid[Which,'Lat'], x=eastern_bering_sea_grid[Which,'Lon'])
 

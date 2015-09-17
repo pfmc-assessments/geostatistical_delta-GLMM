@@ -1,0 +1,2 @@
+Attached is a dbf file of 58049 points and a pdf picture of the points with the EBS strata as reference.
+There are 2 bathymetry fields.  Elevation is from polygons digitized by NBS (National Biological Service) in the 1970s. This field is only good out to 200 meters.  Middepth is also from NBS and covers the deeper regions. Basically there is no good bathymetry for the EBS.
