@@ -25,7 +25,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Settings
 ###############
 
-  Data_Set = c("WCGBTS_canary_rockfish", "EBS_pollock", "Sim")[2]
+  Data_Set = c("WCGBTS_canary_rockfish", "EBS_pollock", "GOA_Pcod", "Sim")[3]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3g"
   n_x = c(250, 500, 1000, 2000)[2] # Number of stations
@@ -51,7 +51,7 @@ if( Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
   )))
   strata.limits[,'STRATA'] = c("Coastwide","CA","OR","WA")
 }
-if( Data_Set %in% c("EBS_pollock")){
+if( Data_Set %in% c("EBS_pollock","GOA_Pcod)){
   strata.limits <- data.frame(matrix(ncol=5, byrow=TRUE, dimnames=list(NULL, c("STRATA","NLat","SLat","MinDepth","MaxDepth")), c(
     NA,        Inf, -Inf,  -Inf,       Inf
   )))
@@ -71,7 +71,7 @@ if( Data_Set %in% c("EBS_pollock")){
 ################
 
 # Get extrapolation data
-  if( Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
+  if( Data_Set %in% c("WCGBTS_canary_rockfish", "Sim")){
     Return = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits )
     Data_Extrap = Return[["Data_Extrap"]]
     a_el = Return[["a_el"]]
@@ -81,18 +81,24 @@ if( Data_Set %in% c("EBS_pollock")){
     Data_Extrap = Return[["Data_Extrap"]]
     a_el = Return[["a_el"]]
   }
+  if( Data_Set %in% c("GOA_Pcod")){
+    Return = Prepare_GOA_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Data_Extrap = Return[["Data_Extrap"]]
+    a_el = Return[["a_el"]]
+  }
 
 # Read or simulate trawl data
   if(Data_Set=="WCGBTS_canary_rockfish"){
     data( WCGBTS_Canary_example )
-    NWFSC_Trawl <- WCGBTS_Canary_example
-    Data_Geostat = data.frame( "Catch_KG"=NWFSC_Trawl[,'HAUL_WT_KG'], "Year"=as.numeric(sapply(NWFSC_Trawl[,'PROJECT_CYCLE'],FUN=function(Char){strsplit(as.character(Char)," ")[[1]][2]})), "Vessel"=NWFSC_Trawl[,"VESSEL"], "AreaSwept_km2"=NWFSC_Trawl[,"AREA_SWEPT_HA"]/1e2, "Lat"=NWFSC_Trawl[,'BEST_LAT_DD'], "Lon"=NWFSC_Trawl[,'BEST_LON_DD'], "Pass"=NWFSC_Trawl[,'PASS']-1.5)
+    Data_Geostat = data.frame( "Catch_KG"=WCGBTS_Canary_example[,'HAUL_WT_KG'], "Year"=as.numeric(sapply(WCGBTS_Canary_example[,'PROJECT_CYCLE'],FUN=function(Char){strsplit(as.character(Char)," ")[[1]][2]})), "Vessel"=WCGBTS_Canary_example[,"VESSEL"], "AreaSwept_km2"=WCGBTS_Canary_example[,"AREA_SWEPT_HA"]/1e2, "Lat"=WCGBTS_Canary_example[,'BEST_LAT_DD'], "Lon"=WCGBTS_Canary_example[,'BEST_LON_DD'], "Pass"=WCGBTS_Canary_example[,'PASS']-1.5)
   }
   if(Data_Set=="EBS_pollock"){
-    #data( EBS_pollock_data )
-    load( file=paste0(TmbDir,"../../data/EBS_pollock_data.rda") )
-    NWFSC_Trawl <- EBS_pollock_data                                                                                              # AreaSwept_km2=0.01 -> Converg kg/hectare to kg/km2
-    Data_Geostat = data.frame( "Catch_KG"=NWFSC_Trawl[,'catch'], "Year"=NWFSC_Trawl[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=NWFSC_Trawl[,'lat'], "Lon"=NWFSC_Trawl[,'long'], "Pass"=0)
+    data( EBS_pollock_data )
+    Data_Geostat = data.frame( "Catch_KG"=EBS_pollock_data[,'catch'], "Year"=EBS_pollock_data[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=EBS_pollock_data[,'lat'], "Lon"=EBS_pollock_data[,'long'], "Pass"=0)
+  }
+  if(Data_Set=="GOA_Pcod"){
+    data( GOA_pacific_cod )
+    Data_Geostat = data.frame( "Catch_KG"=GOA_pacific_cod[,'catch'], "Year"=GOA_pacific_cod[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=GOA_pacific_cod[,'lat'], "Lon"=GOA_pacific_cod[,'long'], "Pass"=0)
   }
   if(Data_Set=="Sim"){ #names(Sim_Settings)
     Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, MakePlot=TRUE)
