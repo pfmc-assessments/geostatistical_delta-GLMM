@@ -51,7 +51,7 @@ if( Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
   )))
   strata.limits[,'STRATA'] = c("Coastwide","CA","OR","WA")
 }
-if( Data_Set %in% c("EBS_pollock","GOA_Pcod)){
+if( Data_Set %in% c("EBS_pollock","GOA_Pcod")){
   strata.limits <- data.frame(matrix(ncol=5, byrow=TRUE, dimnames=list(NULL, c("STRATA","NLat","SLat","MinDepth","MaxDepth")), c(
     NA,        Inf, -Inf,  -Inf,       Inf
   )))
@@ -59,8 +59,8 @@ if( Data_Set %in% c("EBS_pollock","GOA_Pcod)){
 }
 
 # Compile TMB software
-  #TmbDir = system.file("executables", package="SpatialDeltaGLMM")
-  TmbDir = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
+  TmbDir = system.file("executables", package="SpatialDeltaGLMM")
+  #TmbDir = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
   setwd( TmbDir )
   compile( paste(Version,".cpp",sep="") )
       
@@ -98,7 +98,9 @@ if( Data_Set %in% c("EBS_pollock","GOA_Pcod)){
   }
   if(Data_Set=="GOA_Pcod"){
     data( GOA_pacific_cod )
-    Data_Geostat = data.frame( "Catch_KG"=GOA_pacific_cod[,'catch'], "Year"=GOA_pacific_cod[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=GOA_pacific_cod[,'lat'], "Lon"=GOA_pacific_cod[,'long'], "Pass"=0)
+    Data_Geostat = data.frame( "Catch_KG"=GOA_pacific_cod[,'catch'], "Year"=GOA_pacific_cod[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=GOA_pacific_cod[,'lat'], "Lon"=GOA_pacific_cod[,'lon'], "Pass"=0)
+    # Rename years and keep track of correspondance (for computational speed, given that there's missing years)
+    Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if(Data_Set=="Sim"){ #names(Sim_Settings)
     Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, MakePlot=TRUE)
@@ -192,6 +194,13 @@ if( Data_Set %in% c("EBS_pollock","GOA_Pcod)){
     MappingDetails = list("world", NULL)
     Xlim = c(-180,-158); Ylim=c(54,63)
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=5)
+    Rotate = 0
+  }
+  if(Data_Set=="GOA_Pcod"){
+    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=1)
+    MappingDetails = list("world", NULL)
+    Xlim = c(-171,-132); Ylim=c(52,61)
+    MapSizeRatio = c("Height(in)"=2.5,"Width(in)"=6)
     Rotate = 0
   }
   PlotResultsOnMap_Fn(MappingDetails=MappingDetails, Report=Report, PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=Rotate, mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0))
