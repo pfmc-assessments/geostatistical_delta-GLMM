@@ -51,11 +51,18 @@ if( Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
   )))
   strata.limits[,'STRATA'] = c("Coastwide","CA","OR","WA")
 }
-if( Data_Set %in% c("EBS_pollock","GOA_Pcod")){
+if( Data_Set %in% c("EBS_pollock")){
   strata.limits <- data.frame(matrix(ncol=5, byrow=TRUE, dimnames=list(NULL, c("STRATA","NLat","SLat","MinDepth","MaxDepth")), c(
     NA,        Inf, -Inf,  -Inf,       Inf
   )))
   strata.limits[,'STRATA'] = c("All_areas")
+}
+if( Data_Set %in% c("GOA_Pcod")){
+  strata.limits <- data.frame(matrix(ncol=3, byrow=TRUE, dimnames=list(NULL, c("STRATA","west_border","east_border")), c(
+    NA,        -Inf, Inf,
+    NA,        -Inf, -140
+  )))
+  strata.limits[,'STRATA'] = c("All_areas", "west_of_140W")
 }
 
 # Compile TMB software
