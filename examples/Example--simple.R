@@ -25,7 +25,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Settings
 ###############
 
-  Data_Set = c("WCGBTS_canary_rockfish", "EBS_pollock", "GOA_Pcod", "Sim")[3]
+  Data_Set = c("WCGBTS_canary_rockfish", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "Sim")[4]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3g"
   n_x = c(250, 500, 1000, 2000)[2] # Number of stations
@@ -57,7 +57,7 @@ if( Data_Set %in% c("EBS_pollock")){
   )))
   strata.limits[,'STRATA'] = c("All_areas")
 }
-if( Data_Set %in% c("GOA_Pcod")){
+if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
   strata.limits <- data.frame(matrix(ncol=3, byrow=TRUE, dimnames=list(NULL, c("STRATA","west_border","east_border")), c(
     NA,        -Inf, Inf,
     NA,        -Inf, -140
@@ -88,7 +88,7 @@ if( Data_Set %in% c("GOA_Pcod")){
     Data_Extrap = Return[["Data_Extrap"]]
     a_el = Return[["a_el"]]
   }
-  if( Data_Set %in% c("GOA_Pcod")){
+  if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
     Return = Prepare_GOA_Extrapolation_Data_Fn( strata.limits=strata.limits )
     Data_Extrap = Return[["Data_Extrap"]]
     a_el = Return[["a_el"]]
@@ -106,6 +106,12 @@ if( Data_Set %in% c("GOA_Pcod")){
   if(Data_Set=="GOA_Pcod"){
     data( GOA_pacific_cod )
     Data_Geostat = data.frame( "Catch_KG"=GOA_pacific_cod[,'catch'], "Year"=GOA_pacific_cod[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=GOA_pacific_cod[,'lat'], "Lon"=GOA_pacific_cod[,'lon'], "Pass"=0)
+    # Rename years and keep track of correspondance (for computational speed, given that there's missing years)
+    Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
+  }
+  if(Data_Set=="GOA_pollock"){
+    data( GOA_walleye_pollock )
+    Data_Geostat = data.frame( "Catch_KG"=GOA_walleye_pollock[,'catch'], "Year"=GOA_walleye_pollock[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=GOA_walleye_pollock[,'lat'], "Lon"=GOA_walleye_pollock[,'lon'], "Pass"=0)
     # Rename years and keep track of correspondance (for computational speed, given that there's missing years)
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
@@ -203,7 +209,7 @@ if( Data_Set %in% c("GOA_Pcod")){
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=5)
     Rotate = 0
   }
-  if(Data_Set=="GOA_Pcod"){
+  if(Data_Set %in% c("GOA_Pcod","GOA_pollock") ){
     PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=1)
     MappingDetails = list("world", NULL)
     Xlim = c(-171,-132); Ylim=c(52,61)
