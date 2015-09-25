@@ -11,7 +11,7 @@ function( strata.limits, surveyname='propInWCGBTS' ){
   Tmp = cbind("BEST_DEPTH_M"=(-1000)*Data_Extrap[,'Depth_km'], "BEST_LAT_DD"=Data_Extrap[,'Lat'], "propInWCGBTS"=Data_Extrap[,'propInWCGBTS'])
   a_el = as.data.frame(matrix(NA, nrow=nrow(Data_Extrap), ncol=nrow(strata.limits), dimnames=list(NULL,strata.limits[,'STRATA'])))
   for(l in 1:ncol(a_el)){
-    a_el[,l] = apply(Tmp , MARGIN=1, FUN=nwfscDeltaGLM::strata.fn, Strata.df=strata.limits[l,])
+    a_el[,l] = apply(Tmp , MARGIN=1, FUN=nwfscDeltaGLM::strata.fn, Strata.df=strata.limits[l,,drop=FALSE])
     a_el[,l] = ifelse( is.na(a_el[,l]), 0, Area_Tmp)
   }
 

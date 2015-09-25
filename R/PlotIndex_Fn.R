@@ -1,5 +1,5 @@
 PlotIndex_Fn <-
-function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, strata.limits, use_biascorr=FALSE, ... ){
+function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, strata_names, use_biascorr=FALSE, ... ){
   # Fill in missing
   if( is.null(Year_Set) ) Year_Set = 1:TmbData$n_t
   if( is.null(Years2Include) ) Years2Include = 1:TmbData$n_t
@@ -20,8 +20,7 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
       Plot_Points_and_Bounds_Fn( y=Index[Years2Include,l,'Estimate'], x=Year_Set[Years2Include]+seq(-0.1,0.1,length=dim(Index)[2])[l], ybounds=exp(log_Index[Years2Include,l,'Estimate']%o%c(1,1)+log_Index[Years2Include,l,'Std. Error']%o%c(-1,1)), type="b", col=rainbow(TmbData[['n_l']])[l], col_bounds=rainbow(TmbData[['n_l']])[l]) 
     }
     # Write to file
-    Names = strata.limits[,'STRATA']
-    Table = data.frame( "Year"=Year_Set, "Unit"=1, "Fleet"=rep(Names,each=dim(Index)[1]), "Estimate (metric tonnes)"=as.vector(Index[,,'Estimate']), "SD"=as.vector(log_Index[,,'Std. Error']) )
+    Table = data.frame( "Year"=Year_Set, "Unit"=1, "Fleet"=rep(strata_names,each=dim(Index)[1]), "Estimate (metric tonnes)"=as.vector(Index[,,'Estimate']), "SD"=as.vector(log_Index[,,'Std. Error']) )
     write.csv( Table, file=paste0(DirName,"/Table_for_SS3.csv"), row.names=FALSE)
   dev.off()
 

@@ -4,15 +4,14 @@ setwd( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM" )
 ######################
 # Species
 ######################
-WCGBTS_Canary_example <- NWFSC_Trawl
-WCGBTS_Canary_example <- WCGBTS_Canary_example[,c('SPECIES','PROJECT_CYCLE','VESSEL','BEST_DEPTH_M','BEST_LAT_DD','BEST_LON_DD','AREA_SWEPT_HA','HAUL_WT_KG','PASS')]
 
-WCGBTS_Canary_example[,'VESSEL'] = paste0( "Vessel_",letters[as.numeric(WCGBTS_Canary_example[,'VESSEL'])] )
-devtools::use_data( WCGBTS_Canary_example, pkg=getwd())
+georges_bank_haddack_spring <- read.csv( "examples/archive of data inputs for creation of grid files/NWA haddack/haddock_gis_spring68to08_saga42.csv" )
+georges_bank_haddack_spring = georges_bank_haddack_spring[,c("Strata","Year","Mon","Day","Time","Depth","Bot_Temp","CatchWt","CatchNum","Latitude","Longitude")]
+georges_bank_haddack_fall <- read.csv( "examples/archive of data inputs for creation of grid files/NWA haddack/haddock_gis_fall63to08_saga42.csv" )
+georges_bank_haddack_fall = georges_bank_haddack_fall[,c("Strata","Year","Mon","Day","Time","Depth","Bot_Temp","CatchWt","CatchNum","Latitude","Longitude")]
 
-# Convert previous TXT format to new RDA format
-data( extrapolation_data )
-devtools::use_data( extrapolation_data, pkg=getwd())
+devtools::use_data( georges_bank_haddack_spring, pkg=getwd())
+devtools::use_data( georges_bank_haddack_fall, pkg=getwd())
 
 #######################
 # Grid
@@ -20,8 +19,13 @@ devtools::use_data( extrapolation_data, pkg=getwd())
 
 northwest_atlantic_grid <- read.table( "examples/archive of data inputs for creation of grid files/NWAgrid2nmx2nm.txt", sep=",", header=TRUE)
 northwest_atlantic_grid = northwest_atlantic_grid[c('STRATUMA','CenterX','CenterY','AreaSQkm')]
-colnames(northwest_atlantic_grid) = sapply(colnames(northwest_atlantic_grid), FUN=function(char,...){ switch(char, ..., char)}, 'STRATUMA'="stratum_area", 'CenterX'="Lon", 'CenterY'="Lat", 'AreaSQkm'="Area_in_survey_km2")
+colnames(northwest_atlantic_grid) = sapply(colnames(northwest_atlantic_grid), FUN=function(char,...){ switch(char, ..., char)}, 'STRATUMA'="stratum_number", 'CenterX'="Lon", 'CenterY'="Lat", 'AreaSQkm'="Area_in_survey_km2")
 
+# Sanity check
+sum(unique( northwest_atlantic_grid[,'stratum_area'] ))
+sum(unique( northwest_atlantic_grid[,'Area_in_survey_km2'] ))
+
+# Plot
 Which = which( northwest_atlantic_grid[,'Area_in_survey_km2']>0 )
 plot( x=northwest_atlantic_grid[Which,'Lon'], y=northwest_atlantic_grid[,'Lat'])
 
