@@ -25,7 +25,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Settings
 ###############
 
-  Data_Set = c("WCGBTS_canary_rockfish", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "Sim")[4]
+  Data_Set = c("WCGBTS_canary_rockfish", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "NWA_spring_Haddack", "Sim")[5]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3g"
   n_x = c(250, 500, 1000, 2000)[2] # Number of stations
@@ -41,28 +41,31 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   capture.output( Record, file=paste0(DateFile,"Record.txt"))
                                                    
 # Decide on strata for use when calculating indices
-  # In this case, it will calculate a coastwide index, and also a separate index for each state (although the state lines are approximate)
 if( Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
-  strata.limits <- data.frame(matrix(ncol=5, byrow=TRUE, dimnames=list(NULL, c("STRATA","NLat","SLat","MinDepth","MaxDepth")), c(
-    NA,        49.0, 32.0,  55,       1280,
-    NA,        42.0, 32.0,  55,       1280,
-    NA,        46.0, 42.0,  55,       1280,
-    NA,        49.0, 46.0,  55,       1280
-  )))
-  strata.limits[,'STRATA'] = c("Coastwide","CA","OR","WA")
+  # In this case, it will calculate a coastwide index, and also a separate index for each state (although the state lines are approximate)
+  strata.limits <- data.frame(
+    'STRATA' = c("Coastwide","CA","OR","WA"),
+    'NLat' = c(49.0, 42.0, 46.0, 49.0),
+    'SLat' = c(32.0, 32.0, 42.0, 46.0),
+    'MinDepth' = c(55, 55, 55, 55),
+    'MaxDepth' = c(1280, 1280, 1280, 1280)
+  )
 }
 if( Data_Set %in% c("EBS_pollock")){
-  strata.limits <- data.frame(matrix(ncol=5, byrow=TRUE, dimnames=list(NULL, c("STRATA","NLat","SLat","MinDepth","MaxDepth")), c(
-    NA,        Inf, -Inf,  -Inf,       Inf
-  )))
-  strata.limits[,'STRATA'] = c("All_areas")
+  # In this case, will not restrict the extrapolation domain at all while calculating an index
+  strata.limits <- data.frame( 'STRATA'="All_areas")
 }
 if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
-  strata.limits <- data.frame(matrix(ncol=3, byrow=TRUE, dimnames=list(NULL, c("STRATA","west_border","east_border")), c(
-    NA,        -Inf, Inf,
-    NA,        -Inf, -140
-  )))
-  strata.limits[,'STRATA'] = c("All_areas", "west_of_140W")
+  # In this case, will calculating an unrestricted index and a separate index restricted to west of -140W
+  strata.limits <- data.frame(
+    'STRATA' = c("All_areas", "west_of_140W"),
+    'west_border' = c(-Inf, -Inf),
+    'east_border' = c(Inf, -140)
+  )
+}
+if( Data_Set %in% c("NWA_spring_Haddack","NWA_fall_Haddack")){
+  # For NEFSC indices, strata must be specified as a named list of 
+  strata.limits = list( 'Georges_Bank'=c(1130, 1140, 1150, 1160, 1170, 1180, 1190, 1200, 1210, 1220, 1230, 1240, 1250, 1290, 1300) )
 }
 
 # Compile TMB software
@@ -93,6 +96,11 @@ if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
     Data_Extrap = Return[["Data_Extrap"]]
     a_el = Return[["a_el"]]
   }
+  if( Data_Set %in% c("NWA_spring_Haddack","NWA_fall_Haddack")){
+    Return = Prepare_NWA_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Data_Extrap = Return[["Data_Extrap"]]
+    a_el = Return[["a_el"]]
+  }
 
 # Read or simulate trawl data
   if(Data_Set=="WCGBTS_canary_rockfish"){
@@ -115,12 +123,23 @@ if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
     # Rename years and keep track of correspondance (for computational speed, given that there's missing years)
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
+  if( Data_Set=="NWA_spring_Haddack"){
+    #data( EBS_pollock_data )
+    NWA_spring_haddack = read.csv( paste0(getwd(),"/archive of data inputs for creation of grid files/NWA haddack/haddock_gis_spring68to08_saga42.csv") )
+    Data_Geostat = data.frame( "Catch_KG"=NWA_spring_haddack[,'CatchWt'], "Year"=NWA_spring_haddack[,'Year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=NWA_spring_haddack[,'Latitude'], "Lon"=NWA_spring_haddack[,'Longitude'])
+  }
   if(Data_Set=="Sim"){ #names(Sim_Settings)
     Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, MakePlot=TRUE)
     Data_Geostat = Sim_DataSet[['Data_Geostat']]
     True_Index = Sim_DataSet[['True_Index']]
   }
   Year_Set = sort(unique(Data_Geostat[,'Year']))
+
+# Exploratory plots
+  par( mfrow=c(1,3) )
+  plot( y=Data_Geostat$Lat, x=Data_Geostat$Lon, cex=0.1, pch=20)
+  plot( y=Data_Extrap$Lat, x=Data_Extrap$Lon, cex=0.1, pch=20)
+  plot( y=Data_Extrap$Lat[which(a_el[,1]!=0)], x=Data_Extrap$Lon[which(a_el[,1]!=0)], cex=0.1, pch=20)
 
 # Convert to an Eastings-Northings coordinate system
   tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Geostat[,'Lon'], Lat=Data_Geostat[,'Lat'] )                                                         #$
@@ -194,6 +213,7 @@ if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
   # Plot surface
   Dim = c("Nrow"=ceiling(sqrt(length(Year_Set)))); Dim = c(Dim,"Ncol"=ceiling(length(Year_Set)/Dim['Nrow']))
   par( mfrow=Dim )
+  Cex = 0.01
   if(Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
     PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=which(Data_Extrap[,'propInWCGBTS']>0))
     Map = list("state",c("Oregon","Washington","California"))
@@ -216,7 +236,15 @@ if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
     MapSizeRatio = c("Height(in)"=2.5,"Width(in)"=6)
     Rotate = 0
   }
-  PlotResultsOnMap_Fn(MappingDetails=MappingDetails, Report=Report, PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=Rotate, mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0))
+  if(Data_Set %in% c("NWA_spring_Haddack","NWA_fall_Haddack") ){
+    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Data_Extrap[,'stratum_number']%in%strata.limits[[1]]))
+    MappingDetails = list("world", NULL)
+    Xlim = c(-80,-65); Ylim=c(32,45)
+    MapSizeRatio = c("Height(in)"=4,"Width(in)"=3)
+    Rotate = 0
+    Cex = 1.5
+  }
+  PlotResultsOnMap_Fn(plot_set=3, MappingDetails=MappingDetails, Report=Report, PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=Rotate, mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=Cex)
                                                                                                                            
   # Covariate effect
   PlotCov_Fn(Report=Report, NN_Extrap=NN_Extrap, X_xj=X_xj, FileName=paste0(DateFile,"Cov_"))
@@ -231,5 +259,5 @@ if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
   Return = Vessel_Fn(TmbData=TmbData, Sdreport=Sdreport, FileName_VYplot=paste0(DateFile,"VY-effect.jpg"))
 
   # Plot index
-  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata.limits=strata.limits )
+  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=colnames(a_el) )
   
