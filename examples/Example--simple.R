@@ -25,9 +25,9 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Settings
 ###############
 
-  Data_Set = c("WCGBTS_canary_rockfish", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "NWA_spring_Haddack", "Sim")[5]
+  Data_Set = c("WCGBTS_canary_rockfish", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "Sim")[1]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
-  Version = "geo_index_v3g"
+  Version = "geo_index_v3h"
   n_x = c(250, 500, 1000, 2000)[2] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
   CovConfig = c("SST"=0, "RandomNoise"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
@@ -41,7 +41,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   capture.output( Record, file=paste0(DateFile,"Record.txt"))
                                                    
 # Decide on strata for use when calculating indices
-if( Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
+  if( Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
   # In this case, it will calculate a coastwide index, and also a separate index for each state (although the state lines are approximate)
   strata.limits <- data.frame(
     'STRATA' = c("Coastwide","CA","OR","WA"),
@@ -50,27 +50,27 @@ if( Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
     'MinDepth' = c(55, 55, 55, 55),
     'MaxDepth' = c(1280, 1280, 1280, 1280)
   )
-}
-if( Data_Set %in% c("EBS_pollock")){
+  }
+  if( Data_Set %in% c("EBS_pollock")){
   # In this case, will not restrict the extrapolation domain at all while calculating an index
   strata.limits <- data.frame( 'STRATA'="All_areas")
-}
-if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
+  }
+  if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
   # In this case, will calculating an unrestricted index and a separate index restricted to west of -140W
   strata.limits <- data.frame(
     'STRATA' = c("All_areas", "west_of_140W"),
     'west_border' = c(-Inf, -Inf),
     'east_border' = c(Inf, -140)
   )
-}
-if( Data_Set %in% c("NWA_spring_Haddack","NWA_fall_Haddack")){
+  }
+  if( Data_Set %in% c("GB_spring_haddock","GB_fall_haddock")){
   # For NEFSC indices, strata must be specified as a named list of 
   strata.limits = list( 'Georges_Bank'=c(1130, 1140, 1150, 1160, 1170, 1180, 1190, 1200, 1210, 1220, 1230, 1240, 1250, 1290, 1300) )
-}
+  }
 
 # Compile TMB software
-  TmbDir = system.file("executables", package="SpatialDeltaGLMM")
-  #TmbDir = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
+  #TmbDir = system.file("executables", package="SpatialDeltaGLMM")
+  TmbDir = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
   setwd( TmbDir )
   compile( paste(Version,".cpp",sep="") )
       
@@ -96,7 +96,7 @@ if( Data_Set %in% c("NWA_spring_Haddack","NWA_fall_Haddack")){
     Data_Extrap = Return[["Data_Extrap"]]
     a_el = Return[["a_el"]]
   }
-  if( Data_Set %in% c("NWA_spring_Haddack","NWA_fall_Haddack")){
+  if( Data_Set %in% c("GB_spring_haddock","GB_fall_haddock")){
     Return = Prepare_NWA_Extrapolation_Data_Fn( strata.limits=strata.limits )
     Data_Extrap = Return[["Data_Extrap"]]
     a_el = Return[["a_el"]]
@@ -123,10 +123,15 @@ if( Data_Set %in% c("NWA_spring_Haddack","NWA_fall_Haddack")){
     # Rename years and keep track of correspondance (for computational speed, given that there's missing years)
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
-  if( Data_Set=="NWA_spring_Haddack"){
-    #data( EBS_pollock_data )
-    NWA_spring_haddack = read.csv( paste0(getwd(),"/archive of data inputs for creation of grid files/NWA haddack/haddock_gis_spring68to08_saga42.csv") )
-    Data_Geostat = data.frame( "Catch_KG"=NWA_spring_haddack[,'CatchWt'], "Year"=NWA_spring_haddack[,'Year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=NWA_spring_haddack[,'Latitude'], "Lon"=NWA_spring_haddack[,'Longitude'])
+  if( Data_Set=="GB_spring_haddock"){
+    #data( georges_bank_haddock_spring )         # standardized area swept = 0.0112 nm^2 = 0.0112/1.852^2 km^2
+    load( paste0(getwd(),"/../data/georges_bank_haddock_spring.rda") )         
+    Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_spring[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_spring[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112/1.852^2, "Lat"=georges_bank_haddock_spring[,'LATITUDE'], "Lon"=georges_bank_haddock_spring[,'LONGITUDE'])
+  }
+  if( Data_Set=="GB_fall_haddock"){
+    #data( georges_bank_haddock_fall )         # standardized area swept = 0.0112 nm^2 = 0.0112/1.852^2 km^2
+    load( paste0(getwd(),"/../data/georges_bank_haddock_fall.rda") )         
+    Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_fall[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_fall[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112/1.852^2, "Lat"=georges_bank_haddock_fall[,'LATITUDE'], "Lon"=georges_bank_haddock_fall[,'LONGITUDE'])
   }
   if(Data_Set=="Sim"){ #names(Sim_Settings)
     Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, MakePlot=TRUE)
@@ -215,8 +220,8 @@ if( Data_Set %in% c("NWA_spring_Haddack","NWA_fall_Haddack")){
   par( mfrow=Dim )
   Cex = 0.01
   if(Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
-    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=which(Data_Extrap[,'propInWCGBTS']>0))
-    Map = list("state",c("Oregon","Washington","California"))
+    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Data_Extrap[,'propInWCGBTS']>0))
+    MappingDetails = list("state",c("Oregon","Washington","California"))
     Xlim=c(-126,-117); Ylim=c(32,49)
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=1.55)
     Rotate = 20
@@ -236,7 +241,7 @@ if( Data_Set %in% c("NWA_spring_Haddack","NWA_fall_Haddack")){
     MapSizeRatio = c("Height(in)"=2.5,"Width(in)"=6)
     Rotate = 0
   }
-  if(Data_Set %in% c("NWA_spring_Haddack","NWA_fall_Haddack") ){
+  if(Data_Set %in% c("GB_spring_haddock","GB_fall_haddock") ){
     PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Data_Extrap[,'stratum_number']%in%strata.limits[[1]]))
     MappingDetails = list("world", NULL)
     Xlim = c(-80,-65); Ylim=c(32,45)
