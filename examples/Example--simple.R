@@ -25,10 +25,10 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Settings
 ###############
 
-  Data_Set = c("WCGBTS_canary_rockfish", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "Sim")[1]
+  Data_Set = c("WCGBTS_canary_rockfish", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "Sim")[2]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3h"
-  n_x = c(250, 500, 1000, 2000)[2] # Number of stations
+  n_x = c(100, 250, 500, 1000, 2000)[3] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
   CovConfig = c("SST"=0, "RandomNoise"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
   Q_Config = c("Pass"=0)
@@ -50,6 +50,10 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     'MinDepth' = c(55, 55, 55, 55),
     'MaxDepth' = c(1280, 1280, 1280, 1280)
   )
+  }
+  if( Data_Set %in% c("BC_pacific_cod")){
+  # In this case, will not restrict the extrapolation domain at all while calculating an index
+  strata.limits <- data.frame( 'STRATA'="All_areas")
   }
   if( Data_Set %in% c("EBS_pollock")){
   # In this case, will not restrict the extrapolation domain at all while calculating an index
@@ -86,6 +90,12 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     Data_Extrap = Return[["Data_Extrap"]]
     a_el = Return[["a_el"]]
   }
+  if( Data_Set %in% c("BC_pacific_cod")){
+    load( paste0(getwd(),"/../../data/bc_coast_grid.rda") )         
+    Return = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, bc_coast_grid=bc_coast_grid )
+    Data_Extrap = Return[["Data_Extrap"]]
+    a_el = Return[["a_el"]]
+  }
   if( Data_Set %in% c("EBS_pollock")){
     Return = Prepare_EBS_Extrapolation_Data_Fn( strata.limits=strata.limits )
     Data_Extrap = Return[["Data_Extrap"]]
@@ -107,6 +117,11 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     data( WCGBTS_Canary_example )
     Data_Geostat = data.frame( "Catch_KG"=WCGBTS_Canary_example[,'HAUL_WT_KG'], "Year"=as.numeric(sapply(WCGBTS_Canary_example[,'PROJECT_CYCLE'],FUN=function(Char){strsplit(as.character(Char)," ")[[1]][2]})), "Vessel"=WCGBTS_Canary_example[,"VESSEL"], "AreaSwept_km2"=WCGBTS_Canary_example[,"AREA_SWEPT_HA"]/1e2, "Lat"=WCGBTS_Canary_example[,'BEST_LAT_DD'], "Lon"=WCGBTS_Canary_example[,'BEST_LON_DD'], "Pass"=WCGBTS_Canary_example[,'PASS']-1.5)
   }
+  if( Data_Set %in% c("BC_pacific_cod")){
+    load( paste0(getwd(),"/../../data/BC_pacific_cod_example.rda") )         
+    Data_Geostat = data.frame( "Catch_KG"=BC_pacific_cod_example[,'PCOD_WEIGHT'], "Year"=BC_pacific_cod_example[,'Year'], "Vessel"="missing", "AreaSwept_km2"=BC_pacific_cod_example[,'TOW.LENGTH..KM.']/100, "Lat"=BC_pacific_cod_example[,'LAT'], "Lon"=BC_pacific_cod_example[,'LON'], "Pass"=0)
+    Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
+  }
   if(Data_Set=="EBS_pollock"){
     data( EBS_pollock_data )
     Data_Geostat = data.frame( "Catch_KG"=EBS_pollock_data[,'catch'], "Year"=EBS_pollock_data[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=EBS_pollock_data[,'lat'], "Lon"=EBS_pollock_data[,'long'], "Pass"=0)
@@ -124,14 +139,14 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if( Data_Set=="GB_spring_haddock"){
-    #data( georges_bank_haddock_spring )         # standardized area swept = 0.0112 nm^2 = 0.0112/1.852^2 km^2
-    load( paste0(getwd(),"/../data/georges_bank_haddock_spring.rda") )         
-    Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_spring[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_spring[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112/1.852^2, "Lat"=georges_bank_haddock_spring[,'LATITUDE'], "Lon"=georges_bank_haddock_spring[,'LONGITUDE'])
+    #data( georges_bank_haddock_spring )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
+    load( paste0(getwd(),"/../../data/georges_bank_haddock_spring.rda") )         
+    Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_spring[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_spring[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112*1.852^2, "Lat"=georges_bank_haddock_spring[,'LATITUDE'], "Lon"=georges_bank_haddock_spring[,'LONGITUDE'])
   }
   if( Data_Set=="GB_fall_haddock"){
-    #data( georges_bank_haddock_fall )         # standardized area swept = 0.0112 nm^2 = 0.0112/1.852^2 km^2
-    load( paste0(getwd(),"/../data/georges_bank_haddock_fall.rda") )         
-    Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_fall[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_fall[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112/1.852^2, "Lat"=georges_bank_haddock_fall[,'LATITUDE'], "Lon"=georges_bank_haddock_fall[,'LONGITUDE'])
+    #data( georges_bank_haddock_fall )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
+    load( paste0(getwd(),"/../../data/georges_bank_haddock_fall.rda") )         
+    Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_fall[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_fall[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112*1.852^2, "Lat"=georges_bank_haddock_fall[,'LATITUDE'], "Lon"=georges_bank_haddock_fall[,'LONGITUDE'])
   }
   if(Data_Set=="Sim"){ #names(Sim_Settings)
     Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, MakePlot=TRUE)
@@ -139,12 +154,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     True_Index = Sim_DataSet[['True_Index']]
   }
   Year_Set = sort(unique(Data_Geostat[,'Year']))
-
-# Exploratory plots
-  par( mfrow=c(1,3) )
-  plot( y=Data_Geostat$Lat, x=Data_Geostat$Lon, cex=0.1, pch=20)
-  plot( y=Data_Extrap$Lat, x=Data_Extrap$Lon, cex=0.1, pch=20)
-  plot( y=Data_Extrap$Lat[which(a_el[,1]!=0)], x=Data_Extrap$Lon[which(a_el[,1]!=0)], cex=0.1, pch=20)
 
 # Convert to an Eastings-Northings coordinate system
   tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Geostat[,'Lon'], Lat=Data_Geostat[,'Lat'] )                                                         #$
@@ -222,6 +231,13 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   if(Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
     PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Data_Extrap[,'propInWCGBTS']>0))
     MappingDetails = list("state",c("Oregon","Washington","California"))
+    Xlim=c(-126,-117); Ylim=c(32,49)
+    MapSizeRatio = c("Height(in)"=4,"Width(in)"=1.55)
+    Rotate = 20
+  }
+  if(Data_Set %in% c("BC_pacific_cod")){
+    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=1)
+    MappingDetails = list("world", NULL)
     Xlim=c(-126,-117); Ylim=c(32,49)
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=1.55)
     Rotate = 20
