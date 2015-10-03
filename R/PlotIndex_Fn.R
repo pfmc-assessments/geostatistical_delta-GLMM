@@ -18,10 +18,10 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
     par( mar=c(3,3,2,0), mgp=c(2,0.5,0), tck=-0.02, yaxs="i", ...)
     plot(1, type="n", xlim=range(Year_Set), ylim=1.05*c(0,max(exp(log_Index[Years2Include,,'Estimate']+interval_width*log_Index[Years2Include,,'Std. Error']))), xlab="Year", ylab="Abundance (metric tonnes)" )
     for(l in 1:dim(Index)[2]){
-      Plot_Points_and_Bounds_Fn( y=Index[Years2Include,l,'Estimate'], x=Year_Set[Years2Include]+seq(-0.1,0.1,length=dim(Index)[2])[l], ybounds=exp(log_Index[Years2Include,l,'Estimate']%o%c(1,1)+log_Index[Years2Include,l,'Std. Error']%o%c(-interval_width,interval_width)), type="b", col=rainbow(TmbData[['n_l']])[l], col_bounds=rainbow(TmbData[['n_l']])[l]) 
+      Plot_Points_and_Bounds_Fn( y=Index[Years2Include,l,'Estimate'], x=Year_Set[Years2Include]+seq(-0.1,0.1,length=dim(Index)[2])[l], ybounds=(Index[Years2Include,l,'Estimate']%o%c(1,1))*exp(log_Index[Years2Include,l,'Std. Error']%o%c(-interval_width,interval_width)), type="b", col=rainbow(TmbData[['n_l']])[l], col_bounds=rainbow(TmbData[['n_l']])[l]) 
     }
     # Write to file
-    Table = data.frame( "Year"=Year_Set, "Unit"=1, "Fleet"=rep(strata_names,each=dim(Index)[1]), "Estimate (metric tonnes)"=as.vector(Index[,,'Estimate']), "SD"=as.vector(log_Index[,,'Std. Error']) )
+    Table = data.frame( "Year"=Year_Set, "Unit"=1, "Fleet"=rep(strata_names,each=dim(Index)[1]), "Estimate (metric tonnes)"=as.vector(Index[,,'Estimate']), "SD (log)"=as.vector(log_Index[,,'Std. Error']), "SD (natural)"=as.vector(Index[,,'Std. Error']) )
     write.csv( Table, file=paste0(DirName,"/Table_for_SS3.csv"), row.names=FALSE)
   dev.off()
 
