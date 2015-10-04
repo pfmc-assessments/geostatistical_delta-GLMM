@@ -1,15 +1,83 @@
 #include <TMB.hpp>
 
+/** Precision matrix for the anisotropic case, eqn (20) in Lindgren et al. (2011) */    
+namespace R_inla_generalized {
+using namespace Eigen;
+using namespace tmbutils;
+using namespace R_inla;
+
+template<class Type>
+  SparseMatrix<Type> Q_spde_generalized(spde_t<Type> spde, Type kappa, int alpha=2){
+  Type kappa_pow2 = kappa*kappa;
+  Type kappa_pow4 = kappa_pow2*kappa_pow2;
+  	
+  if( alpha==1 ) return kappa_pow2*spde.M0 + spde.M1;
+  if( alpha==2 ) return kappa_pow4*spde.M0 + Type(2.0)*kappa_pow2*spde.M1 + spde.M2;
+}
+
+template<class Type>
+  SparseMatrix<Type> Q_spde_generalized(spde_aniso_t<Type> spde, Type kappa, matrix<Type> H, int alpha=2){
+
+  int i;
+  Type kappa_pow2 = kappa*kappa;
+  Type kappa_pow4 = kappa_pow2*kappa_pow2;
+  
+  int n_s = spde.n_s;
+  int n_tri = spde.n_tri;
+  vector<Type> Tri_Area = spde.Tri_Area;
+  matrix<Type> E0 = spde.E0;
+  matrix<Type> E1 = spde.E1;
+  matrix<Type> E2 = spde.E2;
+  matrix<int> TV = spde.TV;
+  SparseMatrix<Type> G0 = spde.G0;
+  SparseMatrix<Type> G0_inv = spde.G0_inv;
+	  	  
+  //Type H_trace = H(0,0)+H(1,1);
+  //Type H_det = H(0,0)*H(1,1)-H(0,1)*H(1,0);
+  SparseMatrix<Type> G1_aniso(n_s,n_s); 
+  SparseMatrix<Type> G2_aniso(n_s,n_s); 
+  // Calculate adjugate of H
+  matrix<Type> adj_H(2,2);
+  adj_H(0,0) = H(1,1);
+  adj_H(0,1) = -1 * H(0,1);
+  adj_H(1,0) = -1 * H(1,0);
+  adj_H(1,1) = H(0,0);
+  // Calculate new SPDE matrices
+
+  // Calculate G1 - pt. 1
+  array<Type> Gtmp(n_tri,3,3);
+  for(i=0; i<n_tri; i++){    
+    // 1st line: E0(i,) %*% adjH %*% t(E0(i,)), etc.    
+    Gtmp(i,0,0) = (E0(i,0)*(E0(i,0)*adj_H(0,0)+E0(i,1)*adj_H(1,0)) + E0(i,1)*(E0(i,0)*adj_H(0,1)+E0(i,1)*adj_H(1,1))) / (4*Tri_Area(i));  
+    Gtmp(i,0,1) = (E1(i,0)*(E0(i,0)*adj_H(0,0)+E0(i,1)*adj_H(1,0)) + E1(i,1)*(E0(i,0)*adj_H(0,1)+E0(i,1)*adj_H(1,1))) / (4*Tri_Area(i));  
+    Gtmp(i,0,2) = (E2(i,0)*(E0(i,0)*adj_H(0,0)+E0(i,1)*adj_H(1,0)) + E2(i,1)*(E0(i,0)*adj_H(0,1)+E0(i,1)*adj_H(1,1))) / (4*Tri_Area(i));
+    Gtmp(i,1,1) = (E1(i,0)*(E1(i,0)*adj_H(0,0)+E1(i,1)*adj_H(1,0)) + E1(i,1)*(E1(i,0)*adj_H(0,1)+E1(i,1)*adj_H(1,1))) / (4*Tri_Area(i));
+    Gtmp(i,1,2) = (E2(i,0)*(E1(i,0)*adj_H(0,0)+E1(i,1)*adj_H(1,0)) + E2(i,1)*(E1(i,0)*adj_H(0,1)+E1(i,1)*adj_H(1,1))) / (4*Tri_Area(i));
+    Gtmp(i,2,2) = (E2(i,0)*(E2(i,0)*adj_H(0,0)+E2(i,1)*adj_H(1,0)) + E2(i,1)*(E2(i,0)*adj_H(0,1)+E2(i,1)*adj_H(1,1))) / (4*Tri_Area(i));
+  }
+  // Calculate G1 - pt. 2
+  for(i=0; i<n_tri; i++){
+    G1_aniso.coeffRef(TV(i,1),TV(i,0)) = G1_aniso.coeffRef(TV(i,1),TV(i,0)) + (Gtmp(i,0,1));  
+    G1_aniso.coeffRef(TV(i,0),TV(i,1)) = G1_aniso.coeffRef(TV(i,0),TV(i,1)) + (Gtmp(i,0,1));  
+    G1_aniso.coeffRef(TV(i,2),TV(i,1)) = G1_aniso.coeffRef(TV(i,2),TV(i,1)) + (Gtmp(i,1,2));  
+    G1_aniso.coeffRef(TV(i,1),TV(i,2)) = G1_aniso.coeffRef(TV(i,1),TV(i,2)) + (Gtmp(i,1,2));  
+    G1_aniso.coeffRef(TV(i,2),TV(i,0)) = G1_aniso.coeffRef(TV(i,2),TV(i,0)) + (Gtmp(i,0,2));  
+    G1_aniso.coeffRef(TV(i,0),TV(i,2)) = G1_aniso.coeffRef(TV(i,0),TV(i,2)) + (Gtmp(i,0,2));  
+    G1_aniso.coeffRef(TV(i,0),TV(i,0)) = G1_aniso.coeffRef(TV(i,0),TV(i,0)) + (Gtmp(i,0,0));  
+    G1_aniso.coeffRef(TV(i,1),TV(i,1)) = G1_aniso.coeffRef(TV(i,1),TV(i,1)) + (Gtmp(i,1,1));  
+    G1_aniso.coeffRef(TV(i,2),TV(i,2)) = G1_aniso.coeffRef(TV(i,2),TV(i,2)) + (Gtmp(i,2,2));  
+  }
+  G2_aniso = G1_aniso * G0_inv * G1_aniso; 
+
+  if( alpha==1 ) return kappa_pow2*G0 + G1_aniso;
+  if( alpha==2 ) return kappa_pow4*G0 + Type(2.0)*kappa_pow2*G1_aniso + G2_aniso;
+}
+} // end namespace R_inla
+
 // Function for detecting NAs
 template<class Type>
 bool isNA(Type x){
   return R_IsNA(asDouble(x));
-}
-
-// plogis
-template<class Type>
-Type plogis(Type x){
-  return 1 / (1 + exp(-x));
 }
 
 // dlnorm
@@ -26,7 +94,7 @@ Type dmixgamma(Type x, Type mean, Type cv1, Type mixprob, Type densratio, Type c
   //Type logres = log( 1e-250 + mixprob*dgamma(x, 1/pow(cv1,2), mean*pow(cv1,2), false) + (1-mixprob)*dgamma(x, 1/pow(cv2,2), mean*(1+densratio)*pow(cv2,2), false) );
   Type ll_1 = dgamma(x, 1/pow(cv1,2), mean*pow(cv1,2), true);
   Type ll_2 = dgamma(x, 1/pow(cv2,2), mean*(1+densratio)*pow(cv2,2), true);
-  Type ll_offset = ll_1*plogis(ll_1 - ll_2) + ll_2*plogis(ll_2 - ll_1);
+  Type ll_offset = ll_1*invlogit(ll_1 - ll_2) + ll_2*invlogit(ll_2 - ll_1);
   Type logres = ll_offset + log( mixprob*exp(ll_1-ll_offset) + (1-mixprob)*exp(ll_2-ll_offset) );
   //Type logres = log( 1e-250 + mixprob*exp(ll_1) + (1-mixprob)*exp(ll_2) );
   if(give_log) return logres; else return exp(logres);
@@ -38,7 +106,7 @@ Type dmixlnorm(Type x, Type logmean, Type sdlog1, Type mixprob, Type densratio, 
   //Type logres = log( 1e-250 + mixprob*dlnorm(x,logmean-pow(sdlog1,2)/2, sdlog1, false) + (1-mixprob)*dlnorm(x,logmean+log(1+densratio)-pow(sdlog2,2)/2, sdlog2, false) );
   Type ll_1 = dlnorm(x,logmean-pow(sdlog1,2)/2, sdlog1, true);
   Type ll_2 = dlnorm(x,logmean+log(1+densratio)-pow(sdlog2,2)/2, sdlog2, true);
-  Type ll_offset = ll_1*plogis(ll_1 - ll_2) + ll_2*plogis(ll_2 - ll_1);
+  Type ll_offset = ll_1*invlogit(ll_1 - ll_2) + ll_2*invlogit(ll_2 - ll_1);
   Type logres = ll_offset + log( mixprob*exp(ll_1-ll_offset) + (1-mixprob)*exp(ll_2-ll_offset) );
   //Type logres = log( 1e-250 + mixprob*exp(ll_1) + (1-mixprob)*exp(ll_2) );
   if(give_log) return logres; else return exp(logres);
@@ -51,6 +119,7 @@ Type objective_function<Type>::operator() ()
   using namespace R_inla;
   using namespace Eigen;
   using namespace density;
+  using namespace R_inla_generalized;
   
   // Dimensions
   DATA_INTEGER(n_i);         // Number of observations (stacked across all years)
@@ -67,6 +136,7 @@ Type objective_function<Type>::operator() ()
   // Slot 0 -- Aniso: 0=No, 1=Yes
   // Slot 1 -- R2 interpretation: 0=R2 is positive_density, 1=R2 is density (including zeros)
   // Slot 2 -- AR1 on betas (year intercepts) to deal with missing years: 0=No, 1=Yes
+  // Slot 3 -- smoothness alpha (1: alpha=1, 2: alpha=2)
   DATA_FACTOR(FieldConfig);  // Input settings
   DATA_FACTOR(ObsModel);    // Observation model
   DATA_FACTOR(Options);    // Reporting options
@@ -82,14 +152,12 @@ Type objective_function<Type>::operator() ()
   DATA_MATRIX(Q_ik);        // Catchability matrix (observations x variable)
   DATA_MATRIX(Z_xl);        // Derived quantity matrix
 
-  // Aniso objects
-  DATA_STRUCT(spde,spde_aniso_t);
-  
   // SPDE objects
-  DATA_SPARSE_MATRIX(G0);
-  DATA_SPARSE_MATRIX(G1);
-  DATA_SPARSE_MATRIX(G2);
-
+  DATA_STRUCT(spde,spde_t);
+  
+  // Aniso objects
+  DATA_STRUCT(spde_aniso,spde_aniso_t);
+  
   // Parameters 
   PARAMETER_VECTOR(ln_H_input); // Anisotropy parameters
   //  -- presence/absence
@@ -194,12 +262,14 @@ Type objective_function<Type>::operator() ()
   Eigen::SparseMatrix<Type> Q1;
   Eigen::SparseMatrix<Type> Q2;
   if( Options_vec(0)==0 ){
-    Q1 = kappa1_pow4*G0 + Type(2.0)*kappa1_pow2*G1 + G2;
-    Q2 = kappa2_pow4*G0 + Type(2.0)*kappa2_pow2*G1 + G2;
+    Q1 = Q_spde_generalized(spde, exp(logkappa1), Options_vec(3));
+    Q2 = Q_spde_generalized(spde, exp(logkappa2), Options_vec(3));
+    //Q1 = kappa1_pow4*G0 + Type(2.0)*kappa1_pow2*G1 + G2;
+    //Q2 = kappa2_pow4*G0 + Type(2.0)*kappa2_pow2*G1 + G2;
   }
   if( Options_vec(0)==1 ){
-    Q1 = Q_spde(spde, exp(logkappa1), H);
-    Q2 = Q_spde(spde, exp(logkappa2), H);
+    Q1 = Q_spde_generalized(spde_aniso, exp(logkappa1), H, Options_vec(3));
+    Q2 = Q_spde_generalized(spde_aniso, exp(logkappa2), H, Options_vec(3));
   }
   GMRF_t<Type> Tmp1 = GMRF(Q1);
   GMRF_t<Type> Tmp2 = GMRF(Q2);
@@ -266,7 +336,7 @@ Type objective_function<Type>::operator() ()
   for (int i=0;i<n_i;i++){
     // Presence-absence prediction
     P1_i(i) =  beta1_t(t_i(i)) + Omega1_s(s_i(i)) + Epsilon1_st(s_i(i),t_i(i)) + eta1_x(s_i(i)) + zeta1_i(i) + nu1_v(v_i(i)) + nu1_vt(v_i(i),t_i(i));
-    R1_i(i) = plogis( P1_i(i) ); 
+    R1_i(i) = invlogit( P1_i(i) ); 
     // Positive density prediction
     if( b_i(i)>0 | ObsModel(0)==5 ){    // 1e-500 causes overflow on laptop
       P2_i(i) =  beta2_t(t_i(i)) + Omega2_s(s_i(i)) + Epsilon2_st(s_i(i),t_i(i)) + eta2_x(s_i(i)) + zeta2_i(i) + nu2_v(v_i(i)) + nu2_vt(v_i(i),t_i(i));
@@ -332,7 +402,7 @@ Type objective_function<Type>::operator() ()
   for(int t=0;t<n_t;t++){
   for(int x=0;x<n_x;x++){
     P1_xt(x,t) = beta1_t(t) + Omega1_s(x) + Epsilon1_st(x,t) + eta1_x(x);
-    R1_xt(x,t) = plogis( P1_xt(x,t) );     
+    R1_xt(x,t) = invlogit( P1_xt(x,t) );     
     P2_xt(x,t) =  beta2_t(t) + Omega2_s(x) + Epsilon2_st(x,t) + eta2_x(x);
     if(ObsModel(0)==0 | ObsModel(0)==1 | ObsModel(0)==2 | ObsModel(0)==4 | ObsModel(0)==5) R2_xt(x,t) = exp( P2_xt(x,t) );
     if(ObsModel(0)==11 | ObsModel(0)==12) R2_xt(x,t) = SigmaM(1)*exp(P2_xt(x,t)) + (1-SigmaM(1))*exp(P2_xt(x,t))*(1+SigmaM(2) );

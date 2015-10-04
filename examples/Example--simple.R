@@ -91,8 +91,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     a_el = Return[["a_el"]]
   }
   if( Data_Set %in% c("BC_pacific_cod")){
-    load( paste0(getwd(),"/../../data/bc_coast_grid.rda") )         
-    Return = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, bc_coast_grid=bc_coast_grid )
+    Return = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits )
     Data_Extrap = Return[["Data_Extrap"]]
     a_el = Return[["a_el"]]
   }
@@ -180,6 +179,16 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Make mesh and info for anisotropy
   MeshList = Calc_Anisotropic_Mesh(loc_x=loc_x)
 
+# Descriptive plots
+  par( mfrow=c(1,3))
+  plot( loc_x[,c("E_km","N_km")] )
+  plot(Data_Extrap[,c("E_km","N_km")])
+  plot(Data_Geostat[,c("E_km","N_km")])
+
+  par( mfrow=c(1,2))
+  plot(Data_Extrap[,c("Lon","Lat")])
+  plot(Data_Geostat[,c("Lon","Lat")])
+
 ################
 # Make and Run TMB model
 # (THIS WILL BE SIMILAR FOR EVERY DATA SET) 
@@ -238,9 +247,9 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   if(Data_Set %in% c("BC_pacific_cod")){
     PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=1)
     MappingDetails = list("world", NULL)
-    Xlim=c(-126,-117); Ylim=c(32,49)
-    MapSizeRatio = c("Height(in)"=4,"Width(in)"=1.55)
-    Rotate = 20
+    Xlim=c(-133,-126); Ylim=c(50,55)
+    MapSizeRatio = c("Height(in)"=2,"Width(in)"=2)
+    Rotate = 0
   }
   if(Data_Set=="EBS_pollock"){
     PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Data_Extrap[,'EBS_STRATUM']!=0))
