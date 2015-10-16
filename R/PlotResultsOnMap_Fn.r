@@ -8,7 +8,8 @@ function(MappingDetails, Report, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Yea
   # Extract elements
   attach( Report )
   on.exit( detach(Report) )
-  plot_codes <- c("Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled","Eps_Pres","Eps_Pos")
+  plot_codes <- c("Pres", "Pos", "Dens", "Pos_Rescaled", "Dens_Rescaled", "Eps_Pres", "Eps_Pos")
+  margintext <- c("", "", "Density, ln(kg. per square km.)", "", "", "", "")
 
   # Loop through plots
   for(plot_num in plot_set){
@@ -43,6 +44,6 @@ function(MappingDetails, Report, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Yea
       Mat = Epsilon2_st # maybe should be exponentiated?
     }
     # Do plot
-    PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat[,Years2Include], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[plot_num]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, ...)
+    PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat[,Years2Include], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[plot_num]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, margintext=margintext, ...)
   }
 }

@@ -1,6 +1,6 @@
 PlotMap_Fn <-
 function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
-         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, ...){
+         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, margintext="", ...){
 
   # Transform to grid or other coordinates
   Mat = Mat[PlotDF[,'x2i'],,drop=FALSE]
@@ -61,6 +61,6 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
     jpeg(file=paste0(FileName, "_Legend.jpg",sep=""),
          width=1, height=2*MapSizeRatio['Height(in)'], res=200, units='in')
   }
-    Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), margintext="" )
+    Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), margintext=margintext )
   dev.off()
 }
