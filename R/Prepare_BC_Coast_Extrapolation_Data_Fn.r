@@ -1,11 +1,11 @@
 Prepare_BC_Coast_Extrapolation_Data_Fn <-
-function( strata.limits, bc_coast_grid=NULL ){
+function( strata.limits, bc_coast_grid=NULL, strata_to_use=c('SOG','WCVI','QCS','HS','WCHG') ){
   # Read extrapolation data
   if( is.null(bc_coast_grid) ) data( bc_coast_grid )
   Data_Extrap <- bc_coast_grid
 
   # Survey areas
-  Area_Tmp = Data_Extrap[,'Area_KM2']
+  Area_Tmp = rowSums( Data_Extrap[,strata_to_use] )
   
   # Augment with strata for each extrapolation cell
   Tmp = cbind("BEST_DEPTH_M"=0, "BEST_LAT_DD"=Data_Extrap[,'Lat'], "BEST_LON_DD"=Data_Extrap[,'Lon'])
