@@ -28,7 +28,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Data_Set = c("WCGBTS_canary_rockfish", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "Sim")[2]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3h"
-  n_x = c(100, 250, 500, 1000, 2000)[3] # Number of stations
+  n_x = c(100, 250, 500, 1000, 2000)[2] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
   CovConfig = c("SST"=0, "RandomNoise"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
   Q_Config = c("Pass"=0)
@@ -91,7 +91,8 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     a_el = Return[["a_el"]]
   }
   if( Data_Set %in% c("BC_pacific_cod")){
-    Return = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    load( paste0("../../data/bc_coast_grid.rda") )
+    Return = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, bc_coast_grid=bc_coast_grid, strata_to_use=c("HS","QCS") )
     Data_Extrap = Return[["Data_Extrap"]]
     a_el = Return[["a_el"]]
   }
@@ -119,6 +120,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   if( Data_Set %in% c("BC_pacific_cod")){
     load( paste0(getwd(),"/../../data/BC_pacific_cod_example.rda") )         
     Data_Geostat = data.frame( "Catch_KG"=BC_pacific_cod_example[,'PCOD_WEIGHT'], "Year"=BC_pacific_cod_example[,'Year'], "Vessel"="missing", "AreaSwept_km2"=BC_pacific_cod_example[,'TOW.LENGTH..KM.']/100, "Lat"=BC_pacific_cod_example[,'LAT'], "Lon"=BC_pacific_cod_example[,'LON'], "Pass"=0)
+    Data_Geostat = na.omit( Data_Geostat )
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if(Data_Set=="EBS_pollock"){
@@ -215,7 +217,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     
   # Reports
   Report = Obj$report()                                      
-  Sdreport = sdreport(Obj)
+  Sdreport = sdreport(Obj, bias.correct=TRUE)
   
   # Save stuff
   Save = list("Opt"=Opt, "Report"=Report, "Sdreport"=Sdreport, "ParHat"=Obj$env$parList(Opt$par))
@@ -245,11 +247,13 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     Rotate = 20
   }
   if(Data_Set %in% c("BC_pacific_cod")){
-    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=1)
+    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=ifelse(rowSums(Data_Extrap[,c("HS","QCS")])>0,1,0) )
     MappingDetails = list("world", NULL)
     Xlim=c(-133,-126); Ylim=c(50,55)
     MapSizeRatio = c("Height(in)"=2,"Width(in)"=2)
     Rotate = 0
+    Cex = 0.1
+    Year_Set = unique(BC_pacific_cod_example[,'Year'])
   }
   if(Data_Set=="EBS_pollock"){
     PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Data_Extrap[,'EBS_STRATUM']!=0))
@@ -286,5 +290,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Return = Vessel_Fn(TmbData=TmbData, Sdreport=Sdreport, FileName_VYplot=paste0(DateFile,"VY-effect.jpg"))
 
   # Plot index
-  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=colnames(a_el) )
+  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=colnames(a_el), use_biascorr=TRUE, rawdata=Data_Geostat, total_area_km2=sum(a_el[,1]) )
+
   

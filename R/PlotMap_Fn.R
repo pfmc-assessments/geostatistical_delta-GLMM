@@ -12,7 +12,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
   Col = colorRampPalette(colors=c("darkblue","blue","lightblue","lightgreen","yellow","orange","red"))
   
   # Plot
-  Par = par(...)
+  Par = list(...)
   if(Format=="png"){
     png(file=paste0(FileName, ".png"),
         width=Par$mfrow[2]*MapSizeRatio['Width(in)'],
