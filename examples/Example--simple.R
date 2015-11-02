@@ -73,8 +73,8 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   }
 
 # Compile TMB software
-  #TmbDir = system.file("executables", package="SpatialDeltaGLMM")
-  TmbDir = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
+  TmbDir = system.file("executables", package="SpatialDeltaGLMM")
+  #TmbDir = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
   setwd( TmbDir )
   compile( paste(Version,".cpp",sep="") )
       
@@ -140,13 +140,15 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if( Data_Set=="GB_spring_haddock"){
-    #data( georges_bank_haddock_spring )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
-    load( paste0(getwd(),"/../../data/georges_bank_haddock_spring.rda") )         
+    data( georges_bank_haddock_spring )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
+    Print_Message( "GB_haddock" )
+    #load( paste0(getwd(),"/../../data/georges_bank_haddock_spring.rda") )         
     Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_spring[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_spring[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112*1.852^2, "Lat"=georges_bank_haddock_spring[,'LATITUDE'], "Lon"=georges_bank_haddock_spring[,'LONGITUDE'])
   }
   if( Data_Set=="GB_fall_haddock"){
-    #data( georges_bank_haddock_fall )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
-    load( paste0(getwd(),"/../../data/georges_bank_haddock_fall.rda") )         
+    data( georges_bank_haddock_fall )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
+    Print_Message( "GB_haddock" )
+    #load( paste0(getwd(),"/../../data/georges_bank_haddock_fall.rda") )         
     Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_fall[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_fall[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112*1.852^2, "Lat"=georges_bank_haddock_fall[,'LATITUDE'], "Lon"=georges_bank_haddock_fall[,'LONGITUDE'])
   }
   if(Data_Set=="Sim"){ #names(Sim_Settings)
@@ -180,16 +182,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 
 # Make mesh and info for anisotropy
   MeshList = Calc_Anisotropic_Mesh(loc_x=loc_x)
-
-# Descriptive plots
-  par( mfrow=c(1,3))
-  plot( loc_x[,c("E_km","N_km")] )
-  plot(Data_Extrap[,c("E_km","N_km")])
-  plot(Data_Geostat[,c("E_km","N_km")])
-
-  par( mfrow=c(1,2))
-  plot(Data_Extrap[,c("Lon","Lat")])
-  plot(Data_Geostat[,c("Lon","Lat")])
 
 ################
 # Make and Run TMB model

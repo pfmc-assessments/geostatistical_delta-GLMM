@@ -25,6 +25,8 @@ function( Version, FieldConfig, ObsModel, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q
   # by default, add nothing as Z_xl
   if( is.null(Z_xl) ){
     Z_xl = matrix(0, nrow=nrow(a_xl), ncol=ncol(a_xl) )
+  }else{
+    if( ncol(Z_xl)!=ncol(a_xl) ) stop("Z_xl and a_xl must have the same number of columns")
   }
   # Output tagged list
   if(Version=="geo_index_v3a"){

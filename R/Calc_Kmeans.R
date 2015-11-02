@@ -1,10 +1,14 @@
 Calc_Kmeans <-
 function(n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=NULL, Save_Results=TRUE){
+  # get old seed
+  oldseed = ceiling(runif(1,min=1,max=1e6))
+  # fix new seed
   if( !is.null(randomseed) ) set.seed( round(randomseed) )
   old.options <- options()
   options( "warn" = -1 )
   on.exit( options(old.options) )
   if( is.null(DirPath) ) DirPath = paste0(getwd(),"/")
+  # Only calculate if knots > number of locations
   if( length(unique(paste(loc_orig[,1],loc_orig[,2],sep="_")))<=n_x ){
     Unique = unique(paste(loc_orig[,1],loc_orig[,2],sep="_"))
     Kmeans = NULL
@@ -28,5 +32,8 @@ function(n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=NULL
       message( "Calculated and saved to ",DirPath,"/","Kmeans-",n_x,".RData" )
     }
   }
+  # fix to old seed
+  if( !is.null(randomseed) ) set.seed( oldseed )
+  # return stuff
   return( Kmeans )
 }
