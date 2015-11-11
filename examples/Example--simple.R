@@ -76,8 +76,8 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   }
 
 # Compile TMB software
-  TmbDir = system.file("executables", package="SpatialDeltaGLMM")
-  #TmbDir = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
+  #TmbDir = system.file("executables", package="SpatialDeltaGLMM")
+  TmbDir = "C:/Users/Jim/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
   setwd( TmbDir )
   compile( paste(Version,".cpp",sep="") )
       
@@ -89,35 +89,29 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 
 # Get extrapolation data
   if( Data_Set %in% c("WCGBTS_canary_rockfish", "Sim")){
-    Return = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits )
-    Data_Extrap = Return[["Data_Extrap"]]
-    a_el = Return[["a_el"]]
+    Extrapolation_List = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Data_Extrap = Extrapolation_List[["Data_Extrap"]]
   }
   if( Data_Set %in% c("BC_pacific_cod")){
     load( paste0("../../data/bc_coast_grid.rda") )
-    Return = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, bc_coast_grid=bc_coast_grid, strata_to_use=c("HS","QCS") )
-    Data_Extrap = Return[["Data_Extrap"]]
-    a_el = Return[["a_el"]]
+    Extrapolation_List = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, bc_coast_grid=bc_coast_grid, strata_to_use=c("HS","QCS") )
+    Data_Extrap = Extrapolation_List[["Data_Extrap"]]
   }
   if( Data_Set %in% c("EBS_pollock")){
-    Return = Prepare_EBS_Extrapolation_Data_Fn( strata.limits=strata.limits )
-    Data_Extrap = Return[["Data_Extrap"]]
-    a_el = Return[["a_el"]]
+    Extrapolation_List = Prepare_EBS_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Data_Extrap = Extrapolation_List[["Data_Extrap"]]
   }
   if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
-    Return = Prepare_GOA_Extrapolation_Data_Fn( strata.limits=strata.limits )
-    Data_Extrap = Return[["Data_Extrap"]]
-    a_el = Return[["a_el"]]
+    Extrapolation_List = Prepare_GOA_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Data_Extrap = Extrapolation_List[["Data_Extrap"]]
   }
   if( Data_Set %in% c("GB_spring_haddock","GB_fall_haddock")){
-    Return = Prepare_NWA_Extrapolation_Data_Fn( strata.limits=strata.limits )
-    Data_Extrap = Return[["Data_Extrap"]]
-    a_el = Return[["a_el"]]
+    Extrapolation_List = Prepare_NWA_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Data_Extrap = Extrapolation_List[["Data_Extrap"]]
   }
   if( Data_Set %in% c("SAWC_jacopever")){
-    Return = Prepare_SA_Extrapolation_Data_Fn( strata.limits=strata.limits )
-    Data_Extrap = Return[["Data_Extrap"]]
-    a_el = Return[["a_el"]]
+    Extrapolation_List = Prepare_SA_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Data_Extrap = Extrapolation_List[["Data_Extrap"]]
   }
 
 # Read or simulate trawl data
@@ -156,13 +150,13 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   if( Data_Set=="GB_fall_haddock"){
     data( georges_bank_haddock_fall )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
     Print_Message( "GB_haddock" )
-    #load( paste0(getwd(),"/../../data/georges_bank_haddock_fall.rda") )         
     Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_fall[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_fall[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112*1.852^2, "Lat"=georges_bank_haddock_fall[,'LATITUDE'], "Lon"=georges_bank_haddock_fall[,'LONGITUDE'])
   }
   if( Data_Set=="SAWC_jacopever"){
     #data( georges_bank_haddock_fall )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
-    Data = read.csv( paste0(getwd(),"/archive of data inputs for creation of grid files/South Africa/SAWC_geodata.csv") )
+    Data = read.csv( paste0(getwd(),"/../../examples/archive of data inputs for creation of grid files/South Africa/SAWC_geodata.csv") )
     Data_Geostat = data.frame( "Catch_KG"=Data[,'HELDAC'], "Year"=Data[,'Year'], "Vessel"="missing", "AreaSwept_km2"=Data[,'area_swept_nm2']*1.852^2, "Lat"=Data[,'cen_lat'], "Lon"=Data[,'cen_long'])
+    Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if(Data_Set=="Sim"){ #names(Sim_Settings)
     Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, MakePlot=TRUE)
@@ -172,7 +166,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Year_Set = sort(unique(Data_Geostat[,'Year']))
 
 # Convert to an Eastings-Northings coordinate system
-  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Geostat[,'Lon'], Lat=Data_Geostat[,'Lat'] )                                                         #$
+  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Geostat[,'Lon'], Lat=Data_Geostat[,'Lat'], zone=Extrapolation_List[["zone"]] )                                                         #$
   Data_Geostat = cbind( Data_Geostat, 'E_km'=tmpUTM[,'X'], 'N_km'=tmpUTM[,'Y'])
 
 # Calculate k-means centroids (but only once for all species)
@@ -180,8 +174,14 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   loc_x = Kmeans$centers
   Data_Geostat = cbind( Data_Geostat, "knot_i"=Kmeans$cluster )
 
+# Visualize stuff
+  par( mfrow=c(1,3) )
+  plot( Data_Extrap[,c("E_km", "N_km")] )
+  plot( Data_Geostat[,c("E_km", "N_km")] )
+  plot( loc_x )
+
 # Calc design matrix and areas
-  PolygonList = Calc_Polygon_Areas_and_Polygons_Fn( loc_x=loc_x, Data_Extrap=Data_Extrap, Covariates=c("none"), a_el=a_el)
+  PolygonList = Calc_Polygon_Areas_and_Polygons_Fn( loc_x=loc_x, Data_Extrap=Data_Extrap, Covariates=c("none"), a_el=Extrapolation_List[["a_el"]])
   X_xj = PolygonList[["X_xj"]]
   a_xl = PolygonList[["a_xl"]]
   NN_Extrap = PolygonList[["NN_Extrap"]]
@@ -283,6 +283,14 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     Rotate = 0
     Cex = 1.5
   }
+  if(Data_Set %in% c("SAWC_jacopever") ){
+    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Data_Extrap[,'stratum']%in%strata.limits[[1]]))
+    MappingDetails = list("world", NULL)
+    Xlim = c(14,26); Ylim=c(-37,-28)
+    MapSizeRatio = c("Height(in)"=4,"Width(in)"=3)
+    Rotate = 0
+    Cex = 1.5
+  }
   PlotResultsOnMap_Fn(plot_set=3, MappingDetails=MappingDetails, Report=Report, PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=Rotate, mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=Cex)
                                                                                                                            
   # Covariate effect
@@ -295,6 +303,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Return = Vessel_Fn(TmbData=TmbData, Sdreport=Sdreport, FileName_VYplot=paste0(DateFile,"VY-effect.jpg"))
 
   # Plot index
-  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=colnames(a_el), use_biascorr=TRUE, rawdata=Data_Geostat, total_area_km2=sum(a_el[,1]) )
+  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=colnames(Extrapolation_List[["a_el"]]), use_biascorr=TRUE, rawdata=Data_Geostat, total_area_km2=sum(Extrapolation_List[["a_el"]][,1]) )
 
   

@@ -20,8 +20,9 @@ function( strata.limits ){
   # Extra junk
   Data_Extrap = cbind( Data_Extrap, 'Include'=1)
   Data_Extrap[,c('E_km','N_km')] = tmpUTM[,c('X','Y')]
+  colnames(Data_Extrap)[1:2] = c("Lon","Lat")
 
   # Return
-  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap)
+  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"))
   return( Return )
 }

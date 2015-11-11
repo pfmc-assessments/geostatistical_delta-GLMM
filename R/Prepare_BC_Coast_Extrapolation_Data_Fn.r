@@ -24,6 +24,6 @@ function( strata.limits, bc_coast_grid=NULL, strata_to_use=c('SOG','WCVI','QCS',
   Data_Extrap[,c('E_km','N_km')] = tmpUTM[,c('X','Y')]
 
   # Return
-  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap)
+  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"))
   return( Return )
 }
