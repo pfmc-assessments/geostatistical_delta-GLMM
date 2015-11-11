@@ -25,7 +25,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Settings
 ###############
 
-  Data_Set = c("WCGBTS_canary_rockfish", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "Sim")[2]
+  Data_Set = c("WCGBTS_canary_rockfish", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[8]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3h"
   n_x = c(100, 250, 500, 1000, 2000)[2] # Number of stations
@@ -71,6 +71,9 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   # For NEFSC indices, strata must be specified as a named list of 
   strata.limits = list( 'Georges_Bank'=c(1130, 1140, 1150, 1160, 1170, 1180, 1190, 1200, 1210, 1220, 1230, 1240, 1250, 1290, 1300) )
   }
+  if( Data_Set %in% c("SAWC_jacopever")){
+  strata.limits = list( 'strata'="west_coast" )
+  }
 
 # Compile TMB software
   TmbDir = system.file("executables", package="SpatialDeltaGLMM")
@@ -108,6 +111,11 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   }
   if( Data_Set %in% c("GB_spring_haddock","GB_fall_haddock")){
     Return = Prepare_NWA_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Data_Extrap = Return[["Data_Extrap"]]
+    a_el = Return[["a_el"]]
+  }
+  if( Data_Set %in% c("SAWC_jacopever")){
+    Return = Prepare_SA_Extrapolation_Data_Fn( strata.limits=strata.limits )
     Data_Extrap = Return[["Data_Extrap"]]
     a_el = Return[["a_el"]]
   }
@@ -150,6 +158,11 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     Print_Message( "GB_haddock" )
     #load( paste0(getwd(),"/../../data/georges_bank_haddock_fall.rda") )         
     Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_fall[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_fall[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112*1.852^2, "Lat"=georges_bank_haddock_fall[,'LATITUDE'], "Lon"=georges_bank_haddock_fall[,'LONGITUDE'])
+  }
+  if( Data_Set=="SAWC_jacopever"){
+    #data( georges_bank_haddock_fall )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
+    Data = read.csv( paste0(getwd(),"/archive of data inputs for creation of grid files/South Africa/SAWC_geodata.csv") )
+    Data_Geostat = data.frame( "Catch_KG"=Data[,'HELDAC'], "Year"=Data[,'Year'], "Vessel"="missing", "AreaSwept_km2"=Data[,'area_swept_nm2']*1.852^2, "Lat"=Data[,'cen_lat'], "Lon"=Data[,'cen_long'])
   }
   if(Data_Set=="Sim"){ #names(Sim_Settings)
     Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, MakePlot=TRUE)
