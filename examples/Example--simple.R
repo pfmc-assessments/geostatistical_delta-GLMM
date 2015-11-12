@@ -90,28 +90,22 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Get extrapolation data
   if( Data_Set %in% c("WCGBTS_canary_rockfish", "Sim")){
     Extrapolation_List = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits )
-    Data_Extrap = Extrapolation_List[["Data_Extrap"]]
   }
   if( Data_Set %in% c("BC_pacific_cod")){
     load( paste0("../../data/bc_coast_grid.rda") )
     Extrapolation_List = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, bc_coast_grid=bc_coast_grid, strata_to_use=c("HS","QCS") )
-    Data_Extrap = Extrapolation_List[["Data_Extrap"]]
   }
   if( Data_Set %in% c("EBS_pollock")){
     Extrapolation_List = Prepare_EBS_Extrapolation_Data_Fn( strata.limits=strata.limits )
-    Data_Extrap = Extrapolation_List[["Data_Extrap"]]
   }
   if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
     Extrapolation_List = Prepare_GOA_Extrapolation_Data_Fn( strata.limits=strata.limits )
-    Data_Extrap = Extrapolation_List[["Data_Extrap"]]
   }
   if( Data_Set %in% c("GB_spring_haddock","GB_fall_haddock")){
     Extrapolation_List = Prepare_NWA_Extrapolation_Data_Fn( strata.limits=strata.limits )
-    Data_Extrap = Extrapolation_List[["Data_Extrap"]]
   }
   if( Data_Set %in% c("SAWC_jacopever")){
     Extrapolation_List = Prepare_SA_Extrapolation_Data_Fn( strata.limits=strata.limits )
-    Data_Extrap = Extrapolation_List[["Data_Extrap"]]
   }
 
 # Read or simulate trawl data
@@ -120,7 +114,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     Data_Geostat = data.frame( "Catch_KG"=WCGBTS_Canary_example[,'HAUL_WT_KG'], "Year"=as.numeric(sapply(WCGBTS_Canary_example[,'PROJECT_CYCLE'],FUN=function(Char){strsplit(as.character(Char)," ")[[1]][2]})), "Vessel"=WCGBTS_Canary_example[,"VESSEL"], "AreaSwept_km2"=WCGBTS_Canary_example[,"AREA_SWEPT_HA"]/1e2, "Lat"=WCGBTS_Canary_example[,'BEST_LAT_DD'], "Lon"=WCGBTS_Canary_example[,'BEST_LON_DD'], "Pass"=WCGBTS_Canary_example[,'PASS']-1.5)
   }
   if( Data_Set %in% c("BC_pacific_cod")){
-    load( paste0(getwd(),"/../../data/BC_pacific_cod_example.rda") )         
+    data( BC_pacific_cod_example )
     Data_Geostat = data.frame( "Catch_KG"=BC_pacific_cod_example[,'PCOD_WEIGHT'], "Year"=BC_pacific_cod_example[,'Year'], "Vessel"="missing", "AreaSwept_km2"=BC_pacific_cod_example[,'TOW.LENGTH..KM.']/100, "Lat"=BC_pacific_cod_example[,'LAT'], "Lon"=BC_pacific_cod_example[,'LON'], "Pass"=0)
     Data_Geostat = na.omit( Data_Geostat )
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
@@ -174,14 +168,8 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   loc_x = Kmeans$centers
   Data_Geostat = cbind( Data_Geostat, "knot_i"=Kmeans$cluster )
 
-# Visualize stuff
-  par( mfrow=c(1,3) )
-  plot( Data_Extrap[,c("E_km", "N_km")] )
-  plot( Data_Geostat[,c("E_km", "N_km")] )
-  plot( loc_x )
-
 # Calc design matrix and areas
-  PolygonList = Calc_Polygon_Areas_and_Polygons_Fn( loc_x=loc_x, Data_Extrap=Data_Extrap, Covariates=c("none"), a_el=Extrapolation_List[["a_el"]])
+  PolygonList = Calc_Polygon_Areas_and_Polygons_Fn( loc_x=loc_x, Data_Extrap=Extrapolation_List[["Data_Extrap"]], Covariates=c("none"), a_el=Extrapolation_List[["a_el"]])
   X_xj = PolygonList[["X_xj"]]
   a_xl = PolygonList[["a_xl"]]
   NN_Extrap = PolygonList[["NN_Extrap"]]
@@ -245,14 +233,14 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   par( mfrow=Dim )
   Cex = 0.01
   if(Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
-    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Data_Extrap[,'propInWCGBTS']>0))
+    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Data_Extrap"]][,'propInWCGBTS']>0))
     MappingDetails = list("state",c("Oregon","Washington","California"))
     Xlim=c(-126,-117); Ylim=c(32,49)
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=1.55)
     Rotate = 20
   }
   if(Data_Set %in% c("BC_pacific_cod")){
-    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=ifelse(rowSums(Data_Extrap[,c("HS","QCS")])>0,1,0) )
+    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=ifelse(rowSums(Extrapolation_List[["Data_Extrap"]][,c("HS","QCS")])>0,1,0) )
     MappingDetails = list("world", NULL)
     Xlim=c(-133,-126); Ylim=c(50,55)
     MapSizeRatio = c("Height(in)"=2,"Width(in)"=2)
@@ -261,7 +249,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     Year_Set = unique(BC_pacific_cod_example[,'Year'])
   }
   if(Data_Set=="EBS_pollock"){
-    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Data_Extrap[,'EBS_STRATUM']!=0))
+    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Data_Extrap"]][,'EBS_STRATUM']!=0))
     PlotDF = PlotDF[which(PlotDF[,'Lon']<0),]
     MappingDetails = list("world", NULL)
     Xlim = c(-180,-158); Ylim=c(54,63)
@@ -269,14 +257,14 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     Rotate = 0
   }
   if(Data_Set %in% c("GOA_Pcod","GOA_pollock") ){
-    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=1)
+    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=1)
     MappingDetails = list("world", NULL)
     Xlim = c(-171,-132); Ylim=c(52,61)
     MapSizeRatio = c("Height(in)"=2.5,"Width(in)"=6)
     Rotate = 0
   }
   if(Data_Set %in% c("GB_spring_haddock","GB_fall_haddock") ){
-    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Data_Extrap[,'stratum_number']%in%strata.limits[[1]]))
+    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Data_Extrap"]][,'stratum_number']%in%strata.limits[[1]]))
     MappingDetails = list("world", NULL)
     Xlim = c(-80,-65); Ylim=c(32,45)
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=3)
@@ -284,14 +272,14 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     Cex = 1.5
   }
   if(Data_Set %in% c("SAWC_jacopever") ){
-    PlotDF = cbind( Data_Extrap[,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Data_Extrap[,'stratum']%in%strata.limits[[1]]))
+    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Data_Extrap"]][,'stratum']%in%strata.limits[[1]]))
     MappingDetails = list("world", NULL)
     Xlim = c(14,26); Ylim=c(-37,-28)
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=3)
     Rotate = 0
     Cex = 1.5
   }
-  PlotResultsOnMap_Fn(plot_set=3, MappingDetails=MappingDetails, Report=Report, PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=Rotate, mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=Cex)
+  PlotResultsOnMap_Fn(plot_set=1:3, MappingDetails=MappingDetails, Report=Report, PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=Rotate, mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=Cex)
                                                                                                                            
   # Covariate effect
   PlotCov_Fn(Report=Report, NN_Extrap=NN_Extrap, X_xj=X_xj, FileName=paste0(DateFile,"Cov_"))
