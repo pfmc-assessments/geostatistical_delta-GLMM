@@ -35,7 +35,7 @@ function(Sim_Settings, MakePlot=TRUE){
   # Calculate expected values, and simulate
   P1_i = O1_i + E1_i + as.matrix(X_ij)%*%unlist(Sim_Settings[c('Depth_km','Depth_km2','Dist_sqrtkm')])
   R1_i = plogis( P1_i + Vessel_vyc[v_i[which(t_i==t)],t,1] )
-  P2_i = O1_i + E1_i + as.matrix(X_ij)%*%unlist(Sim_Settings[c('Depth_km','Depth_km2','Dist_sqrtkm')])
+  P2_i = O2_i + E2_i + as.matrix(X_ij)%*%unlist(Sim_Settings[c('Depth_km','Depth_km2','Dist_sqrtkm')])
   R2_i = exp( P2_i + Vessel_vyc[v_i[which(t_i==t)],t,2] )
   CPUE_i = rlnorm( n=length(R2_i), meanlog=log(R2_i), sdlog=Sim_Settings[['SigmaM']]) * rbinom( n=length(R1_i), size=1, prob=R1_i )
   Data_Geostat = cbind( "Catch_KG"=CPUE_i, "Year"=t_i, "Vessel"=v_i, "AreaSwept_km2"=1/1e2, "Lat"=loc_i[,'Lat'], "Lon"=loc_i[,'Lon'] )
