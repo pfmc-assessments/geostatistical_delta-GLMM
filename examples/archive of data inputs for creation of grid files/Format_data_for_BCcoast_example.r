@@ -14,10 +14,23 @@ devtools::use_data( BC_pacific_cod_example, pkg=getwd())
 # Grid
 ######################
 
-bc_coast_grid <- read.csv( paste0(getwd(),"/examples/archive of data inputs for creation of grid files/BC coast/SPERA_GRIDS_5km.csv") )
+bc_coast1 <- read.csv( paste0(getwd(),"/examples/archive of data inputs for creation of grid files/BC coast/SPERA_Grid_2nm_With_Attributes--Grid.csv") )
+bc_coast2 <- read.csv( paste0(getwd(),"/examples/archive of data inputs for creation of grid files/BC coast/SPERA_Grid_2nm_With_Attributes--Depth.csv") )
+bc_coast3 <- read.csv( paste0(getwd(),"/examples/archive of data inputs for creation of grid files/BC coast/SPERA_Grid_2nm_With_Attributes--Temperature.csv") )
+bc_coast4 <- read.csv( paste0(getwd(),"/examples/archive of data inputs for creation of grid files/BC coast/SPERA_Grid_2nm_With_Attributes--Survey_Areas.csv") )
 
-bc_coast_grid <- cbind( bc_coast_grid, "Lat"=rowMeans(bc_coast_grid[,c("LAT1","LAT2","LAT3","LAT4")]))
-bc_coast_grid <- cbind( bc_coast_grid, "Lon"=rowMeans(bc_coast_grid[,c("LON1","LON2","LON3","LON4")]))
-bc_coast_grid <- cbind( bc_coast_grid[,c('Lat','Lon')], "Area_KM2"=25)
+# Combine
+bc_coast_grid <- NULL
+bc_coast_grid <- cbind( bc_coast_grid, "Lat"=rowMeans(bc_coast1[,c("LAT1","LAT2","LAT3","LAT4")]))
+bc_coast_grid <- cbind( bc_coast_grid, "Lon"=rowMeans(bc_coast1[,c("LON1","LON2","LON3","LON4")]))
+# Areas
+bc_coast_grid <- cbind( bc_coast_grid, bc_coast4[match(bc_coast1$BLOCK_DESIGNATION,bc_coast4$BLOCK_DESIGNATION),c('SOG','WCVI','QCS','HS','WCHG')])
+for(i in 1:5) bc_coast_grid[,c('SOG','WCVI','QCS','HS','WCHG')[i]] <- ifelse( is.na(bc_coast_grid[,c('SOG','WCVI','QCS','HS','WCHG')[i]]), 0, bc_coast_grid[,c('SOG','WCVI','QCS','HS','WCHG')[i]])
+# Temperature
+bc_coast_grid <- cbind( bc_coast_grid, bc_coast3[match(bc_coast1$BLOCK_DESIGNATION,bc_coast3$BLOCK_DESIGNATION),-1] )
+# Depth
+bc_coast_grid <- cbind( bc_coast_grid, bc_coast2[match(bc_coast1$BLOCK_DESIGNATION,bc_coast2$BLOCK_DESIGNATION),-1] )
+
+# write
 devtools::use_data( bc_coast_grid, pkg=getwd())
 
