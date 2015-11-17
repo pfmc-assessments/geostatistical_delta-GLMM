@@ -464,6 +464,7 @@ Type objective_function<Type>::operator() ()
 
     // Calculate the area
     array<Type> area_Z_tll(n_t,n_l,n_l);
+    array<Type> log_area_Z_tll(n_t,n_l,n_l);
     for(int t=0; t<n_t; t++){
     for(int l1=0; l1<n_l; l1++){
     for(int l2=0; l2<n_l; l2++){
@@ -473,9 +474,11 @@ Type objective_function<Type>::operator() ()
     }}}
     REPORT( area_Z_tll );
     ADREPORT( area_Z_tll );
+    ADREPORT( log_area_Z_tll );
 
     // Calculate the concentration (Index / SD) for density given covariates Z_xl
     array<Type> concentration_Z_tll(n_t,n_l,n_l);
+    array<Type> log_concentration_Z_tll(n_t,n_l,n_l);
     for(int t=0; t<n_t; t++){
     for(int l1=0; l1<n_l; l1++){
     for(int l2=0; l2<n_l; l2++){
@@ -484,6 +487,7 @@ Type objective_function<Type>::operator() ()
     }}}
     REPORT( concentration_Z_tll );
     ADREPORT( concentration_Z_tll );
+    ADREPORT( log_concentration_Z_tll );
   }
   
   // Diagnostic output
