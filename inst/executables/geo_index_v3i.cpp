@@ -454,7 +454,7 @@ Type objective_function<Type>::operator() ()
     for(int l1=0; l1<n_l; l1++){
     for(int l2=0; l2<n_l; l2++){
       for(int x=0; x<n_x; x++){
-        cov_Z_tl(t,l1,l2) += (Z_xl(x,l1)-mean_Z_tl(t,l1))*(Z_xl(x,l2)-mean_Z_tl(t,l2)) * Index_xtl(x,t,l1)/Index_tl(t,l1);  
+        if(l1>=l2) cov_Z_tl(t,l1,l2) += (Z_xl(x,l1)-mean_Z_tl(t,l1))*(Z_xl(x,l2)-mean_Z_tl(t,l2)) * Index_xtl(x,t,l1)/Index_tl(t,l1);
       }
     }}}
     REPORT( mean_Z_tl );  
@@ -468,10 +468,20 @@ Type objective_function<Type>::operator() ()
     for(int l1=0; l1<n_l; l1++){
     for(int l2=0; l2<n_l; l2++){
       if(l1==l2) concentration_Z_tll(t,l1,l1) = Index_tl(t,l1) / pow( cov_Z_tl(t,l1,l1), 0.5 );
-      if(l1!=l2) concentration_Z_tll(t,l1,l2) = Index_tl(t,l1) / pow( cov_Z_tl(t,l1,l1)*cov_Z_tl(t,l2,l2), 0.5 );
+      if(l1>l2) concentration_Z_tll(t,l1,l2) = Index_tl(t,l1) / pow( cov_Z_tl(t,l1,l1)*cov_Z_tl(t,l2,l2), 0.5 );
     }}}
     REPORT( concentration_Z_tll );
     ADREPORT( concentration_Z_tll );
+
+    // Calculate the area
+    array<Type> area_Z_tll(n_t,n_l,n_l);
+    for(int t=0; t<n_t; t++){
+    for(int l1=0; l1<n_l; l1++){
+    for(int l2=0; l2<n_l; l2++){
+      if(l1>l2) area_Z_tll(t,l1,l2) = pow( cov_Z_tl(t,l1,l1)*cov_Z_tl(t,l2,l2), 0.5 );
+    }}}
+    REPORT( area_Z_tll );
+    ADREPORT( area_Z_tll );
   }
   
   // Diagnostic output
