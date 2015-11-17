@@ -420,8 +420,8 @@ Type objective_function<Type>::operator() ()
   
   // Calculate indices
   array<Type> Index_xtl(n_x,n_t,n_l);
-  matrix<Type> Index_tl(n_t,n_l);
-  matrix<Type> ln_Index_tl(n_t,n_l);
+  array<Type> Index_tl(n_t,n_l);
+  array<Type> ln_Index_tl(n_t,n_l);
   Index_tl.setZero();
   for(int t=0;t<n_t;t++){
   for(int l=0;l<n_l;l++){
@@ -429,8 +429,8 @@ Type objective_function<Type>::operator() ()
       Index_xtl(x,t,l) = D_xt(x,t) * a_xl(x,l) / 1000;  // Convert from kg to metric tonnes
       Index_tl(t,l) += Index_xtl(x,t,l); 
     }
-    ln_Index_tl(t,l) = log( Index_tl(t,l) ); 
   }}
+  ln_Index_tl = log( Index_tl );
 
   // Calculate other derived summaries
   // Each is the weighted-average X_xl over polygons (x) with weights equal to abundance in each polygon and time
@@ -492,8 +492,8 @@ Type objective_function<Type>::operator() ()
     ADREPORT( log_concentration_Z_tll );
 
     // Calculate average density, weighted.mean( x=Abundance/Area, w=Abundance )
-    matrix<Type> mean_D_tl(n_t,n_l);
-    matrix<Type> log_mean_D_tl(n_t,n_l);
+    array<Type> mean_D_tl(n_t,n_l);
+    array<Type> log_mean_D_tl(n_t,n_l);
     mean_D_tl.setZero();
     for(int t=0;t<n_t;t++){
     for(int l=0;l<n_l;l++){
@@ -503,7 +503,7 @@ Type objective_function<Type>::operator() ()
     }}
     REPORT( mean_D_tl );
     ADREPORT( mean_D_tl );
-    log_mean_D_tl = log( Index_tl );
+    log_mean_D_tl = log( mean_D_tl );
     ADREPORT( log_mean_D_tl );
   }
   
