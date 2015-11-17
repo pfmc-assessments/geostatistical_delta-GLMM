@@ -468,12 +468,13 @@ Type objective_function<Type>::operator() ()
     for(int t=0; t<n_t; t++){
     for(int l1=0; l1<n_l; l1++){
     for(int l2=0; l2<n_l; l2++){
-      // ellipse defined implicitly by A*x^2 + B*x*y + C*y^2 = 1 has area equal to 2*pi / sqrt(4*A*C - B^2)
       // area of covariace matrix is determinant; det(Sigma) = ad - bc
+      // see e.g., "volume of multivariate normal": https://onlinecourses.science.psu.edu/stat505/node/36
       if(l1>l2) area_Z_tll(t,l1,l2) = pow( cov_Z_tl(t,l1,l1)*cov_Z_tl(t,l2,l2) - pow(cov_Z_tl(t,l1,l2),2), 0.5 );
     }}}
     REPORT( area_Z_tll );
     ADREPORT( area_Z_tll );
+    log_area_Z_tll = log(area_Z_tll);
     ADREPORT( log_area_Z_tll );
 
     // Calculate the concentration (Index / SD) for density given covariates Z_xl
@@ -487,7 +488,23 @@ Type objective_function<Type>::operator() ()
     }}}
     REPORT( concentration_Z_tll );
     ADREPORT( concentration_Z_tll );
+    log_concentration_Z_tll = log(concentration_Z_tll);
     ADREPORT( log_concentration_Z_tll );
+
+    // Calculate average density, weighted.mean( x=Abundance/Area, w=Abundance )
+    matrix<Type> mean_D_tl(n_t,n_l);
+    matrix<Type> log_mean_D_tl(n_t,n_l);
+    mean_D_tl.setZero();
+    for(int t=0;t<n_t;t++){
+    for(int l=0;l<n_l;l++){
+      for(int x=0; x<n_x; x++){
+        mean_D_tl(t,l) += D_xt(x,t) * Index_xtl(x,t,l)/Index_tl(t,l);
+      }
+    }}
+    REPORT( mean_D_tl );
+    ADREPORT( mean_D_tl );
+    log_mean_D_tl = log( Index_tl );
+    ADREPORT( log_mean_D_tl );
   }
   
   // Diagnostic output
