@@ -23,6 +23,6 @@ function( strata.limits ){
   colnames(Data_Extrap)[1:2] = c("Lon","Lat")
 
   # Return
-  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"), "flip_around_dateline"=flip_around_dateline)
+  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"), "flip_around_dateline"=FALSE)
   return( Return )
 }

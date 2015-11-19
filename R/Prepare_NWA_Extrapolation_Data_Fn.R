@@ -22,6 +22,6 @@ function( strata.limits ){
   Data_Extrap[,c('E_km','N_km')] = tmpUTM[,c('X','Y')]
 
   # Return
-  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"), "flip_around_dateline"=flip_around_dateline)
+  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"), "flip_around_dateline"=FALSE)
   return( Return )
 }
