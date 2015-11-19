@@ -8,6 +8,7 @@
 # Must be installed from: http://www.r-inla.org/download
 
 # Install geostatistical delta-GLMM package
+devtools::install_github("nwfsc-assess/nwfscDeltaGLM")
 devtools::install_github("nwfsc-assess/geostatistical_delta-GLMM") # This is the developement version.  Please check GitHub for the latest release number.
 devtools::install_github("james-thorson/utilities") # This is the developement version.  Please check GitHub for the latest release number.
 
@@ -18,16 +19,16 @@ library(SpatialDeltaGLMM)
 library(ThorsonUtilities)
 
 # This is where all runs will be located
-DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
+DateFile = paste(getwd(),'/',Sys.Date(),'_BC_pacific_cod_obsmodel=2_nx=250_v3i_biascorr=TRUE_num2/',sep='')
   dir.create(DateFile)
 
 ###############
 # Settings
 ###############
 
-  Data_Set = c("WCGBTS_canary_rockfish", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[8]
+  Data_Set = c("WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[2]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
-  Version = "geo_index_v3h"
+  Version = "geo_index_v3i"
   n_x = c(100, 250, 500, 1000, 2000)[2] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
   CovConfig = c("SST"=0, "RandomNoise"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
@@ -36,12 +37,8 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   ObsModel = 2  # 0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture
   Kmeans_Config = list( "randomseed"=1, "nstart"=100, "iter.max"=1e3 )     # Samples: Do K-means on trawl locs; Domain: Do K-means on extrapolation grid
 
-# Save options for future records
-  Record = bundlelist( c("Data_Set","Sim_Settings","Version","n_x","FieldConfig","CovConfig","Q_Config","VesselConfig","ObsModel","Kmeans_Config") )
-  capture.output( Record, file=paste0(DateFile,"Record.txt"))
-                                                   
 # Decide on strata for use when calculating indices
-  if( Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
+  if( Data_Set %in% c("WCGBTS_canary","Sim")){
   # In this case, it will calculate a coastwide index, and also a separate index for each state (although the state lines are approximate)
   strata.limits <- data.frame(
     'STRATA' = c("Coastwide","CA","OR","WA"),
@@ -76,8 +73,8 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   }
 
 # Compile TMB software
-  #TmbDir = system.file("executables", package="SpatialDeltaGLMM")
-  TmbDir = "C:/Users/Jim/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
+  TmbDir = system.file("executables", package="SpatialDeltaGLMM")
+  #TmbDir = "C:/Users/Jim/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
   setwd( TmbDir )
   compile( paste(Version,".cpp",sep="") )
       
@@ -88,12 +85,13 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 ################
 
 # Get extrapolation data
-  if( Data_Set %in% c("WCGBTS_canary_rockfish", "Sim")){
+  if( Data_Set %in% c("WCGBTS_canary", "Sim")){
     Extrapolation_List = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    VesselConfig = c("Vessel"=0, "VesselYear"=1)
   }
   if( Data_Set %in% c("BC_pacific_cod")){
-    load( paste0("../../data/bc_coast_grid.rda") )
-    Extrapolation_List = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, bc_coast_grid=bc_coast_grid, strata_to_use=c("HS","QCS") )
+    #load( paste0("../../data/bc_coast_grid.rda") )
+    Extrapolation_List = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, strata_to_use=c("HS","QCS") )
   }
   if( Data_Set %in% c("EBS_pollock")){
     Extrapolation_List = Prepare_EBS_Extrapolation_Data_Fn( strata.limits=strata.limits )
@@ -109,7 +107,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   }
 
 # Read or simulate trawl data
-  if(Data_Set=="WCGBTS_canary_rockfish"){
+  if(Data_Set=="WCGBTS_canary"){
     data( WCGBTS_Canary_example )
     Data_Geostat = data.frame( "Catch_KG"=WCGBTS_Canary_example[,'HAUL_WT_KG'], "Year"=as.numeric(sapply(WCGBTS_Canary_example[,'PROJECT_CYCLE'],FUN=function(Char){strsplit(as.character(Char)," ")[[1]][2]})), "Vessel"=WCGBTS_Canary_example[,"VESSEL"], "AreaSwept_km2"=WCGBTS_Canary_example[,"AREA_SWEPT_HA"]/1e2, "Lat"=WCGBTS_Canary_example[,'BEST_LAT_DD'], "Lon"=WCGBTS_Canary_example[,'BEST_LON_DD'], "Pass"=WCGBTS_Canary_example[,'PASS']-1.5)
   }
@@ -189,11 +187,15 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # (THIS WILL BE SIMILAR FOR EVERY DATA SET) 
 ################
 
+# Save options for future records
+  Record = bundlelist( c("Data_Set","Sim_Settings","Version","n_x","FieldConfig","CovConfig","Q_Config","VesselConfig","ObsModel","Kmeans_Config") )
+  capture.output( Record, file=paste0(DateFile,"Record.txt"))
+
   # Make TMB data list
   TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "MeshList"=MeshList)
 
   # Make TMB object
-  TmbList = Build_TMB_Fn(TmbData, TmbDir=TmbDir, Version=Version, VesselConfig=VesselConfig)
+  TmbList = Build_TMB_Fn(TmbData, TmbDir=TmbDir, Version=Version, VesselConfig=VesselConfig, loc_x=loc_x)
   Obj = TmbList[["Obj"]]
   
   # Run first time -- marginal likelihood
@@ -206,6 +208,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Opt = nlminb(start=Obj$par, objective=Obj$fn, gradient=Obj$gr, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]], control=list(eval.max=1e4, iter.max=1e4, trace=1))  # , rel.tol=1e-20
   Opt[["final_diagnostics"]] = data.frame( "Name"=names(Opt$par), "Lwr"=TmbList[["Lower"]], "Est"=Opt$par, "Upr"=TmbList[["Upper"]], "Gradient"=Obj$gr(Opt$par) )
   Opt[["total_time_to_run"]] = Sys.time() - Start_time
+  Opt[["number_of_coefficients"]] = c("Total"=length(unlist(Obj$env$parameters)), "Fixed"=length(Obj$par), "Random"=length(unlist(Obj$env$parameters))-length(Obj$par) )
   capture.output( Opt, file=paste0(DateFile,"Opt.txt"))
     
   # Reports
@@ -213,7 +216,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Sdreport = sdreport(Obj, bias.correct=TRUE)
   
   # Save stuff
-  Save = list("Opt"=Opt, "Report"=Report, "Sdreport"=Sdreport, "ParHat"=Obj$env$parList(Opt$par))
+  Save = list("Opt"=Opt, "Report"=Report, "Sdreport"=Sdreport, "ParHat"=Obj$env$parList(Opt$par), "TmbData"=TmbData)
   save(Save, file=paste0(DateFile,"Save.RData"))
   capture.output( Opt, file=paste0(DateFile,"Opt.txt"))
   capture.output( Sdreport, file=paste0(DateFile,"Sdreport.txt"))
@@ -232,7 +235,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Dim = c("Nrow"=ceiling(sqrt(length(Year_Set)))); Dim = c(Dim,"Ncol"=ceiling(length(Year_Set)/Dim['Nrow']))
   par( mfrow=Dim )
   Cex = 0.01
-  if(Data_Set %in% c("WCGBTS_canary_rockfish","Sim")){
+  if(Data_Set %in% c("WCGBTS_canary","Sim")){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Data_Extrap"]][,'propInWCGBTS']>0))
     MappingDetails = list("state",c("Oregon","Washington","California"))
     Xlim=c(-126,-117); Ylim=c(32,49)
@@ -281,16 +284,17 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   }
   PlotResultsOnMap_Fn(plot_set=1:3, MappingDetails=MappingDetails, Report=Report, PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=Rotate, mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=Cex)
                                                                                                                            
-  # Covariate effect
-  PlotCov_Fn(Report=Report, NN_Extrap=NN_Extrap, X_xj=X_xj, FileName=paste0(DateFile,"Cov_"))
-  
+  # Plot index
+  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=colnames(Extrapolation_List[["a_el"]]), use_biascorr=TRUE )
+
   # Positive catch rate Q-Q plot
   Q = QQ_Fn( TmbData=TmbData, Report=Report, FileName_PP=paste0(DateFile,"Posterior_Predictive.jpg"), FileName_Phist=paste0(DateFile,"Posterior_Predictive-Histogram.jpg"), FileName_QQ=paste0(DateFile,"Q-Q_plot.jpg"), FileName_Qhist=paste0(DateFile,"Q-Q_hist.jpg"))
 
+  # Covariate effect
+  #PlotCov_Fn(Report=Report, NN_Extrap=NN_Extrap, X_xj=X_xj, FileName=paste0(DateFile,"Cov_"))
+  
   # Vessel effects
-  Return = Vessel_Fn(TmbData=TmbData, Sdreport=Sdreport, FileName_VYplot=paste0(DateFile,"VY-effect.jpg"))
+  #Return = Vessel_Fn(TmbData=TmbData, Sdreport=Sdreport, FileName_VYplot=paste0(DateFile,"VY-effect.jpg"))
 
-  # Plot index
-  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=colnames(Extrapolation_List[["a_el"]]), use_biascorr=TRUE, rawdata=Data_Geostat, total_area_km2=sum(Extrapolation_List[["a_el"]][,1]) )
 
   
