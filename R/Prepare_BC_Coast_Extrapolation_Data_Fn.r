@@ -24,6 +24,6 @@ function( strata.limits, strata_to_use=c('SOG','WCVI','QCS','HS','WCHG') ){
   Data_Extrap[,c('E_km','N_km')] = tmpUTM[,c('X','Y')]
 
   # Return
-  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"))
+  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"), "flip_around_dateline"=flip_around_dateline)
   return( Return )
 }

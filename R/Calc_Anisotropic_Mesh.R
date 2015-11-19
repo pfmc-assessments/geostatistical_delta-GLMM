@@ -24,6 +24,6 @@ function(loc_x, mesh=NULL, refine=FALSE, ...){
   for(i in 1:length(Tri_Area)) Tri_Area[i] = crossprod_fn( E0[i,],E1[i,] )/2   # T = area of each triangle
 
   # Return stuff
-  Return = list("Tri_Area"=Tri_Area, "TV"=TV, "E0"=E0, "E1"=E1, "E2"=E2, "mesh"=mesh, "spde"=spde)
+  Return = list("loc_x"=loc_x, "Tri_Area"=Tri_Area, "TV"=TV, "E0"=E0, "E1"=E1, "E2"=E2, "mesh"=mesh, "spde"=spde)
   return(Return)
 }

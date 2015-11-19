@@ -17,15 +17,15 @@ function( strata.limits ){
   }
 
   # Convert extrapolation-data to an Eastings-Northings coordinate system
-  Data_Extrap[,'Lon'] = 180 + ifelse( Data_Extrap[,'Lon']>0, Data_Extrap[,'Lon']-360, Data_Extrap[,'Lon'])
-  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=NA)                                                         #$
-  Data_Extrap[,'Lon'] = -180 + ifelse( Data_Extrap[,'Lon']<0, Data_Extrap[,'Lon']+360, Data_Extrap[,'Lon'])
+  #Data_Extrap[,'Lon'] = 180 + ifelse( Data_Extrap[,'Lon']>0, Data_Extrap[,'Lon']-360, Data_Extrap[,'Lon'])
+  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=NA, flip_around_dateline=FALSE)                                                         #$
+  #Data_Extrap[,'Lon'] = -180 + ifelse( Data_Extrap[,'Lon']<0, Data_Extrap[,'Lon']+360, Data_Extrap[,'Lon'])
   
   # Extra junk
   Data_Extrap = cbind( Data_Extrap, 'Include'=1)
   Data_Extrap[,c('E_km','N_km')] = tmpUTM[,c('X','Y')]
 
   # Return
-  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"))
+  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"), "flip_around_dateline"=FALSE)
   return( Return )
 }
