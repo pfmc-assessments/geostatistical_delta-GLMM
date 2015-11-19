@@ -1,7 +1,7 @@
 Prepare_BC_Coast_Extrapolation_Data_Fn <-
-function( strata.limits, bc_coast_grid=NULL, strata_to_use=c('SOG','WCVI','QCS','HS','WCHG') ){
+function( strata.limits, strata_to_use=c('SOG','WCVI','QCS','HS','WCHG') ){
   # Read extrapolation data
-  if( is.null(bc_coast_grid) ) data( bc_coast_grid )
+  data( bc_coast_grid )
   bc_coast_grid <- cbind( bc_coast_grid, "ALL"=13.74)
   Data_Extrap <- bc_coast_grid
 
