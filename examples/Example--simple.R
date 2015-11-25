@@ -19,14 +19,14 @@ library(SpatialDeltaGLMM)
 library(ThorsonUtilities)
 
 # This is where all runs will be located
-DateFile = paste(getwd(),'/',Sys.Date(),'_BC_pacific_cod_obsmodel=2_nx=250_v3i_biascorr=TRUE_num2/',sep='')
+DateFile = paste(getwd(),'/',Sys.Date(),sep='')
   dir.create(DateFile)
 
 ###############
 # Settings
 ###############
 
-  Data_Set = c("WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[2]
+  Data_Set = c("WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[8]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3i"
   n_x = c(100, 250, 500, 1000, 2000)[2] # Number of stations
@@ -145,9 +145,9 @@ DateFile = paste(getwd(),'/',Sys.Date(),'_BC_pacific_cod_obsmodel=2_nx=250_v3i_b
     Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_fall[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_fall[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112*1.852^2, "Lat"=georges_bank_haddock_fall[,'LATITUDE'], "Lon"=georges_bank_haddock_fall[,'LONGITUDE'])
   }
   if( Data_Set=="SAWC_jacopever"){
-    #data( georges_bank_haddock_fall )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
-    Data = read.csv( paste0(getwd(),"/../../examples/archive of data inputs for creation of grid files/South Africa/SAWC_geodata.csv") )
-    Data_Geostat = data.frame( "Catch_KG"=Data[,'HELDAC'], "Year"=Data[,'Year'], "Vessel"="missing", "AreaSwept_km2"=Data[,'area_swept_nm2']*1.852^2, "Lat"=Data[,'cen_lat'], "Lon"=Data[,'cen_long'])
+    data( south_africa_westcoast_jacopever )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
+    #Data = read.csv( paste0(getwd(),"/../../examples/archive of data inputs for creation of grid files/South Africa/SAWC_geodata.csv") )
+    Data_Geostat = data.frame( "Catch_KG"=south_africa_westcoast_jacopever[,'HELDAC'], "Year"=south_africa_westcoast_jacopever[,'Year'], "Vessel"="missing", "AreaSwept_km2"=south_africa_westcoast_jacopever[,'area_swept_nm2']*1.852^2, "Lat"=south_africa_westcoast_jacopever[,'cen_lat'], "Lon"=south_africa_westcoast_jacopever[,'cen_long'])
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if(Data_Set=="Sim"){ #names(Sim_Settings)
@@ -285,7 +285,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'_BC_pacific_cod_obsmodel=2_nx=250_v3i_b
   PlotResultsOnMap_Fn(plot_set=1:3, MappingDetails=MappingDetails, Report=Report, PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=Rotate, mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=Cex)
                                                                                                                            
   # Plot index
-  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=colnames(Extrapolation_List[["a_el"]]), use_biascorr=TRUE )
+  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=strata.limits$strata, use_biascorr=TRUE )
 
   # Positive catch rate Q-Q plot
   Q = QQ_Fn( TmbData=TmbData, Report=Report, FileName_PP=paste0(DateFile,"Posterior_Predictive.jpg"), FileName_Phist=paste0(DateFile,"Posterior_Predictive-Histogram.jpg"), FileName_QQ=paste0(DateFile,"Q-Q_plot.jpg"), FileName_Qhist=paste0(DateFile,"Q-Q_hist.jpg"))
