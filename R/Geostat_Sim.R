@@ -1,5 +1,5 @@
 Geostat_Sim <-
-function(Sim_Settings, MakePlot=TRUE){
+function(Sim_Settings, Extrapolation_List, MakePlot=TRUE){
   # Terminology
   # O: Spatial component; E: spatiotemporal component
   # O1: presence-absence; O2: positive catch rate
@@ -7,6 +7,10 @@ function(Sim_Settings, MakePlot=TRUE){
   # R1: predictor of presence/absence in natural-space (transformed out of link-space)
   # v_i: vessel for sample i
   # t_i: year for sample i
+
+  # Attach stuff
+  attach( Extrapolation_List )
+  on.exit( detach(Extrapolation_List) )
 
   # Initialize GM models
   model_O1 = RMgauss(var=Sim_Settings[['SigmaO1']]^2, scale=Sim_Settings[['Range1']])
