@@ -26,10 +26,10 @@ DateFile = paste(getwd(),'/',Sys.Date(),sep='')
 # Settings
 ###############
 
-  Data_Set = c("WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[8]
+  Data_Set = c("WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[3]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3i"
-  n_x = c(100, 250, 500, 1000, 2000)[2] # Number of stations
+  n_x = c(100, 250, 500, 1000, 2000)[1] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
   CovConfig = c("SST"=0, "RandomNoise"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
   Q_Config = c("Pass"=0)
@@ -37,44 +37,49 @@ DateFile = paste(getwd(),'/',Sys.Date(),sep='')
   ObsModel = 2  # 0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture
   Kmeans_Config = list( "randomseed"=1, "nstart"=100, "iter.max"=1e3 )     # Samples: Do K-means on trawl locs; Domain: Do K-means on extrapolation grid
 
+  # Determine region
+  Region = switch( Data_Set, "WCGBTS_canary"="California_current", "BC_pacific_cod"="British_Columbia", "EBS_pollock"="Eastern_Bering_Sea", "GOA_Pcod"="Gulf_of_Alaska", "GOA_pollock"="Gulf_of_Alaska", "GB_spring_haddock"="Northwest_Atlantic", "GB_fall_haddock"="Northwest_Atlantic", "SAWC_jacopever"="South_Africa", "Sim"="California_current")
+
 # Decide on strata for use when calculating indices
   if( Data_Set %in% c("WCGBTS_canary","Sim")){
-  # In this case, it will calculate a coastwide index, and also a separate index for each state (although the state lines are approximate)
-  strata.limits <- data.frame(
-    'STRATA' = c("Coastwide","CA","OR","WA"),
-    'NLat' = c(49.0, 42.0, 46.0, 49.0),
-    'SLat' = c(32.0, 32.0, 42.0, 46.0),
-    'MinDepth' = c(55, 55, 55, 55),
-    'MaxDepth' = c(1280, 1280, 1280, 1280)
-  )
+    # In this case, it will calculate a coastwide index, and also a separate index for each state (although the state lines are approximate)
+    strata.limits <- data.frame(
+      'STRATA' = c("Coastwide","CA","OR","WA"),
+      'NLat' = c(49.0, 42.0, 46.0, 49.0),
+      'SLat' = c(32.0, 32.0, 42.0, 46.0),
+      'MinDepth' = c(55, 55, 55, 55),
+      'MaxDepth' = c(1280, 1280, 1280, 1280)
+    )
+    # Override default settings for vessels
+    VesselConfig = c("Vessel"=0, "VesselYear"=1)
   }
   if( Data_Set %in% c("BC_pacific_cod")){
-  # In this case, will not restrict the extrapolation domain at all while calculating an index
-  strata.limits <- data.frame( 'STRATA'="All_areas")
+    # In this case, will not restrict the extrapolation domain at all while calculating an index
+    strata.limits <- data.frame( 'STRATA'="All_areas")
   }
   if( Data_Set %in% c("EBS_pollock")){
-  # In this case, will not restrict the extrapolation domain at all while calculating an index
-  strata.limits <- data.frame( 'STRATA'="All_areas")
+    # In this case, will not restrict the extrapolation domain at all while calculating an index
+    strata.limits <- data.frame( 'STRATA'="All_areas")
   }
   if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
-  # In this case, will calculating an unrestricted index and a separate index restricted to west of -140W
-  strata.limits <- data.frame(
-    'STRATA' = c("All_areas", "west_of_140W"),
-    'west_border' = c(-Inf, -Inf),
-    'east_border' = c(Inf, -140)
-  )
+    # In this case, will calculating an unrestricted index and a separate index restricted to west of -140W
+    strata.limits <- data.frame(
+      'STRATA' = c("All_areas", "west_of_140W"),
+      'west_border' = c(-Inf, -Inf),
+      'east_border' = c(Inf, -140)
+    )
   }
   if( Data_Set %in% c("GB_spring_haddock","GB_fall_haddock")){
-  # For NEFSC indices, strata must be specified as a named list of 
-  strata.limits = list( 'Georges_Bank'=c(1130, 1140, 1150, 1160, 1170, 1180, 1190, 1200, 1210, 1220, 1230, 1240, 1250, 1290, 1300) )
+    # For NEFSC indices, strata must be specified as a named list of area codes
+    strata.limits = list( 'Georges_Bank'=c(1130, 1140, 1150, 1160, 1170, 1180, 1190, 1200, 1210, 1220, 1230, 1240, 1250, 1290, 1300) )
   }
   if( Data_Set %in% c("SAWC_jacopever")){
-  strata.limits = list( 'strata'="west_coast" )
+    strata.limits = list( 'strata'="west_coast" )
   }
 
 # Compile TMB software
   TmbDir = system.file("executables", package="SpatialDeltaGLMM")
-  #TmbDir = "C:/Users/Jim/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
+  #TmbDir = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
   setwd( TmbDir )
   compile( paste(Version,".cpp",sep="") )
       
@@ -85,24 +90,22 @@ DateFile = paste(getwd(),'/',Sys.Date(),sep='')
 ################
 
 # Get extrapolation data
-  if( Data_Set %in% c("WCGBTS_canary", "Sim")){
+  if( Region == "California_current" ){
     Extrapolation_List = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits )
-    VesselConfig = c("Vessel"=0, "VesselYear"=1)
   }
-  if( Data_Set %in% c("BC_pacific_cod")){
-    #load( paste0("../../data/bc_coast_grid.rda") )
+  if( Region == "British_Columbia" ){
     Extrapolation_List = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, strata_to_use=c("HS","QCS") )
   }
-  if( Data_Set %in% c("EBS_pollock")){
+  if( Region == "Eastern_Bering_Sea" ){
     Extrapolation_List = Prepare_EBS_Extrapolation_Data_Fn( strata.limits=strata.limits )
   }
-  if( Data_Set %in% c("GOA_Pcod","GOA_pollock")){
+  if( Region == "Gulf_of_Alaska" ){
     Extrapolation_List = Prepare_GOA_Extrapolation_Data_Fn( strata.limits=strata.limits )
   }
-  if( Data_Set %in% c("GB_spring_haddock","GB_fall_haddock")){
+  if( Region == "Northwest_Atlantic" ){
     Extrapolation_List = Prepare_NWA_Extrapolation_Data_Fn( strata.limits=strata.limits )
   }
-  if( Data_Set %in% c("SAWC_jacopever")){
+  if( Region == "South_Africa" ){
     Extrapolation_List = Prepare_SA_Extrapolation_Data_Fn( strata.limits=strata.limits )
   }
 
@@ -151,7 +154,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),sep='')
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if(Data_Set=="Sim"){ #names(Sim_Settings)
-    Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, MakePlot=TRUE)
+    Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, Extrapolation_List=Extrapolation_List, MakePlot=TRUE)
     Data_Geostat = Sim_DataSet[['Data_Geostat']]
     True_Index = Sim_DataSet[['True_Index']]
   }
@@ -235,54 +238,8 @@ DateFile = paste(getwd(),'/',Sys.Date(),sep='')
   Dim = c("Nrow"=ceiling(sqrt(length(Year_Set)))); Dim = c(Dim,"Ncol"=ceiling(length(Year_Set)/Dim['Nrow']))
   par( mfrow=Dim )
   Cex = 0.01
-  if(Data_Set %in% c("WCGBTS_canary","Sim")){
-    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Data_Extrap"]][,'propInWCGBTS']>0))
-    MappingDetails = list("state",c("Oregon","Washington","California"))
-    Xlim=c(-126,-117); Ylim=c(32,49)
-    MapSizeRatio = c("Height(in)"=4,"Width(in)"=1.55)
-    Rotate = 20
-  }
-  if(Data_Set %in% c("BC_pacific_cod")){
-    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=ifelse(rowSums(Extrapolation_List[["Data_Extrap"]][,c("HS","QCS")])>0,1,0) )
-    MappingDetails = list("world", NULL)
-    Xlim=c(-133,-126); Ylim=c(50,55)
-    MapSizeRatio = c("Height(in)"=2,"Width(in)"=2)
-    Rotate = 0
-    Cex = 0.1
-    Year_Set = unique(BC_pacific_cod_example[,'Year'])
-  }
-  if(Data_Set=="EBS_pollock"){
-    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Data_Extrap"]][,'EBS_STRATUM']!=0))
-    PlotDF = PlotDF[which(PlotDF[,'Lon']<0),]
-    MappingDetails = list("world", NULL)
-    Xlim = c(-180,-158); Ylim=c(54,63)
-    MapSizeRatio = c("Height(in)"=4,"Width(in)"=5)
-    Rotate = 0
-  }
-  if(Data_Set %in% c("GOA_Pcod","GOA_pollock") ){
-    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=1)
-    MappingDetails = list("world", NULL)
-    Xlim = c(-171,-132); Ylim=c(52,61)
-    MapSizeRatio = c("Height(in)"=2.5,"Width(in)"=6)
-    Rotate = 0
-  }
-  if(Data_Set %in% c("GB_spring_haddock","GB_fall_haddock") ){
-    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Data_Extrap"]][,'stratum_number']%in%strata.limits[[1]]))
-    MappingDetails = list("world", NULL)
-    Xlim = c(-80,-65); Ylim=c(32,45)
-    MapSizeRatio = c("Height(in)"=4,"Width(in)"=3)
-    Rotate = 0
-    Cex = 1.5
-  }
-  if(Data_Set %in% c("SAWC_jacopever") ){
-    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Data_Extrap"]][,'stratum']%in%strata.limits[[1]]))
-    MappingDetails = list("world", NULL)
-    Xlim = c(14,26); Ylim=c(-37,-28)
-    MapSizeRatio = c("Height(in)"=4,"Width(in)"=3)
-    Rotate = 0
-    Cex = 1.5
-  }
-  PlotResultsOnMap_Fn(plot_set=1:3, MappingDetails=MappingDetails, Report=Report, PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=Rotate, mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=Cex)
+  MapDetails_List = MapDetails_Fn( "Region"=Region, "NN_Extrap"=NN_Extrap, "Extrapolation_List"=Extrapolation_List )
+  PlotResultsOnMap_Fn(plot_set=1:3, MappingDetails=MapDetails_List[["MappingDetails"]], Report=Report, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=MapDetails_List[["Rotate"]], mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=Cex)
                                                                                                                            
   # Plot index
   PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=strata.limits$strata, use_biascorr=TRUE )

@@ -510,10 +510,13 @@ Type objective_function<Type>::operator() ()
     }
 
     // Testing hyperparameters
-    if( Options_vec(4)==1 ){
+    if( Options_vec(4)==1 | Options_vec(4)==2 ){
+      vector<Type> log_area_t_pred(n_t);
       for(int t=0; t<n_t; t++){
-        jnll_comp(12) -= dnorm( log_area_Z_tll(t,1,0) - hyperparameters_z(1)*ln_Index_tl(t,0) - hyperparameters_z(0), Type(0.0), exp(hyperparameters_z(2)), true );
+        log_area_t_pred(t) = hyperparameters_z(0) + hyperparameters_z(1)*ln_Index_tl(t,0);
+        if( Options_vec(4)==1 ) jnll_comp(12) -= dnorm( log_area_Z_tll(t,1,0), log_area_t_pred(t), exp(hyperparameters_z(2)), true );
       }
+      REPORT( log_area_t_pred );
     }
   }
 
@@ -532,6 +535,7 @@ Type objective_function<Type>::operator() ()
     max_evenness_t.setZero();
     vector<Type> KLdivergence_t(n_t);
     KLdivergence_t.setZero();
+    vector<Type> ln_relative_evenness_t_pred(n_t);
     // Loop through years
     for(int t=0; t<n_t; t++){
       for(int x=0; x<n_x; x++){
@@ -541,12 +545,14 @@ Type objective_function<Type>::operator() ()
       }
       relative_evenness_t(t) = evenness_t(t) / max_evenness_t(t);             // Evenness relative to maximum
       // Likelihood component
-      jnll_comp(12) -= dnorm( log(relative_evenness_t(t)) - hyperparameters_z(1)*ln_Index_tl(t,0) - hyperparameters_z(0), Type(0.0), exp(hyperparameters_z(2)), true );
+      ln_relative_evenness_t_pred(t) = hyperparameters_z(0) + hyperparameters_z(1)*ln_Index_tl(t,0);
+      if( Options_vec(4)==2 ) jnll_comp(12) -= dnorm( log(relative_evenness_t(t)), ln_relative_evenness_t_pred(t), exp(hyperparameters_z(2)), true );
     }
     REPORT( evenness_t );
     REPORT( max_evenness_t );
     REPORT( relative_evenness_t );
     REPORT( KLdivergence_t );
+    REPORT( ln_relative_evenness_t_pred );
     ADREPORT( relative_evenness_t );
   }
 
