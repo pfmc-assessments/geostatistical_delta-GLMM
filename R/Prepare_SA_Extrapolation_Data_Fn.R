@@ -1,17 +1,18 @@
 Prepare_SA_Extrapolation_Data_Fn <-
-function( strata.limits ){
+function( strata.limits, region=c("south_coast","west_coast") ){
   # Read extrapolation data
   data( south_africa_grid )
   Data_Extrap <- south_africa_grid
 
   # Survey areas
-  Area_km2_x = Data_Extrap[,'nm2'] * 1.852^2 # Convert from nm^2 to km^2
+  Area_km2_x = Data_Extrap[,'nm2'] * 1.852^2 * ifelse( Data_Extrap[,'stratum']%in%region, 1, 0 ) # Convert from nm^2 to km^2
   
   # Augment with strata for each extrapolation cell
   Tmp = cbind("BEST_DEPTH_M"=0, "BEST_LAT_DD"=Data_Extrap[,'cen_lat'], "BEST_LON_DD"=Data_Extrap[,'cen_long'])
   a_el = as.data.frame(matrix(NA, nrow=nrow(Data_Extrap), ncol=length(strata.limits), dimnames=list(NULL,names(strata.limits))))
   for(l in 1:ncol(a_el)){
-    a_el[,l] = ifelse( Data_Extrap[,'stratum'] %in% strata.limits[[l]], Area_km2_x, 0 )
+    a_el[,l] = apply(Tmp, MARGIN=1, FUN=match_strata_fn, strata_dataframe=strata.limits[l,,drop=FALSE])
+    a_el[,l] = ifelse( is.na(a_el[,l]), 0, Area_km2_x)
   }
 
   # Convert extrapolation-data to an Eastings-Northings coordinate system

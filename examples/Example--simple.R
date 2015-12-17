@@ -8,9 +8,8 @@
 # Must be installed from: http://www.r-inla.org/download
 
 # Install geostatistical delta-GLMM package
-devtools::install_github("nwfsc-assess/nwfscDeltaGLM")
 devtools::install_github("nwfsc-assess/geostatistical_delta-GLMM") # This is the developement version.  Please check GitHub for the latest release number.
-devtools::install_github("james-thorson/utilities") # This is the developement version.  Please check GitHub for the latest release number.
+devtools::install_github("james-thorson/utilities")
 
 # Load libraries
 library(TMB)
@@ -19,14 +18,14 @@ library(SpatialDeltaGLMM)
 library(ThorsonUtilities)
 
 # This is where all runs will be located
-DateFile = paste(getwd(),'/',Sys.Date(),sep='')
+DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   dir.create(DateFile)
 
 ###############
 # Settings
 ###############
 
-  Data_Set = c("WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[3]
+  Data_Set = c("WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[8]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3i"
   n_x = c(100, 250, 500, 1000, 2000)[1] # Number of stations
@@ -45,10 +44,10 @@ DateFile = paste(getwd(),'/',Sys.Date(),sep='')
     # In this case, it will calculate a coastwide index, and also a separate index for each state (although the state lines are approximate)
     strata.limits <- data.frame(
       'STRATA' = c("Coastwide","CA","OR","WA"),
-      'NLat' = c(49.0, 42.0, 46.0, 49.0),
-      'SLat' = c(32.0, 32.0, 42.0, 46.0),
-      'MinDepth' = c(55, 55, 55, 55),
-      'MaxDepth' = c(1280, 1280, 1280, 1280)
+      'north_border' = c(49.0, 42.0, 46.0, 49.0),
+      'south_border' = c(32.0, 32.0, 42.0, 46.0),
+      'shallow_border' = c(55, 55, 55, 55),
+      'deep_border' = c(1280, 1280, 1280, 1280)
     )
     # Override default settings for vessels
     VesselConfig = c("Vessel"=0, "VesselYear"=1)
@@ -74,12 +73,12 @@ DateFile = paste(getwd(),'/',Sys.Date(),sep='')
     strata.limits = list( 'Georges_Bank'=c(1130, 1140, 1150, 1160, 1170, 1180, 1190, 1200, 1210, 1220, 1230, 1240, 1250, 1290, 1300) )
   }
   if( Data_Set %in% c("SAWC_jacopever")){
-    strata.limits = list( 'strata'="west_coast" )
+    strata.limits = data.frame( 'STRATA'="All_areas" )
   }
 
 # Compile TMB software
-  TmbDir = system.file("executables", package="SpatialDeltaGLMM")
-  #TmbDir = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
+  #TmbDir = system.file("executables", package="SpatialDeltaGLMM")
+  TmbDir = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
   setwd( TmbDir )
   compile( paste(Version,".cpp",sep="") )
       
@@ -106,7 +105,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),sep='')
     Extrapolation_List = Prepare_NWA_Extrapolation_Data_Fn( strata.limits=strata.limits )
   }
   if( Region == "South_Africa" ){
-    Extrapolation_List = Prepare_SA_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Extrapolation_List = Prepare_SA_Extrapolation_Data_Fn( strata.limits=strata.limits, region="west_coast" )
   }
 
 # Read or simulate trawl data
@@ -153,7 +152,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),sep='')
     Data_Geostat = data.frame( "Catch_KG"=south_africa_westcoast_jacopever[,'HELDAC'], "Year"=south_africa_westcoast_jacopever[,'Year'], "Vessel"="missing", "AreaSwept_km2"=south_africa_westcoast_jacopever[,'area_swept_nm2']*1.852^2, "Lat"=south_africa_westcoast_jacopever[,'cen_lat'], "Lon"=south_africa_westcoast_jacopever[,'cen_long'])
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
-  if(Data_Set=="Sim"){ #names(Sim_Settings)
+  if(Data_Set=="Sim"){
     Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, Extrapolation_List=Extrapolation_List, MakePlot=TRUE)
     Data_Geostat = Sim_DataSet[['Data_Geostat']]
     True_Index = Sim_DataSet[['True_Index']]
@@ -242,7 +241,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),sep='')
   PlotResultsOnMap_Fn(plot_set=1:3, MappingDetails=MapDetails_List[["MappingDetails"]], Report=Report, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=MapDetails_List[["Rotate"]], mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=Cex)
                                                                                                                            
   # Plot index
-  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=strata.limits$strata, use_biascorr=TRUE )
+  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=strata.limits[,1], use_biascorr=TRUE )
 
   # Positive catch rate Q-Q plot
   Q = QQ_Fn( TmbData=TmbData, Report=Report, FileName_PP=paste0(DateFile,"Posterior_Predictive.jpg"), FileName_Phist=paste0(DateFile,"Posterior_Predictive-Histogram.jpg"), FileName_QQ=paste0(DateFile,"Q-Q_plot.jpg"), FileName_Qhist=paste0(DateFile,"Q-Q_hist.jpg"))
