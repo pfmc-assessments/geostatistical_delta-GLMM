@@ -539,9 +539,11 @@ Type objective_function<Type>::operator() ()
     // Loop through years
     for(int t=0; t<n_t; t++){
       for(int x=0; x<n_x; x++){
-        evenness_t(t) -= (Index_xtl(x,t,0)/Index_tl(t,0)) * log( Index_xtl(x,t,0)/Index_tl(t,0) );   // Average density, weighted by area
+        if( a_xl(x,0)>0 ){
+          evenness_t(t) -= (Index_xtl(x,t,0)/Index_tl(t,0)) * log( Index_xtl(x,t,0)/Index_tl(t,0) );   // Average density, weighted by area
+          KLdivergence_t(t) += a_xl(x,0)/a_xl.col(0).sum() * (Index_xtl(x,t,0)/a_xl(x,0)/Index_tl(t,0)) * log( Index_xtl(x,t,0)/a_xl(x,0)/Index_tl(t,0) / (1/a_xl.col(0).sum()) );
+        }
         max_evenness_t(t) -= (1/ float(n_x)) * log( 1/float(n_x) );
-        KLdivergence_t(t) += a_xl(x,0)/a_xl.col(0).sum() * (Index_xtl(x,t,0)/a_xl(x,0)/Index_tl(t,0)) * log( Index_xtl(x,t,0)/a_xl(x,0)/Index_tl(t,0) / (1/a_xl.col(0).sum()) );
       }
       relative_evenness_t(t) = evenness_t(t) / max_evenness_t(t);             // Evenness relative to maximum
       // Likelihood component
