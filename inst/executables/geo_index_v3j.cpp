@@ -521,7 +521,7 @@ Type objective_function<Type>::operator() ()
   }
 
   // Testing hyperparameters
-  if( Options_vec(4)==1 | Options_vec(4)==2 ){
+  if( Options_vec(4)==1 | Options_vec(4)==2 | Options(3)==1 ){
     // Calculate relative evenness = H'(t) / H'(max), where H' is Shannon diversity and H'(max) is maximum possible, except with weighting equal to area
     // Shannon diversity is generalized by the Kullback-Leibler divergence of the observed function P from a uniform function Q, Integral_x( P(x) * log(P(x)/Q(x)) * dx)
     // Integral_x( P(x)*dx ) = Integral_x( Q(x)*dx ) = 1;  units=m^-2
