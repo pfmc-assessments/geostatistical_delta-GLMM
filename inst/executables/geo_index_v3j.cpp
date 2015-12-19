@@ -531,6 +531,7 @@ Type objective_function<Type>::operator() ()
     vector<Type> evenness_t(n_t);
     vector<Type> max_evenness_t(n_t);
     vector<Type> relative_evenness_t(n_t);
+    vector<Type> log_relative_evenness_t(n_t);
     evenness_t.setZero();
     max_evenness_t.setZero();
     vector<Type> KLdivergence_t(n_t);
@@ -550,12 +551,14 @@ Type objective_function<Type>::operator() ()
       ln_relative_evenness_t_pred(t) = hyperparameters_z(0) + hyperparameters_z(1)*ln_Index_tl(t,0);
       if( Options_vec(4)==2 ) jnll_comp(12) -= dnorm( log(relative_evenness_t(t)), ln_relative_evenness_t_pred(t), exp(hyperparameters_z(2)), true );
     }
+    log_relative_evenness_t = log( relative_evenness_t );
     REPORT( evenness_t );
     REPORT( max_evenness_t );
     REPORT( relative_evenness_t );
     REPORT( KLdivergence_t );
     REPORT( ln_relative_evenness_t_pred );
     ADREPORT( relative_evenness_t );
+    ADREPORT( log_relative_evenness_t );
   }
 
   // Joint likelihood
