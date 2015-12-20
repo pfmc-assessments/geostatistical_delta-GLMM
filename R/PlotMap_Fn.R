@@ -51,7 +51,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
     }
     mtext(side=1, outer=TRUE, c("Longitude","Eastings")[2], cex=1.75, line=par()$oma[1]/2)
     mtext(side=2, outer=TRUE, c("Latitude","Northings")[2], cex=1.75, line=par()$oma[2]/2)
-  dev.off()
+  if(Format %in% c("png","jpg")) dev.off()
   # Legend
   if(Format=="png"){
     png(file=paste0(FileName, "_Legend.png",sep=""),
@@ -61,6 +61,8 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
     jpeg(file=paste0(FileName, "_Legend.jpg",sep=""),
          width=1, height=2*MapSizeRatio['Height(in)'], res=200, units='in')
   }
+  if(Format %in% c("png","jpg")){
     Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), margintext=margintext )
-  dev.off()
+    dev.off()
+  }
 }

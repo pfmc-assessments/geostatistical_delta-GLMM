@@ -22,7 +22,7 @@ function( TmbData, TmbDir, Version, VesselConfig, Q_Config=TRUE, CovConfig=TRUE,
 
   # Which parameters are turned off
   if( length(Map)==1 && Map=="generate" ) Map = Make_Map( Version=Version, TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, RhoConfig=RhoConfig, Aniso=TmbData[['Options_vec']]['Aniso'])
-  if( "hyperparameters_z"%in%names(Parameters) & TmbData$Options_vec['AreaAbundanceCurveTF']==0 ) Map[["hyperparameters_z"]] = factor( rep(NA,length(Parameters[["hyperparameters_z"]])) )
+  if( "hyperparameters_z"%in%names(Parameters) && TmbData$Options_vec['AreaAbundanceCurveTF']==0 ) Map[["hyperparameters_z"]] = factor( rep(NA,length(Parameters[["hyperparameters_z"]])) )
 
   # Build object
   dyn.load( paste0(TmbDir,"/",dynlib(Version)) ) # random=Random, 

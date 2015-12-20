@@ -12,7 +12,7 @@ function(n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=NULL
   if( length(unique(paste(loc_orig[,1],loc_orig[,2],sep="_")))<=n_x ){
     Unique = unique(paste(loc_orig[,1],loc_orig[,2],sep="_"))
     Kmeans = NULL
-    Kmeans[["centers"]] = loc_orig[match(Unique,paste(loc_orig[,1],loc_orig[,2],sep="_")),]
+    Kmeans[["centers"]] = as.matrix(loc_orig[match(Unique,paste(loc_orig[,1],loc_orig[,2],sep="_")),])
     Kmeans[["cluster"]] = match( paste(loc_orig[,1],loc_orig[,2],sep="_"), Unique )
     message( "n_x less than n_unique so no calculation necessary" )
   }else{
