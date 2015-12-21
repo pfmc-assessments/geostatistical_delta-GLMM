@@ -1,5 +1,5 @@
 Data_Fn <-
-function( Version, FieldConfig, ObsModel, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q_ik, MeshList, Aniso=1, R2_interpretation=0, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Options=c(0,0,0,0), Z_xl=NULL, CheckForErrors=TRUE, Alpha=2 ){
+function( Version, FieldConfig, ObsModel, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q_ik, MeshList, Aniso=1, R2_interpretation=0, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Options=c(0,0,0,0,0), Z_xl=NULL, CheckForErrors=TRUE, Alpha=2 ){
   # Check for bad data entry
   if( CheckForErrors==TRUE ){
     if( !is.matrix(a_xl) | !is.matrix(X_xj) | !is.matrix(Q_ik) ) stop("a_xl, X_xj, and Q_ik should be matrices")

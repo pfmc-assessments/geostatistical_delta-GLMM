@@ -236,9 +236,8 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   # Plot surface
   Dim = c("Nrow"=ceiling(sqrt(length(Year_Set)))); Dim = c(Dim,"Ncol"=ceiling(length(Year_Set)/Dim['Nrow']))
   par( mfrow=Dim )
-  Cex = 0.01
   MapDetails_List = MapDetails_Fn( "Region"=Region, "NN_Extrap"=NN_Extrap, "Extrapolation_List"=Extrapolation_List )
-  PlotResultsOnMap_Fn(plot_set=1:3, MappingDetails=MapDetails_List[["MappingDetails"]], Report=Report, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=MapDetails_List[["Rotate"]], mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=Cex)
+  PlotResultsOnMap_Fn(plot_set=1:3, MappingDetails=MapDetails_List[["MappingDetails"]], Report=Report, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=MapDetails_List[["Rotate"]], mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=MapDetails_List[["Cex"]])
                                                                                                                            
   # Plot index
   PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=strata.limits[,1], use_biascorr=TRUE )

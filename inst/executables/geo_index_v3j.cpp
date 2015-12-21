@@ -141,6 +141,11 @@ Type objective_function<Type>::operator() ()
   DATA_FACTOR(FieldConfig);  // Input settings
   DATA_FACTOR(ObsModel);    // Observation model
   DATA_FACTOR(Options);    // Reporting options
+  // Slot 0: Calculate SD for Index_xtl
+  // Slot 1: Calculate SD for log(Index_xtl)
+  // Slot 2: Calculate mean_relative_Z_tl
+  // Slot 3: Calculate relative_evenness_t
+  // Slot 4: Calculate mean_D_tl and effective_area_tl
 
   // Data vectors
   DATA_VECTOR(b_i);       	// Response (biomass) for each observation
@@ -445,6 +450,16 @@ Type objective_function<Type>::operator() ()
       }
     }
   }}
+  if( Options(2)==1 ){
+    matrix<Type> mean_relative_Z_tl(n_t,n_l);
+    for(int t=0; t<n_t; t++){
+    for(int l=0; l<n_l; l++){
+      mean_relative_Z_tl(t,l) = mean_Z_tl(t,l) - mean_Z_tl(0,l);
+    }}
+    REPORT( mean_relative_Z_tl );
+    ADREPORT( mean_relative_Z_tl );
+  }
+
   // Calculate the covariance kernal for density given covariates Z_xl
   if( report_summary_TF==true ){
     array<Type> cov_Z_tl(n_t,n_l,n_l);
@@ -492,23 +507,6 @@ Type objective_function<Type>::operator() ()
       ADREPORT( log_concentration_Z_tll );
     }
 
-    // Calculate average density, weighted.mean( x=Abundance/Area, w=Abundance )
-    if( false ){
-      array<Type> mean_D_tl(n_t,n_l);
-      array<Type> log_mean_D_tl(n_t,n_l);
-      mean_D_tl.setZero();
-      for(int t=0; t<n_t; t++){
-      for(int l=0; l<n_l; l++){
-        for(int x=0; x<n_x; x++){
-          mean_D_tl(t,l) += D_xt(x,t) * Index_xtl(x,t,l)/Index_tl(t,l);
-        }
-      }}
-      REPORT( mean_D_tl );
-      ADREPORT( mean_D_tl );
-      log_mean_D_tl = log( mean_D_tl );
-      ADREPORT( log_mean_D_tl );
-    }
-
     // Testing hyperparameters
     if( Options_vec(4)==1 | Options_vec(4)==2 ){
       vector<Type> log_area_t_pred(n_t);
@@ -518,6 +516,32 @@ Type objective_function<Type>::operator() ()
       }
       REPORT( log_area_t_pred );
     }
+  }
+
+  // Calculate average density, weighted.mean( x=Abundance/Area, w=Abundance )
+  if( Options(4)==1 ){
+    array<Type> mean_D_tl(n_t,n_l);
+    array<Type> log_mean_D_tl(n_t,n_l);
+    mean_D_tl.setZero();
+    for(int t=0; t<n_t; t++){
+    for(int l=0; l<n_l; l++){
+      for(int x=0; x<n_x; x++){
+        mean_D_tl(t,l) += D_xt(x,t) * Index_xtl(x,t,l)/Index_tl(t,l);
+      }
+    }}
+    REPORT( mean_D_tl );
+    ADREPORT( mean_D_tl );
+    log_mean_D_tl = log( mean_D_tl );
+    ADREPORT( log_mean_D_tl );
+
+    // Calculate effective area = Index / average density
+    array<Type> effective_area_tl(n_t,n_l);
+    array<Type> log_effective_area_tl(n_t,n_l);
+    effective_area_tl = Index_tl / mean_D_tl;
+    log_effective_area_tl = log( effective_area_tl );
+    REPORT( effective_area_tl );
+    ADREPORT( effective_area_tl );
+    ADREPORT( log_effective_area_tl );
   }
 
   // Testing hyperparameters
@@ -629,16 +653,7 @@ Type objective_function<Type>::operator() ()
   if( Options(1)==1 ){
     ADREPORT( log(Index_xtl) );
   }
-  if( Options(2)==1 ){
-    matrix<Type> mean_relative_Z_tl(n_t,n_l);
-    for(int t=0; t<n_t; t++){
-    for(int l=0; l<n_l; l++){
-      mean_relative_Z_tl(t,l) = mean_Z_tl(t,l) - mean_Z_tl(0,l);
-    }}
-    REPORT( mean_relative_Z_tl );
-    ADREPORT( mean_relative_Z_tl );
-  }
-  
+
   return jnll;
   
 }
