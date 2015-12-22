@@ -1,6 +1,6 @@
 PlotMap_Fn <-
 function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
-         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, margintext="", ...){
+         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, margintext="", add=FALSE, ...){
 
   # Transform to grid or other coordinates
   Mat = Mat[PlotDF[,'x2i'],,drop=FALSE]
@@ -23,13 +23,14 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
          width=Par$mfrow[2]*MapSizeRatio['Width(in)'],
          height=Par$mfrow[1]*MapSizeRatio['Height(in)'], res=Res, units='in')
   }
-    par( Par )
+    if(add==FALSE) par( Par )
     for(t in 1:length(Year_Set)){
       if( is.null(MappingDetails) ){
         plot(1, type="n", ylim=Ylim, xlim=Xlim, main="", xlab="", ylab="")#, main=Year_Set[t])
         points(x=PlotDF[Which,'Lon'], y=PlotDF[Which,'Lat'], col=Col(n=50)[ceiling(f(Mat[Which,])[,t]*49)+1], cex=0.01)
       }else{
-        Map = map(MappingDetails[[1]], MappingDetails[[2]], plot=FALSE, ylim=mean(Ylim)+1*c(-0.5,0.5)*diff(Ylim), xlim=mean(Xlim)+1*c(-0.5,0.5)*diff(Xlim), fill=TRUE) # , orientation=c(mean(y.lim),mean(x.lim),15)
+        boundary_around_limits = 3
+        Map = map(MappingDetails[[1]], MappingDetails[[2]], plot=FALSE, ylim=mean(Ylim)+boundary_around_limits*c(-0.5,0.5)*diff(Ylim), xlim=mean(Xlim)+boundary_around_limits*c(-0.5,0.5)*diff(Xlim), fill=TRUE) # , orientation=c(mean(y.lim),mean(x.lim),15)
         Tmp1 = na.omit( cbind('PID'=cumsum(is.na(Map$x)), 'POS'=1:length(Map$x), 'X'=Map$x, 'Y'=Map$y, matrix(0,ncol=length(Year_Set),nrow=length(Map$x),dimnames=list(NULL,Year_Set))) )
         Tmp2 = rbind( Tmp1, cbind('PID'=max(Tmp1[,1])+1,'POS'=1:length(Which)+max(Tmp1[,2]),'X'=PlotDF[Which,'Lon'], 'Y'=PlotDF[Which,'Lat'], Mat[Which,]) )
         attr(Tmp2,"projection") = "LL"

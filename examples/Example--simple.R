@@ -172,7 +172,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   PolygonList = Calc_Polygon_Areas_and_Polygons_Fn( loc_x=loc_x, Data_Extrap=Extrapolation_List[["Data_Extrap"]], Covariates=c("none"), a_el=Extrapolation_List[["a_el"]])
   X_xj = PolygonList[["X_xj"]]
   a_xl = PolygonList[["a_xl"]]
-  NN_Extrap = PolygonList[["NN_Extrap"]]
 
 # Make catchability matrix (Q_i)
   if( sum(Q_Config)==0 ){
@@ -236,7 +235,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   # Plot surface
   Dim = c("Nrow"=ceiling(sqrt(length(Year_Set)))); Dim = c(Dim,"Ncol"=ceiling(length(Year_Set)/Dim['Nrow']))
   par( mfrow=Dim )
-  MapDetails_List = MapDetails_Fn( "Region"=Region, "NN_Extrap"=NN_Extrap, "Extrapolation_List"=Extrapolation_List )
+  MapDetails_List = MapDetails_Fn( "Region"=Region, "NN_Extrap"=PolygonList$NN_Extrap, "Extrapolation_List"=Extrapolation_List )
   PlotResultsOnMap_Fn(plot_set=1:3, MappingDetails=MapDetails_List[["MappingDetails"]], Report=Report, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=MapDetails_List[["Rotate"]], mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=MapDetails_List[["Cex"]])
                                                                                                                            
   # Plot index
@@ -246,7 +245,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Q = QQ_Fn( TmbData=TmbData, Report=Report, FileName_PP=paste0(DateFile,"Posterior_Predictive.jpg"), FileName_Phist=paste0(DateFile,"Posterior_Predictive-Histogram.jpg"), FileName_QQ=paste0(DateFile,"Q-Q_plot.jpg"), FileName_Qhist=paste0(DateFile,"Q-Q_hist.jpg"))
 
   # Covariate effect
-  #PlotCov_Fn(Report=Report, NN_Extrap=NN_Extrap, X_xj=X_xj, FileName=paste0(DateFile,"Cov_"))
+  #PlotCov_Fn(Report=Report, NN_Extrap=PolygonList$NN_Extrap, X_xj=X_xj, FileName=paste0(DateFile,"Cov_"))
   
   # Vessel effects
   #Return = Vessel_Fn(TmbData=TmbData, Sdreport=Sdreport, FileName_VYplot=paste0(DateFile,"VY-effect.jpg"))

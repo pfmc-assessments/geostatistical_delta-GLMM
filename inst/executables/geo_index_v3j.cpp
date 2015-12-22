@@ -537,7 +537,7 @@ Type objective_function<Type>::operator() ()
     // Calculate effective area = Index / average density
     array<Type> effective_area_tl(n_t,n_l);
     array<Type> log_effective_area_tl(n_t,n_l);
-    effective_area_tl = Index_tl / mean_D_tl;
+    effective_area_tl = Index_tl / (mean_D_tl/1000);  // Correct for different units of Index and density
     log_effective_area_tl = log( effective_area_tl );
     REPORT( effective_area_tl );
     ADREPORT( effective_area_tl );

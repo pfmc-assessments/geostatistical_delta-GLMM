@@ -1,5 +1,5 @@
 
-Plot_States_in_UTM_Fn = function( MappingDetails, Rotate=0, fillcol=NA, ... ){
+Plot_States_in_UTM_Fn = function( MappingDetails, Rotate=0, fillcol=NA, zone=NA, ... ){
   require(maps)
   require(PBSmapping)
   require(maptools)
@@ -7,7 +7,7 @@ Plot_States_in_UTM_Fn = function( MappingDetails, Rotate=0, fillcol=NA, ... ){
   Tmp1 = na.omit( cbind('PID'=cumsum(is.na(Map$x)), 'POS'=1:length(Map$x), 'X'=Map$x, 'Y'=Map$y ))
   # Convert_LL_to_UTM_Fn
   attr(Tmp1,"projection") = "LL"
-  attr(Tmp1,"zone") = "10"
+  attr(Tmp1,"zone") = zone
   tmpUTM = suppressMessages(convUL(Tmp1))                                                         #$
   coordinates(tmpUTM) = c("X","Y")
   tmp <- elide( tmpUTM, rotate=Rotate)
