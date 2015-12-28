@@ -88,26 +88,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # (THIS WILL VARY FOR DIFFERENT DATA SETS) 
 ################
 
-# Get extrapolation data
-  if( Region == "California_current" ){
-    Extrapolation_List = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits )
-  }
-  if( Region == "British_Columbia" ){
-    Extrapolation_List = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, strata_to_use=c("HS","QCS") )
-  }
-  if( Region == "Eastern_Bering_Sea" ){
-    Extrapolation_List = Prepare_EBS_Extrapolation_Data_Fn( strata.limits=strata.limits )
-  }
-  if( Region == "Gulf_of_Alaska" ){
-    Extrapolation_List = Prepare_GOA_Extrapolation_Data_Fn( strata.limits=strata.limits )
-  }
-  if( Region == "Northwest_Atlantic" ){
-    Extrapolation_List = Prepare_NWA_Extrapolation_Data_Fn( strata.limits=strata.limits )
-  }
-  if( Region == "South_Africa" ){
-    Extrapolation_List = Prepare_SA_Extrapolation_Data_Fn( strata.limits=strata.limits, region="west_coast" )
-  }
-
 # Read or simulate trawl data
   if(Data_Set=="WCGBTS_canary"){
     data( WCGBTS_Canary_example )
@@ -158,6 +138,26 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     True_Index = Sim_DataSet[['True_Index']]
   }
   Year_Set = sort(unique(Data_Geostat[,'Year']))
+
+# Get extrapolation data
+  if( Region == "California_current" ){
+    Extrapolation_List = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits )
+  }
+  if( Region == "British_Columbia" ){
+    Extrapolation_List = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, strata_to_use=c("HS","QCS") )
+  }
+  if( Region == "Eastern_Bering_Sea" ){
+    Extrapolation_List = Prepare_EBS_Extrapolation_Data_Fn( strata.limits=strata.limits )
+  }
+  if( Region == "Gulf_of_Alaska" ){
+    Extrapolation_List = Prepare_GOA_Extrapolation_Data_Fn( strata.limits=strata.limits )
+  }
+  if( Region == "Northwest_Atlantic" ){
+    Extrapolation_List = Prepare_NWA_Extrapolation_Data_Fn( strata.limits=strata.limits )
+  }
+  if( Region == "South_Africa" ){
+    Extrapolation_List = Prepare_SA_Extrapolation_Data_Fn( strata.limits=strata.limits, region="west_coast" )
+  }
 
 # Convert to an Eastings-Northings coordinate system
   tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Geostat[,'Lon'], Lat=Data_Geostat[,'Lat'], zone=Extrapolation_List[["zone"]] )                                                         #$

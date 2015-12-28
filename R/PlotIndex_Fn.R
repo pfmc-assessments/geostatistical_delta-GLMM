@@ -40,6 +40,7 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
     if(plot_legend==TRUE) legend( "top", bty="n", fill=c(na.omit(ifelse(Calc_design==TRUE,"black",NA)),rainbow(TmbData[['n_l']])), legend=c(na.omit(ifelse(Calc_design==TRUE,"Design-based",NA)),strata_names), ncol=2 )
     # Write to file
     Table = data.frame( "Year"=Year_Set, "Unit"=1, "Fleet"=rep(strata_names,each=dim(Index)[1]), "Estimate (metric tonnes)"=as.vector(Index[,,'Estimate']), "SD (log)"=as.vector(log_Index[,,'Std. Error']), "SD (natural)"=as.vector(Index[,,'Std. Error']) )
+    if(!is.null(rawdata) & !is.null(total_area_km2)) Table = cbind(Table, "Naive_design-based_index"=Design_t)
     write.csv( Table, file=paste0(DirName,"/Table_for_SS3.csv"), row.names=FALSE)
   dev.off()
 

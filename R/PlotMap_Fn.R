@@ -1,6 +1,6 @@
 PlotMap_Fn <-
 function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
-         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, margintext="", add=FALSE, ...){
+         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, margintext="", add=FALSE, pch=NULL, ...){
 
   # Transform to grid or other coordinates
   Mat = Mat[PlotDF[,'x2i'],,drop=FALSE]
@@ -39,7 +39,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
         coordinates(tmpUTM) = c("X","Y")
         tmp <- elide( tmpUTM, rotate=Rotate)
         plot(tmp[-c(1:nrow(Tmp1)),], pch="", xlim=range(tmp@coords[-c(1:nrow(Tmp1)),'x']), ylim=range(tmp@coords[-c(1:nrow(Tmp1)),'y']) )
-        points(x=tmp@coords[-c(1:nrow(Tmp1)),'x'], y=tmp@coords[-c(1:nrow(Tmp1)),'y'], col=Col(n=50)[ceiling(f(tmp@data[-c(1:nrow(Tmp1)),-c(1:2),drop=FALSE])[,t]*49)+1], cex=Cex)
+        points(x=tmp@coords[-c(1:nrow(Tmp1)),'x'], y=tmp@coords[-c(1:nrow(Tmp1)),'y'], col=Col(n=50)[ceiling(f(tmp@data[-c(1:nrow(Tmp1)),-c(1:2),drop=FALSE])[,t]*49)+1], cex=Cex, pch=pch)
         lev = levels(as.factor(tmp@data$PID))
         for(levI in 1:(length(lev)-1)) {
           indx = which(tmpUTM$PID == lev[levI])
