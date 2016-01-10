@@ -1,6 +1,6 @@
 PlotResultsOnMap_Fn <-
 function(MappingDetails, Report, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set=NULL, Years2Include=NULL, plot_set=1:5,
-         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, add=FALSE, pch=NULL, ...){
+         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, add=FALSE, margintext=NULL, pch=NULL, ...){
 
   # Fill in missing inputs
   if( is.null(Year_Set) ) Year_Set = 1:ncol(Report$D_xt)
@@ -9,7 +9,9 @@ function(MappingDetails, Report, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Yea
   attach( Report )
   on.exit( detach(Report) )
   plot_codes <- c("Pres", "Pos", "Dens", "Pos_Rescaled", "Dens_Rescaled", "Eps_Pres", "Eps_Pos")
-  margintext <- c("", "", "Density, ln(kg. per square km.)", "", "", "", "")
+  if( is.null(margintext)){
+    margintext <- c("", "", "Density, ln(kg. per square km.)", "", "", "", "")
+  }
 
   # Loop through plots
   for(plot_num in plot_set){
