@@ -1,5 +1,5 @@
 Data_Fn <-
-function( Version, FieldConfig, ObsModel, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q_ik, MeshList, Aniso=1, R2_interpretation=0, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Options=c(0,0,0,0,0), Z_xl=NULL, CheckForErrors=TRUE, Alpha=2 ){
+function( Version, FieldConfig, ObsModel, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q_ik, MeshList, Aniso=1, R2_interpretation=0, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Options=c('SD_site_density'=0,'SD_site_logdensity'=0,'Calculate_Range'=1,'Calculation_evenness'=0,'Calculate_effective_area'=0), Calculate_Range=TRUE, CheckForErrors=TRUE, Alpha=2 ){
   # Check for bad data entry
   if( CheckForErrors==TRUE ){
     if( !is.matrix(a_xl) | !is.matrix(X_xj) | !is.matrix(Q_ik) ) stop("a_xl, X_xj, and Q_ik should be matrices")
@@ -23,11 +23,14 @@ function( Version, FieldConfig, ObsModel, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q
     if( length(unique(v_i))!=n_v ) stop("Please renumber v_i consecutively from 0 to final vessel minus 1")
   }
   # by default, add nothing as Z_xl
-  if( is.null(Z_xl) ){
-    Z_xl = matrix(0, nrow=nrow(a_xl), ncol=ncol(a_xl) )
-  }else{
-    if( ncol(Z_xl)!=ncol(a_xl) ) stop("Z_xl and a_xl must have the same number of columns")
+  if( Options['Calculate_Range']==FALSE ){
+    Z_xm = matrix(0, nrow=nrow(a_xl), ncol=ncol(a_xl) ) # Size so that it works for Version 3g-3j
   }
+  if( Calculate_Range==TRUE ){
+    Z_xm = MeshList$loc_x
+    message( "Calculating range shift for stratum #1:",colnames(a_xl[1]))
+  }
+
   # Output tagged list
   if(Version=="geo_index_v3a"){
     Return = list( "n_i"=n_i, "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=n_t, "n_v"=n_v, "n_j"=n_j, "n_k"=n_k, "Aniso"=Aniso, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=b_i, "a_i"=a_i, "v_i"=v_i, "s_i"=s_i, "t_i"=t_i, "a_x"=a_xl[,1], "X_xj"=X_xj, "Q_ik"=Q_ik, "n_tri"=nrow(MeshList$mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0_inv"=inla.as.dgTMatrix(solve(MeshList$spde$param.inla$M0)), "G0"=MeshList$spde$param.inla$M0, "G1"=MeshList$spde$param.inla$M1, "G2"=MeshList$spde$param.inla$M2 )
@@ -45,18 +48,24 @@ function( Version, FieldConfig, ObsModel, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q
   }
   if(Version%in%c("geo_index_v3g","geo_index_v3f")){
     Options_vec = c("Aniso"=Aniso, "R2_interpretation"=R2_interpretation, "Rho_betaTF"=ifelse(RhoConfig[["Beta1"]]|RhoConfig[["Beta2"]],1,0) )
-    Return = list( "n_i"=n_i, "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=n_t, "n_v"=n_v, "n_j"=n_j, "n_k"=n_k, "n_l"=n_l, "Options_vec"=Options_vec, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=b_i, "a_i"=a_i, "v_i"=v_i, "s_i"=s_i, "t_i"=t_i, "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "Z_xl"=Z_xl, "spde"=list(), "G0"=MeshList$spde$param.inla$M0, "G1"=MeshList$spde$param.inla$M1, "G2"=MeshList$spde$param.inla$M2 )
+    Return = list( "n_i"=n_i, "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=n_t, "n_v"=n_v, "n_j"=n_j, "n_k"=n_k, "n_l"=n_l, "Options_vec"=Options_vec, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=b_i, "a_i"=a_i, "v_i"=v_i, "s_i"=s_i, "t_i"=t_i, "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "Z_xl"=Z_xm, "spde"=list(), "G0"=MeshList$spde$param.inla$M0, "G1"=MeshList$spde$param.inla$M1, "G2"=MeshList$spde$param.inla$M2 )
     Return[['spde']] = list("n_s"=MeshList$spde$n.spde, "n_tri"=nrow(MeshList$mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0"=MeshList$spde$param.inla$M0, "G0_inv"=inla.as.dgTMatrix(solve(MeshList$spde$param.inla$M0)) )
   }
   if(Version%in%c("geo_index_v3i","geo_index_v3h")){
     Options_vec = c("Aniso"=Aniso, "R2_interpretation"=R2_interpretation, "Rho_betaTF"=ifelse(RhoConfig[["Beta1"]]|RhoConfig[["Beta2"]],1,0), "Alpha"=Alpha )
-    Return = list( "n_i"=n_i, "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=n_t, "n_v"=n_v, "n_j"=n_j, "n_k"=n_k, "n_l"=n_l, "Options_vec"=Options_vec, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=b_i, "a_i"=a_i, "v_i"=v_i, "s_i"=s_i, "t_i"=t_i, "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "Z_xl"=Z_xl, "spde"=list(), "spde_aniso"=list(), "G0"=MeshList$spde$param.inla$M0, "G1"=MeshList$spde$param.inla$M1, "G2"=MeshList$spde$param.inla$M2 )
+    Return = list( "n_i"=n_i, "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=n_t, "n_v"=n_v, "n_j"=n_j, "n_k"=n_k, "n_l"=n_l, "Options_vec"=Options_vec, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=b_i, "a_i"=a_i, "v_i"=v_i, "s_i"=s_i, "t_i"=t_i, "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "Z_xl"=Z_xm, "spde"=list(), "spde_aniso"=list(), "G0"=MeshList$spde$param.inla$M0, "G1"=MeshList$spde$param.inla$M1, "G2"=MeshList$spde$param.inla$M2 )
     Return[['spde']] = inla.spde2.matern(MeshList$mesh)$param.inla[c("M0","M1","M2")]
     Return[['spde_aniso']] = list("n_s"=MeshList$spde$n.spde, "n_tri"=nrow(MeshList$mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0"=MeshList$spde$param.inla$M0, "G0_inv"=inla.as.dgTMatrix(solve(MeshList$spde$param.inla$M0)) )
   }
   if(Version%in%c("geo_index_v3j")){
     Options_vec = c("Aniso"=Aniso, "R2_interpretation"=R2_interpretation, "Rho_betaTF"=ifelse(RhoConfig[["Beta1"]]|RhoConfig[["Beta2"]],1,0), "Alpha"=Alpha, "AreaAbundanceCurveTF"=0 )
-    Return = list( "n_i"=n_i, "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=n_t, "n_v"=n_v, "n_j"=n_j, "n_k"=n_k, "n_l"=n_l, "Options_vec"=Options_vec, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=b_i, "a_i"=a_i, "v_i"=v_i, "s_i"=s_i, "t_i"=t_i, "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "Z_xl"=Z_xl, "spde"=list(), "spde_aniso"=list() )
+    Return = list( "n_i"=n_i, "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=n_t, "n_v"=n_v, "n_j"=n_j, "n_k"=n_k, "n_l"=n_l, "Options_vec"=Options_vec, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=b_i, "a_i"=a_i, "v_i"=v_i, "s_i"=s_i, "t_i"=t_i, "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "Z_xl"=Z_xm, "spde"=list(), "spde_aniso"=list() )
+    Return[['spde']] = inla.spde2.matern(MeshList$mesh)$param.inla[c("M0","M1","M2")]
+    Return[['spde_aniso']] = list("n_s"=MeshList$spde$n.spde, "n_tri"=nrow(MeshList$mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0"=MeshList$spde$param.inla$M0, "G0_inv"=inla.as.dgTMatrix(solve(MeshList$spde$param.inla$M0)) )
+  }
+  if(Version%in%c("geo_index_v3k")){
+    Options_vec = c("Aniso"=Aniso, "R2_interpretation"=R2_interpretation, "Rho_betaTF"=ifelse(RhoConfig[["Beta1"]]|RhoConfig[["Beta2"]],1,0), "Alpha"=Alpha, "AreaAbundanceCurveTF"=0 )
+    Return = list( "n_i"=n_i, "n_s"=MeshList$spde$n.spde, "n_x"=n_x, "n_t"=n_t, "n_v"=n_v, "n_j"=n_j, "n_k"=n_k, "n_l"=n_l, "n_m"=ncol(Z_xm), "Options_vec"=Options_vec, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "Options"=Options, "b_i"=b_i, "a_i"=a_i, "v_i"=v_i, "s_i"=s_i, "t_i"=t_i, "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "Z_xm"=Z_xm, "spde"=list(), "spde_aniso"=list() )
     Return[['spde']] = inla.spde2.matern(MeshList$mesh)$param.inla[c("M0","M1","M2")]
     Return[['spde_aniso']] = list("n_s"=MeshList$spde$n.spde, "n_tri"=nrow(MeshList$mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0"=MeshList$spde$param.inla$M0, "G0_inv"=inla.as.dgTMatrix(solve(MeshList$spde$param.inla$M0)) )
   }

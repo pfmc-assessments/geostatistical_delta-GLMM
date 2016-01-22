@@ -51,7 +51,7 @@ $Sim_Settings$SigmaM
 
 
 $Version
-[1] "geo_index_v3i"
+[1] "geo_index_v3k"
 
 $n_x
 [1] 250

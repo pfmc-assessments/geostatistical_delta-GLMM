@@ -130,16 +130,23 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(n_j);         // Number of covariates
   DATA_INTEGER(n_k);          // Number of catchability variables
   DATA_INTEGER(n_l);         // Number of indices to post-process
-  
+  DATA_INTEGER(n_m);         // Number of range metrics to use (probably 2 for Eastings-Northings)
+
   // Config
   DATA_FACTOR( Options_vec );
   // Slot 0 -- Aniso: 0=No, 1=Yes
   // Slot 1 -- R2 interpretation: 0=R2 is positive_density, 1=R2 is density (including zeros)
   // Slot 2 -- AR1 on betas (year intercepts) to deal with missing years: 0=No, 1=Yes
   // Slot 3 -- smoothness alpha (1: alpha=1, 2: alpha=2)
+  // Slot 4 -- Include penalty on area-abundance relationship: 0=No; 1=Yes (default=0)
   DATA_FACTOR(FieldConfig);  // Input settings
   DATA_FACTOR(ObsModel);    // Observation model
   DATA_FACTOR(Options);    // Reporting options
+  // Slot 0: Calculate SD for Index_xtl
+  // Slot 1: Calculate SD for log(Index_xtl)
+  // Slot 2: Calculate mean_relative_Z_tl
+  // Slot 3: Calculate relative_evenness_t
+  // Slot 4: Calculate mean_D_tl and effective_area_tl
 
   // Data vectors
   DATA_VECTOR(b_i);       	// Response (biomass) for each observation
@@ -150,7 +157,7 @@ Type objective_function<Type>::operator() ()
   DATA_MATRIX(a_xl);		     // Area for each "real" stratum(km^2) in each stratum
   DATA_MATRIX(X_xj);		    // Covariate design matrix (strata x covariate)
   DATA_MATRIX(Q_ik);        // Catchability matrix (observations x variable)
-  DATA_MATRIX(Z_xl);        // Derived quantity matrix
+  DATA_MATRIX(Z_xm);        // Derived quantity matrix
 
   // SPDE objects
   DATA_STRUCT(spde,spde_t);
@@ -160,6 +167,7 @@ Type objective_function<Type>::operator() ()
   
   // Parameters 
   PARAMETER_VECTOR(ln_H_input); // Anisotropy parameters
+  PARAMETER_VECTOR(hyperparameters_z) // Miscellaneous hyperparameters, with interpretation that depends upon inputs
   //  -- presence/absence
   PARAMETER_VECTOR(beta1_t);  // Year effect
   PARAMETER_VECTOR(gamma1_j);        // Covariate effect
@@ -206,7 +214,7 @@ Type objective_function<Type>::operator() ()
   int i,j,v,t,s;             
   
   // Objective function
-  vector<Type> jnll_comp(12);
+  vector<Type> jnll_comp(13);    // Slot 12=optional hyperparameters
   jnll_comp.setZero();
   Type jnll = 0;                
   
@@ -388,9 +396,6 @@ Type objective_function<Type>::operator() ()
       LogProb1_i(i) = 0;
     }
   }
-  jnll_comp(10) = -1*LogProb1_i.sum();
-  jnll_comp(11) = -1*LogProb2_i.sum();  
-  jnll = jnll_comp.sum();
 
   // Predictive distribution -- ObsModel(4) isn't implemented (it had a bug previously)
   Type a_average = a_i.sum()/a_i.size();
@@ -423,9 +428,9 @@ Type objective_function<Type>::operator() ()
   array<Type> Index_tl(n_t,n_l);
   array<Type> ln_Index_tl(n_t,n_l);
   Index_tl.setZero();
-  for(int t=0;t<n_t;t++){
-  for(int l=0;l<n_l;l++){
-    for(int x=0;x<n_x;x++){
+  for(int t=0; t<n_t; t++){
+  for(int l=0; l<n_l; l++){
+    for(int x=0; x<n_x; x++){
       Index_xtl(x,t,l) = D_xt(x,t) * a_xl(x,l) / 1000;  // Convert from kg to metric tonnes
       Index_tl(t,l) += Index_xtl(x,t,l); 
     }
@@ -433,70 +438,99 @@ Type objective_function<Type>::operator() ()
   ln_Index_tl = log( Index_tl );
 
   // Calculate other derived summaries
-  // Each is the weighted-average X_xl over polygons (x) with weights equal to abundance in each polygon and time
-  matrix<Type> mean_Z_tl(n_t,n_l);
-  mean_Z_tl.setZero();
-  int report_summary_TF = 0;
+  // Each is the weighted-average X_xl over polygons (x) with weights equal to abundance in each polygon and time (where abundance is from the first index)
+  matrix<Type> mean_Z_tm(n_t, n_m);
+  mean_Z_tm.setZero();
+  int report_summary_TF = false;
   for(int t=0; t<n_t; t++){
-  for(int l=0; l<n_l; l++){
+  for(int m=0; m<n_m; m++){
     for(int x=0; x<n_x; x++){
-      if( Z_xl(x,l)!=0 ){
-        mean_Z_tl(t,l) += Z_xl(x,l) * Index_xtl(x,t,l)/Index_tl(t,l);  
-        report_summary_TF = true; 
+      if( Z_xm(x,m)!=0 ){
+        mean_Z_tm(t,m) += Z_xm(x,m) * Index_xtl(x,t,0)/Index_tl(t,0);
+        report_summary_TF = true;
       }
     }
   }}
-  // Calculate the covariance kernal for density given covariates Z_xl
-  if( report_summary_TF==true ){
-    array<Type> cov_Z_tl(n_t,n_l,n_l);
-    cov_Z_tl.setZero();
+  if( Options(2)==1 ){
+    matrix<Type> mean_relative_Z_tm(n_t,n_m);
     for(int t=0; t<n_t; t++){
-    for(int l1=0; l1<n_l; l1++){
-    for(int l2=0; l2<n_l; l2++){
+    for(int m=0; m<n_m; m++){
+      mean_relative_Z_tm(t,m) = mean_Z_tm(t,m) - mean_Z_tm(0,m);
+    }}
+    REPORT( mean_relative_Z_tm );
+    ADREPORT( mean_relative_Z_tm );
+  }
+
+  // Calculate the covariance kernal for density given covariates Z_xm and density Index_xtl for the first column of a_xl
+  // Requires 2 dimensions for Z_xm to calculate cov_Z_tmm
+  if( report_summary_TF==true ){
+    array<Type> cov_Z_tmm(n_t, n_m, n_m);
+    cov_Z_tmm.setZero();
+    for(int t=0; t<n_t; t++){
+    for(int m1=0; m1<n_m; m1++){
+    for(int m2=0; m2<n_m; m2++){
       for(int x=0; x<n_x; x++){
-        if(l1>=l2) cov_Z_tl(t,l1,l2) += (Z_xl(x,l1)-mean_Z_tl(t,l1))*(Z_xl(x,l2)-mean_Z_tl(t,l2)) * Index_xtl(x,t,l1)/Index_tl(t,l1);
+        if(m1>=m2) cov_Z_tmm(t,m1,m2) += (Z_xm(x,m1)-mean_Z_tm(t,m1))*(Z_xm(x,m2)-mean_Z_tm(t,m2)) * Index_xtl(x,t,0)/Index_tl(t,0);
       }
     }}}
-    REPORT( mean_Z_tl );  
-    ADREPORT( mean_Z_tl );
-    REPORT( cov_Z_tl );  
-    ADREPORT( cov_Z_tl );
+    REPORT( mean_Z_tm );
+    ADREPORT( mean_Z_tm );
+    REPORT( cov_Z_tmm );
+    ADREPORT( cov_Z_tmm );
 
     // Calculate the area
-    array<Type> area_Z_tll(n_t,n_l,n_l);
-    array<Type> log_area_Z_tll(n_t,n_l,n_l);
+    array<Type> area_Z_tmm(n_t, n_m, n_m);
+    array<Type> log_area_Z_tmm(n_t, n_m, n_m);
+    area_Z_tmm.setZero();
     for(int t=0; t<n_t; t++){
-    for(int l1=0; l1<n_l; l1++){
-    for(int l2=0; l2<n_l; l2++){
+    for(int m1=0; m1<n_m; m1++){
+    for(int m2=0; m2<n_m; m2++){
       // area of covariace matrix is determinant; det(Sigma) = ad - bc
       // see e.g., "volume of multivariate normal": https://onlinecourses.science.psu.edu/stat505/node/36
-      if(l1>l2) area_Z_tll(t,l1,l2) = pow( cov_Z_tl(t,l1,l1)*cov_Z_tl(t,l2,l2) - pow(cov_Z_tl(t,l1,l2),2), 0.5 );
+      if(m1>m2) area_Z_tmm(t,m1,m2) = pow( cov_Z_tmm(t,m1,m1)*cov_Z_tmm(t,m2,m2) - pow(cov_Z_tmm(t,m1,m2),2), 0.5 );
     }}}
-    REPORT( area_Z_tll );
-    ADREPORT( area_Z_tll );
-    log_area_Z_tll = log(area_Z_tll);
-    ADREPORT( log_area_Z_tll );
+    REPORT( area_Z_tmm );
+    ADREPORT( area_Z_tmm );
+    log_area_Z_tmm = log(area_Z_tmm);
+    ADREPORT( log_area_Z_tmm );
 
-    // Calculate the concentration (Index / SD) for density given covariates Z_xl
-    array<Type> concentration_Z_tll(n_t,n_l,n_l);
-    array<Type> log_concentration_Z_tll(n_t,n_l,n_l);
-    for(int t=0; t<n_t; t++){
-    for(int l1=0; l1<n_l; l1++){
-    for(int l2=0; l2<n_l; l2++){
-      if(l1==l2) concentration_Z_tll(t,l1,l1) = Index_tl(t,l1) / pow( cov_Z_tl(t,l1,l1), 0.5 );
-      if(l1>l2) concentration_Z_tll(t,l1,l2) = Index_tl(t,l1) / area_Z_tll(t,l1,l2);
-    }}}
-    REPORT( concentration_Z_tll );
-    ADREPORT( concentration_Z_tll );
-    log_concentration_Z_tll = log(concentration_Z_tll);
-    ADREPORT( log_concentration_Z_tll );
+    // Calculate the concentration (Index / SD) for density given covariates Z_xm
+    // DEPRECATED because this metric isn't as good as effective area occupied
+    if( false ){
+      array<Type> concentration_Z_tmm(n_t, n_m, n_m);
+      array<Type> log_concentration_Z_tmm(n_t, n_m, n_m);
+      concentration_Z_tmm.setZero();
+      for(int t=0; t<n_t; t++){
+      for(int m1=0; m1<n_m; m1++){
+      for(int m2=0; m2<n_m; m2++){
+        if(m1==m2) concentration_Z_tmm(t,m1,m1) = Index_tl(t,0) / pow( cov_Z_tmm(t,m1,m1), 0.5 );
+        if(m1>m2) concentration_Z_tmm(t,m1,m2) = Index_tl(t,0) / area_Z_tmm(t,m1,m2);
+      }}}
+      REPORT( concentration_Z_tmm );
+      ADREPORT( concentration_Z_tmm );
+      log_concentration_Z_tmm = log(concentration_Z_tmm);
+      ADREPORT( log_concentration_Z_tmm );
+    }
 
-    // Calculate average density, weighted.mean( x=Abundance/Area, w=Abundance )
+    // Testing hyperparameters
+    if( Options_vec(4)==1 | Options_vec(4)==2 ){
+      vector<Type> log_area_t_pred(n_t);
+      for(int t=0; t<n_t; t++){
+        log_area_t_pred(t) = hyperparameters_z(0) + hyperparameters_z(1)*ln_Index_tl(t,0);
+        if( Options_vec(4)==1 ) jnll_comp(12) -= dnorm( log_area_Z_tmm(t,1,0), log_area_t_pred(t), exp(hyperparameters_z(2)), true );
+      }
+      REPORT( log_area_t_pred );
+    }
+  }
+
+  // Calculate average density, weighted.mean( x=Abundance/Area, w=Abundance )
+  // Doesn't require Z_xm, because it only depends upon Index_tl
+  if( Options(4)==1 ){
     array<Type> mean_D_tl(n_t,n_l);
     array<Type> log_mean_D_tl(n_t,n_l);
     mean_D_tl.setZero();
-    for(int t=0;t<n_t;t++){
-    for(int l=0;l<n_l;l++){
+    for(int t=0; t<n_t; t++){
+    for(int l=0; l<n_l; l++){
       for(int x=0; x<n_x; x++){
         mean_D_tl(t,l) += D_xt(x,t) * Index_xtl(x,t,l)/Index_tl(t,l);
       }
@@ -505,8 +539,63 @@ Type objective_function<Type>::operator() ()
     ADREPORT( mean_D_tl );
     log_mean_D_tl = log( mean_D_tl );
     ADREPORT( log_mean_D_tl );
+
+    // Calculate effective area = Index / average density
+    array<Type> effective_area_tl(n_t,n_l);
+    array<Type> log_effective_area_tl(n_t,n_l);
+    effective_area_tl = Index_tl / (mean_D_tl/1000);  // Correct for different units of Index and density
+    log_effective_area_tl = log( effective_area_tl );
+    REPORT( effective_area_tl );
+    ADREPORT( effective_area_tl );
+    ADREPORT( log_effective_area_tl );
   }
-  
+
+  // Testing hyperparameters
+  if( Options_vec(4)==1 | Options_vec(4)==2 | Options(3)==1 ){
+    // Calculate relative evenness = H'(t) / H'(max), where H' is Shannon diversity and H'(max) is maximum possible, except with weighting equal to area
+    // Shannon diversity is generalized by the Kullback-Leibler divergence of the observed function P from a uniform function Q, Integral_x( P(x) * log(P(x)/Q(x)) * dx)
+    // Integral_x( P(x)*dx ) = Integral_x( Q(x)*dx ) = 1;  units=m^-2
+    // P(x), Q(x) are defined as density (abundance / area) rescaled to have integral of one
+    // P(x) = Index_xtl(x,t,0) / a_xl(x,0) / Index_tl(t,0)
+    // Q(x) = 1 / a_xl.col(0).sum()
+    vector<Type> evenness_t(n_t);
+    vector<Type> max_evenness_t(n_t);
+    vector<Type> relative_evenness_t(n_t);
+    vector<Type> log_relative_evenness_t(n_t);
+    evenness_t.setZero();
+    max_evenness_t.setZero();
+    vector<Type> KLdivergence_t(n_t);
+    KLdivergence_t.setZero();
+    vector<Type> ln_relative_evenness_t_pred(n_t);
+    // Loop through years
+    for(int t=0; t<n_t; t++){
+      for(int x=0; x<n_x; x++){
+        if( a_xl(x,0)>0 ){
+          evenness_t(t) -= (Index_xtl(x,t,0)/Index_tl(t,0)) * log( Index_xtl(x,t,0)/Index_tl(t,0) );   // Average density, weighted by area
+          KLdivergence_t(t) += a_xl(x,0)/a_xl.col(0).sum() * (Index_xtl(x,t,0)/a_xl(x,0)/Index_tl(t,0)) * log( Index_xtl(x,t,0)/a_xl(x,0)/Index_tl(t,0) / (1/a_xl.col(0).sum()) );
+        }
+        max_evenness_t(t) -= (1/ float(n_x)) * log( 1/float(n_x) );
+      }
+      relative_evenness_t(t) = evenness_t(t) / max_evenness_t(t);             // Evenness relative to maximum
+      // Likelihood component
+      ln_relative_evenness_t_pred(t) = hyperparameters_z(0) + hyperparameters_z(1)*ln_Index_tl(t,0);
+      if( Options_vec(4)==2 ) jnll_comp(12) -= dnorm( log(relative_evenness_t(t)), ln_relative_evenness_t_pred(t), exp(hyperparameters_z(2)), true );
+    }
+    log_relative_evenness_t = log( relative_evenness_t );
+    REPORT( evenness_t );
+    REPORT( max_evenness_t );
+    REPORT( relative_evenness_t );
+    REPORT( KLdivergence_t );
+    REPORT( ln_relative_evenness_t_pred );
+    ADREPORT( relative_evenness_t );
+    ADREPORT( log_relative_evenness_t );
+  }
+
+  // Joint likelihood
+  jnll_comp(10) = -1*LogProb1_i.sum();
+  jnll_comp(11) = -1*LogProb2_i.sum();
+  jnll = jnll_comp.sum();
+
   // Diagnostic output
   REPORT( P1_i );
   REPORT( P2_i );
@@ -547,6 +636,7 @@ Type objective_function<Type>::operator() ()
   REPORT( beta2_t );
   REPORT( jnll_comp );
   REPORT( jnll );
+  REPORT( hyperparameters_z );
 
   ADREPORT( Range_raw1 );
   ADREPORT( Range_raw2 );
@@ -561,7 +651,7 @@ Type objective_function<Type>::operator() ()
   ADREPORT( SigmaV2 );
   ADREPORT( SigmaVT1 );
   ADREPORT( SigmaVT2 );
-  
+
   // Additional miscellaneous outputs
   if( Options(0)==1 ){
     ADREPORT( Index_xtl );
@@ -569,16 +659,7 @@ Type objective_function<Type>::operator() ()
   if( Options(1)==1 ){
     ADREPORT( log(Index_xtl) );
   }
-  if( Options(2)==1 ){
-    matrix<Type> mean_relative_Z_tl(n_t,n_l);
-    for(int t=0; t<n_t; t++){
-    for(int l=0; l<n_l; l++){
-      mean_relative_Z_tl(t,l) = mean_Z_tl(t,l) - mean_Z_tl(0,l);
-    }}
-    REPORT( mean_relative_Z_tl );
-    ADREPORT( mean_relative_Z_tl );
-  }
-  
+
   return jnll;
   
 }

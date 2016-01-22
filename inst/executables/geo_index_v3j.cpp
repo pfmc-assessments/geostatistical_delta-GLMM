@@ -445,8 +445,8 @@ Type objective_function<Type>::operator() ()
   for(int l=0; l<n_l; l++){
     for(int x=0; x<n_x; x++){
       if( Z_xl(x,l)!=0 ){
-        mean_Z_tl(t,l) += Z_xl(x,l) * Index_xtl(x,t,l)/Index_tl(t,l);  
-        report_summary_TF = true; 
+        mean_Z_tl(t,l) += Z_xl(x,l) * Index_xtl(x,t,l)/Index_tl(t,l);
+        report_summary_TF = true;
       }
     }
   }}

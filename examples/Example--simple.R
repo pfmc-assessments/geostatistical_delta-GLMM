@@ -18,17 +18,17 @@ library(SpatialDeltaGLMM)
 library(ThorsonUtilities)
 
 # This is where all runs will be located
-DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
+DateFile = paste(getwd(),'/',Sys.Date(),'-canary/',sep='')
   dir.create(DateFile)
 
 ###############
 # Settings
 ###############
 
-  Data_Set = c("WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[8]
+  Data_Set = c("WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[1]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
-  Version = "geo_index_v3i"
-  n_x = c(100, 250, 500, 1000, 2000)[1] # Number of stations
+  Version = "geo_index_v3k"
+  n_x = c(100, 250, 500, 1000, 2000)[2] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
   CovConfig = c("SST"=0, "RandomNoise"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
   Q_Config = c("Pass"=0)
@@ -206,7 +206,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Obj$gr(Obj$par)
 
   # Run model
-  Opt = nlminb(start=Obj$par, objective=Obj$fn, gradient=Obj$gr, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]], control=list(eval.max=1e4, iter.max=1e4, trace=1))  # , rel.tol=1e-20
+  for(i in 1:2) Opt = nlminb(start=Obj$env$last.par.best[-Obj$env$random], objective=Obj$fn, gradient=Obj$gr, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]], control=list(eval.max=1e4, iter.max=1e4, trace=1))  # , rel.tol=1e-20
   Opt[["final_diagnostics"]] = data.frame( "Name"=names(Opt$par), "Lwr"=TmbList[["Lower"]], "Est"=Opt$par, "Upr"=TmbList[["Upper"]], "Gradient"=Obj$gr(Opt$par) )
   Opt[["total_time_to_run"]] = Sys.time() - Start_time
   Opt[["number_of_coefficients"]] = c("Total"=length(unlist(Obj$env$parameters)), "Fixed"=length(Obj$par), "Random"=length(unlist(Obj$env$parameters))-length(Obj$par) )
@@ -243,6 +243,9 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 
   # Positive catch rate Q-Q plot
   Q = QQ_Fn( TmbData=TmbData, Report=Report, FileName_PP=paste0(DateFile,"Posterior_Predictive.jpg"), FileName_Phist=paste0(DateFile,"Posterior_Predictive-Histogram.jpg"), FileName_QQ=paste0(DateFile,"Q-Q_plot.jpg"), FileName_Qhist=paste0(DateFile,"Q-Q_hist.jpg"))
+
+  # Plot center of gravity
+  Plot_range_shifts(Sdreport=Sdreport, Report=Report, Znames=colnames(TmbData$Z_xm), FileName_COG=paste0(DateFile,"center_of_gravity.png"))
 
   # Covariate effect
   #PlotCov_Fn(Report=Report, NN_Extrap=PolygonList$NN_Extrap, X_xj=X_xj, FileName=paste0(DateFile,"Cov_"))
