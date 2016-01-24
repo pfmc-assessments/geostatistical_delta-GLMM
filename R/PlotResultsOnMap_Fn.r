@@ -1,16 +1,25 @@
 PlotResultsOnMap_Fn <-
-function(MappingDetails, Report, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set=NULL, Years2Include=NULL, plot_set=1:5,
-         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, add=FALSE, margintext=NULL, pch=NULL, ...){
+function(MappingDetails, Report, Nknots=Inf, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set=NULL, Years2Include=NULL, plot_set=1:5,
+         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, add=FALSE, textmargin=NULL, pch=NULL, ...){
 
   # Fill in missing inputs
   if( is.null(Year_Set) ) Year_Set = 1:ncol(Report$D_xt)
   if( is.null(Years2Include) ) Years2Include = 1:ncol(Report$D_xt)
+
   # Extract elements
   attach( Report )
   on.exit( detach(Report) )
   plot_codes <- c("Pres", "Pos", "Dens", "Pos_Rescaled", "Dens_Rescaled", "Eps_Pres", "Eps_Pos")
-  if( is.null(margintext)){
-    margintext <- c("", "", "Density, ln(kg. per square km.)", "", "", "", "")
+  if( is.null(textmargin)){
+    textmargin <- c("", "", "Density, ln(kg. per square km.)", "", "", "", "")
+  }
+
+  # Select locations to plot
+  if( Nknots<Inf ){
+    NN_plot = kmeans(x=PlotDF[,c("Lon","Lat")], centers=Nknots, iter.max=50, nstart=2, trace=0)
+    Match = match( 1:Nknots, NN_plot$cluster)
+    PlotDF = PlotDF[Match,]
+    message( "Restricted plotting locations to ", Nknots, " locations" )
   }
 
   # Loop through plots
@@ -46,6 +55,7 @@ function(MappingDetails, Report, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Yea
       Mat = Epsilon2_st # maybe should be exponentiated?
     }
     # Do plot
-    PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat[,Years2Include], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[plot_num]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, margintext=margintext, add=add, pch=pch, ...)
+    Return = PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat[,Years2Include], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[plot_num]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin, add=add, pch=pch, ...)
   }
+  return( invisible(Return) )
 }

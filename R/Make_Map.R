@@ -68,6 +68,13 @@ function( Version, TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), CovConfig
     Map[["Beta_mean1"]] = factor( NA )
     Map[["Beta_rho1"]] = factor( NA )
   }
+  # Beta1 -- Constant
+  if( RhoConfig["Beta1"]==3 && Version%in%c("geo_index_v3k","geo_index_v3j","geo_index_v3i","geo_index_v3h","geo_index_v3g","geo_index_v3f")){
+    Map[["Beta_mean1"]] = factor( NA )
+    Map[["Beta_rho1"]] = factor( NA )
+    Map[["logsigmaB1"]] = factor( NA )
+    Map[["beta1_t"]] = factor( rep(1,TmbData$n_t) )
+  }
   # Beta2 -- Fixed
   if( RhoConfig["Beta2"]==0 && Version%in%c("geo_index_v3k","geo_index_v3j","geo_index_v3i","geo_index_v3h","geo_index_v3g","geo_index_v3f")){
     Map[["Beta_mean2"]] = factor( NA )
@@ -82,6 +89,13 @@ function( Version, TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), CovConfig
   if( RhoConfig["Beta2"]==2 && Version%in%c("geo_index_v3k","geo_index_v3j","geo_index_v3i","geo_index_v3h","geo_index_v3g","geo_index_v3f")){
     Map[["Beta_mean2"]] = factor( NA )
     Map[["Beta_rho2"]] = factor( NA )
+  }
+  # Beta2 -- Constant
+  if( RhoConfig["Beta2"]==3 && Version%in%c("geo_index_v3k","geo_index_v3j","geo_index_v3i","geo_index_v3h","geo_index_v3g","geo_index_v3f")){
+    Map[["Beta_mean2"]] = factor( NA )
+    Map[["Beta_rho2"]] = factor( NA )
+    Map[["logsigmaB2"]] = factor( NA )
+    Map[["beta2_t"]] = factor( rep(1,TmbData$n_t) )
   }
   # Epsilon1 -- Fixed OR White-noise OR Random walk
   if( RhoConfig["Epsilon1"]%in%c(0,1,2) && Version%in%c("geo_index_v3k","geo_index_v3j","geo_index_v3i","geo_index_v3h","geo_index_v3g","geo_index_v3f")){

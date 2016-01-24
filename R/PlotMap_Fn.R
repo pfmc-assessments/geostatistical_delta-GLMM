@@ -1,6 +1,6 @@
 PlotMap_Fn <-
 function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
-         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, margintext="", add=FALSE, pch=NULL, outermargintext=c("Eastings","Northings"), zlim=NULL, ...){
+         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, textmargin="", add=FALSE, pch=NULL, outermargintext=c("Eastings","Northings"), zlim=NULL, ...){
 
   # Transform to grid or other coordinates
   Mat = Mat[PlotDF[,'x2i'],,drop=FALSE]
@@ -27,7 +27,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
          width=Par$mfrow[2]*MapSizeRatio['Width(in)'],
          height=Par$mfrow[1]*MapSizeRatio['Height(in)'], res=Res, units='in')
   }
-    if(add==FALSE) par( Par )
+    par( Par )          # consider changing to Par=list() input, which overloads defaults a la optim() "control" input
     for(t in 1:length(Year_Set)){
       if( is.null(MappingDetails) ){
         plot(1, type="n", ylim=Ylim, xlim=Xlim, main="", xlab="", ylab="")#, main=Year_Set[t])
@@ -67,7 +67,8 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
          width=1, height=2*MapSizeRatio['Height(in)'], res=200, units='in')
   }
   if(Format %in% c("png","jpg")){
-    Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), margintext=margintext )
+    Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), textmargin=textmargin )
     dev.off()
   }
+  return( invisible(list("Par"=Par)) )
 }
