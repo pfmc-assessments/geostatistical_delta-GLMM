@@ -1,5 +1,5 @@
 Data_Fn <-
-function( Version, FieldConfig, ObsModel, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q_ik, MeshList, Aniso=1, R2_interpretation=0, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Options=c('SD_site_density'=0,'SD_site_logdensity'=0,'Calculate_Range'=1,'Calculation_evenness'=0,'Calculate_effective_area'=0), Calculate_Range=TRUE, CheckForErrors=TRUE, Alpha=2 ){
+function( Version, FieldConfig, ObsModel, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q_ik, MeshList, Aniso=1, R2_interpretation=0, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Options=c('SD_site_density'=0,'SD_site_logdensity'=0,'Calculate_Range'=0,'Calculate_evenness'=0,'Calculate_effective_area'=0), CheckForErrors=TRUE, Alpha=2 ){
   # Check for bad data entry
   if( CheckForErrors==TRUE ){
     if( !is.matrix(a_xl) | !is.matrix(X_xj) | !is.matrix(Q_ik) ) stop("a_xl, X_xj, and Q_ik should be matrices")
@@ -26,7 +26,7 @@ function( Version, FieldConfig, ObsModel, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj, Q
   if( Options['Calculate_Range']==FALSE ){
     Z_xm = matrix(0, nrow=nrow(a_xl), ncol=ncol(a_xl) ) # Size so that it works for Version 3g-3j
   }
-  if( Calculate_Range==TRUE ){
+  if(Options['Calculate_Range']==TRUE ){
     Z_xm = MeshList$loc_x
     message( "Calculating range shift for stratum #1:",colnames(a_xl[1]))
   }
