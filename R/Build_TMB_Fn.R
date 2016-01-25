@@ -1,5 +1,5 @@
 Build_TMB_Fn <-
-function( TmbData, TmbDir, Version, VesselConfig, Q_Config=TRUE, CovConfig=TRUE, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), ConvergeTol=1, Use_REML=FALSE, loc_x=NULL, Parameters="generate", Random="generate", Map="generate", DiagnosticDir=NULL ){
+function( TmbData, TmbDir, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=TRUE, CovConfig=TRUE, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), ConvergeTol=1, Use_REML=FALSE, loc_x=NULL, Parameters="generate", Random="generate", Map="generate", DiagnosticDir=NULL ){
                                             
   # Local functions
   boundsifpresent_fn = function( par, map, name, lower, upper, bounds ){
