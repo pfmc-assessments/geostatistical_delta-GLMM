@@ -8,6 +8,7 @@ function( Lon, Lat, zone=NA, flip_around_dateline=FALSE ){
   attr(Tmp,"projection") = "LL"
   attr(Tmp,"zone") = zone
   tmpUTM = convUL(Tmp)                                                         #$
+  if( !is.na(zone)) message("convUL: For the UTM conversion, used zone ",zone," as specified")
 
   # Return results
   return( tmpUTM )

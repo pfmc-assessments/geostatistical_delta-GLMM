@@ -1,10 +1,10 @@
 Prepare_Other_Extrapolation_Data_Fn <-
-function( strata.limits, observations_LL, grid_dim_km=c(2,2), maximum_distance_from_sample=sqrt((grid_dim_km[1]/2)^2+(grid_dim_km[2]/2)^2) ){
+function( strata.limits, observations_LL, grid_dim_km=c(2,2), maximum_distance_from_sample=sqrt((grid_dim_km[1]/2)^2+(grid_dim_km[2]/2)^2), zone=NA ){
   require( maptools )
   require( RANN )
 
   # Get range
-  observations_UTM = Convert_LL_to_UTM_Fn( Lon=observations_LL[,'Lon'], Lat=observations_LL[,'Lat'])                                                         #$
+  observations_UTM = Convert_LL_to_UTM_Fn( Lon=observations_LL[,'Lon'], Lat=observations_LL[,'Lat'], zone=zone)                                                         #$
   E_lim = mean(range(observations_UTM[,'X'])) + c(-0.6,0.6)*diff(range(observations_UTM[,'X']))
   N_lim = mean(range(observations_UTM[,'Y'])) + c(-0.6,0.6)*diff(range(observations_UTM[,'Y']))
 

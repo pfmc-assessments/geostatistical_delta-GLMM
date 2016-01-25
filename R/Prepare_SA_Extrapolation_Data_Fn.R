@@ -1,5 +1,5 @@
 Prepare_SA_Extrapolation_Data_Fn <-
-function( strata.limits, region=c("south_coast","west_coast") ){
+function( strata.limits, region=c("south_coast","west_coast"), zone=NA ){
   # Read extrapolation data
   data( south_africa_grid )
   Data_Extrap <- south_africa_grid
@@ -16,7 +16,7 @@ function( strata.limits, region=c("south_coast","west_coast") ){
   }
 
   # Convert extrapolation-data to an Eastings-Northings coordinate system
-  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'cen_long'], Lat=Data_Extrap[,'cen_lat'], zone=NA)
+  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'cen_long'], Lat=Data_Extrap[,'cen_lat'], zone=zone)
   
   # Extra junk
   Data_Extrap = cbind( Data_Extrap, 'Include'=1)

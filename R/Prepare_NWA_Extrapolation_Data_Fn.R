@@ -1,5 +1,5 @@
 Prepare_NWA_Extrapolation_Data_Fn <-
-function( strata.limits ){
+function( strata.limits, zone=NA ){
   # Read extrapolation data
   data( northwest_atlantic_grid )
   Data_Extrap <- northwest_atlantic_grid
@@ -15,7 +15,7 @@ function( strata.limits ){
   }
 
   # Convert extrapolation-data to an Eastings-Northings coordinate system
-  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=NA)                                                         
+  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=zone)
   
   # Extra junk
   Data_Extrap = cbind( Data_Extrap, 'Include'=1)

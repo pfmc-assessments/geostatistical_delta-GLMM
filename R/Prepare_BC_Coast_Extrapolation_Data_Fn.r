@@ -1,5 +1,5 @@
 Prepare_BC_Coast_Extrapolation_Data_Fn <-
-function( strata.limits, strata_to_use=c('SOG','WCVI','QCS','HS','WCHG') ){
+function( strata.limits, strata_to_use=c('SOG','WCVI','QCS','HS','WCHG'), zone=NA ){
   # Read extrapolation data
   data( bc_coast_grid )
   bc_coast_grid <- cbind( bc_coast_grid, "ALL"=13.74)
@@ -17,7 +17,7 @@ function( strata.limits, strata_to_use=c('SOG','WCVI','QCS','HS','WCHG') ){
   }
 
   # Convert extrapolation-data to an Eastings-Northings coordinate system
-  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=NA)                                                         
+  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=zone)
   
   # Extra junk
   Data_Extrap = cbind( Data_Extrap, 'Include'=1)

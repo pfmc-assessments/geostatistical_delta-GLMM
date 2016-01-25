@@ -1,5 +1,5 @@
 Prepare_EBS_Extrapolation_Data_Fn <-
-function( strata.limits ){
+function( strata.limits, zone=NA ){
   # Read extrapolation data
   data( eastern_bering_sea_grid )
   Data_Extrap <- eastern_bering_sea_grid
@@ -18,7 +18,7 @@ function( strata.limits ){
 
   # Convert extrapolation-data to an Eastings-Northings coordinate system
   #Data_Extrap[,'Lon'] = 180 + ifelse( Data_Extrap[,'Lon']>0, Data_Extrap[,'Lon']-360, Data_Extrap[,'Lon'])
-  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=NA, flip_around_dateline=FALSE)                                                         #$
+  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=zone, flip_around_dateline=FALSE)                                                         #$
   #Data_Extrap[,'Lon'] = -180 + ifelse( Data_Extrap[,'Lon']<0, Data_Extrap[,'Lon']+360, Data_Extrap[,'Lon'])
   
   # Extra junk
