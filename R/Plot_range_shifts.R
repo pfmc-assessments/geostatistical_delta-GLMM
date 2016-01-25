@@ -37,7 +37,7 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, FileName
     dev.off()
 
     # Return stuff
-    Return = list("mean_Z_tm"=mean_Z_tm, "SD_mean_Z_tm"=SD_mean_Z_tm)
+    Return = list("mean_Z_tm"=mean_Z_tm, "SD_mean_Z_tm"=SD_mean_Z_tm, "Year_Set"=Year_Set)
     return( invisible(Return) )
   }else{
     message( "To estimate range-shifts, please re-run with Options['Calculate_Range']=1" )

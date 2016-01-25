@@ -1,5 +1,5 @@
 PlotIndex_Fn <-
-function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, interval_width=1, strata_names, use_biascorr=FALSE, plot_legend=TRUE, rawdata=NULL, total_area_km2=NULL, plot_log=FALSE, ... ){
+function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, interval_width=1, strata_names, use_biascorr=FALSE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, ... ){
   # Fill in missing
   if( is.null(Year_Set) ) Year_Set = 1:TmbData$n_t
   if( is.null(Years2Include) ) Years2Include = 1:TmbData$n_t
@@ -14,11 +14,11 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
   }
   
   # Calculate design-based
-  if( !is.null(rawdata) & !is.null(total_area_km2) ){
+  if( !is.null(total_area_km2) ){
     message( "Calculating naive design-based index -- do not use this, its intended only for comparison purposes" )
     Calc_design = TRUE
-    Design_t = tapply( rawdata$Catch_KG/rawdata$AreaSwept_km2, INDEX=rawdata$Year, FUN=mean ) * total_area_km2 / 1000 # Convert to tonnes
-    Design_t = cbind( "Estimate"=Design_t, "Std. Error"=sqrt(tapply(rawdata$Catch_KG/rawdata$AreaSwept_km2,INDEX=rawdata$Year,FUN=var)/tapply(rawdata$Catch_KG/rawdata$AreaSwept_km2,INDEX=rawdata$Year,FUN=length))*total_area_km2/1000)
+    Design_t = tapply( TmbData$b_i/TmbData$a_i, INDEX=TmbData$t_i, FUN=mean ) * total_area_km2 / 1000 # Convert to tonnes
+    Design_t = cbind( "Estimate"=Design_t, "Std. Error"=sqrt(tapply(TmbData$b_i/TmbData$a_i,INDEX=TmbData$t_i,FUN=var)/tapply(TmbData$b_i/TmbData$a_i,INDEX=TmbData$t_i,FUN=length))*total_area_km2/1000)
     Design_t = cbind( Design_t, "CV"=Design_t[,'Std. Error'] / Design_t[,'Estimate'] )
   }else{
     Calc_design = FALSE
@@ -40,11 +40,11 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
     if(plot_legend==TRUE) legend( "top", bty="n", fill=c(na.omit(ifelse(Calc_design==TRUE,"black",NA)),rainbow(TmbData[['n_l']])), legend=c(na.omit(ifelse(Calc_design==TRUE,"Design-based",NA)),strata_names), ncol=2 )
     # Write to file
     Table = data.frame( "Year"=Year_Set, "Unit"=1, "Fleet"=rep(strata_names,each=dim(Index)[1]), "Estimate (metric tonnes)"=as.vector(Index[,,'Estimate']), "SD (log)"=as.vector(log_Index[,,'Std. Error']), "SD (natural)"=as.vector(Index[,,'Std. Error']) )
-    if(!is.null(rawdata) & !is.null(total_area_km2)) Table = cbind(Table, "Naive_design-based_index"=Design_t)
+    if(!is.null(total_area_km2)) Table = cbind(Table, "Naive_design-based_index"=Design_t)
     write.csv( Table, file=paste0(DirName,"/Table_for_SS3.csv"), row.names=FALSE)
   dev.off()
 
   # Return stuff
-  Return = list( "Table"=Table, "log_Index"=log_Index, "Index"=Index)
+  Return = list( "Table"=Table, "log_Index"=log_Index, "Index"=Index, "Ylim"=Ylim)
   return( invisible(Return) )
 }
