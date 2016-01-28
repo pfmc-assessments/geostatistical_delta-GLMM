@@ -27,7 +27,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
          width=Par$mfrow[2]*MapSizeRatio['Width(in)'],
          height=Par$mfrow[1]*MapSizeRatio['Height(in)'], res=Res, units='in')
   }
-    par( Par )          # consider changing to Par=list() input, which overloads defaults a la optim() "control" input
+    if( add==FALSE ) par( Par )          # consider changing to Par=list() input, which overloads defaults a la optim() "control" input
     for(t in 1:length(Year_Set)){
       if( is.null(MappingDetails) ){
         plot(1, type="n", ylim=Ylim, xlim=Xlim, main="", xlab="", ylab="")#, main=Year_Set[t])

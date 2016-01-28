@@ -18,7 +18,7 @@ library(SpatialDeltaGLMM)
 library(ThorsonUtilities)
 
 # This is where all runs will be located
-DateFile = paste(getwd(),'/',Sys.Date(),'-canary/',sep='')
+DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   dir.create(DateFile)
 
 ###############
@@ -27,7 +27,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'-canary/',sep='')
 
   Data_Set = c("WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[1]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
-  Version = "geo_index_v3k"
+  Version = "geo_index_v3l"
   n_x = c(100, 250, 500, 1000, 2000)[2] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence
   CovConfig = c("SST"=0, "RandomNoise"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
@@ -170,15 +170,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'-canary/',sep='')
 
 # Calc design matrix and areas
   PolygonList = Calc_Polygon_Areas_and_Polygons_Fn( loc_x=loc_x, Data_Extrap=Extrapolation_List[["Data_Extrap"]], Covariates=c("none"), a_el=Extrapolation_List[["a_el"]])
-  X_xj = PolygonList[["X_xj"]]
   a_xl = PolygonList[["a_xl"]]
-
-# Make catchability matrix (Q_i)
-  if( sum(Q_Config)==0 ){
-    Q_ik = matrix(0, ncol=1, nrow=nrow(Data_Geostat))
-  }else{
-    Q_ik = as.matrix(Data_Geostat[,names(Q_Config)[which(Q_Config==1)],drop=FALSE])
-  }
 
 # Make mesh and info for anisotropy
   MeshList = Calc_Anisotropic_Mesh(loc_x=loc_x)
@@ -193,10 +185,10 @@ DateFile = paste(getwd(),'/',Sys.Date(),'-canary/',sep='')
   capture.output( Record, file=paste0(DateFile,"Record.txt"))
 
   # Make TMB data list
-  TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=X_xj, "Q_ik"=Q_ik, "MeshList"=MeshList)
+  TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "MeshList"=MeshList )
 
   # Make TMB object
-  TmbList = Build_TMB_Fn(TmbData, TmbDir=TmbDir, Version=Version, VesselConfig=VesselConfig, loc_x=loc_x)
+  TmbList = Build_TMB_Fn("TmbData"=TmbData, "TmbDir"=TmbDir, "Version"=Version, "VesselConfig"=VesselConfig, "loc_x"=loc_x)
   Obj = TmbList[["Obj"]]
   
   # Run first time -- marginal likelihood
@@ -245,7 +237,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'-canary/',sep='')
   Q = QQ_Fn( TmbData=TmbData, Report=Report, FileName_PP=paste0(DateFile,"Posterior_Predictive.jpg"), FileName_Phist=paste0(DateFile,"Posterior_Predictive-Histogram.jpg"), FileName_QQ=paste0(DateFile,"Q-Q_plot.jpg"), FileName_Qhist=paste0(DateFile,"Q-Q_hist.jpg"))
 
   # Plot center of gravity
-  Plot_range_shifts(Sdreport=Sdreport, Report=Report, Znames=colnames(TmbData$Z_xm), FileName_COG=paste0(DateFile,"center_of_gravity.png"))
+  Plot_range_shifts(Sdreport=Sdreport, Report=Report, TmbData=TmbData, Znames=colnames(TmbData$Z_xm), FileName_COG=paste0(DateFile,"center_of_gravity.png"))
 
   # Covariate effect
   #PlotCov_Fn(Report=Report, NN_Extrap=PolygonList$NN_Extrap, X_xj=X_xj, FileName=paste0(DateFile,"Cov_"))

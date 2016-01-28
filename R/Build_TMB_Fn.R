@@ -17,7 +17,7 @@ function( TmbData, TmbDir, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q
   if( RhoConfig[["Beta1"]]!=0 ) Random = c(Random, "beta1_t")
   if( RhoConfig[["Beta2"]]!=0 ) Random = c(Random, "beta2_t")
   if( Use_REML==TRUE ){
-    Random = union(Random, c("beta1_t","gamma1_j","lambda1_k","beta2_t","gamma2_j","lambda2_k")) 
+    Random = union(Random, c("beta1_t","gamma1_j","gamma1_tp","lambda1_k","beta2_t","gamma2_j","gamma2_tp","lambda2_k"))
   }
 
   # Which parameters are turned off

@@ -1,9 +1,10 @@
 PlotIndex_Fn <-
-function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, interval_width=1, strata_names, use_biascorr=FALSE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, ... ){
+function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, interval_width=1, strata_names=NULL, use_biascorr=FALSE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, ... ){
   # Fill in missing
   if( is.null(Year_Set) ) Year_Set = 1:TmbData$n_t
   if( is.null(Years2Include) ) Years2Include = 1:TmbData$n_t
-  
+  if( is.null(strata_names) ) strata_names = 1:TmbData$n_l
+
   # Extract index
   if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
     log_Index = array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)=="ln_Index_tl")],summary(Sdreport)[which(rownames(summary(Sdreport))=="ln_Index_tl"),'Std. Error']), dim=c(unlist(TmbData[c('n_t','n_l')]),2), dimnames=list(NULL,NULL,c('Estimate','Std. Error')) )
@@ -37,7 +38,7 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
       Plot_Points_and_Bounds_Fn( y=Index[Years2Include,l,'Estimate'], x=Year_Set[Years2Include]+seq(-0.1,0.1,length=dim(Index)[2])[l], ybounds=(Index[Years2Include,l,'Estimate']%o%c(1,1))*exp(log_Index[Years2Include,l,'Std. Error']%o%c(-interval_width,interval_width)), type="b", col=rainbow(TmbData[['n_l']])[l], col_bounds=rainbow(TmbData[['n_l']])[l], ylim=Ylim) 
       if(Calc_design==TRUE) Plot_Points_and_Bounds_Fn( y=Design_t[,'Estimate'], x=Year_Set[Years2Include]+seq(-0.1,0.1,length=dim(Index)[2])[l], ybounds=(Design_t[,'Estimate']%o%c(1,1))+Design_t[,'Std. Error']%o%c(-interval_width,interval_width), type="b", col="black", col_bounds="black") 
     }
-    if(plot_legend==TRUE) legend( "top", bty="n", fill=c(na.omit(ifelse(Calc_design==TRUE,"black",NA)),rainbow(TmbData[['n_l']])), legend=c(na.omit(ifelse(Calc_design==TRUE,"Design-based",NA)),strata_names), ncol=2 )
+    if(plot_legend==TRUE) legend( "top", bty="n", fill=c(na.omit(ifelse(Calc_design==TRUE,"black",NA)),rainbow(TmbData[['n_l']])), legend=c(na.omit(ifelse(Calc_design==TRUE,"Design-based",NA)),as.character(strata_names)), ncol=2 )
     # Write to file
     Table = data.frame( "Year"=Year_Set, "Unit"=1, "Fleet"=rep(strata_names,each=dim(Index)[1]), "Estimate (metric tonnes)"=as.vector(Index[,,'Estimate']), "SD (log)"=as.vector(log_Index[,,'Std. Error']), "SD (natural)"=as.vector(Index[,,'Std. Error']) )
     if(!is.null(total_area_km2)) Table = cbind(Table, "Naive_design-based_index"=Design_t)
