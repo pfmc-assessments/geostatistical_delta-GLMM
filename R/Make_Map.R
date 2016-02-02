@@ -151,25 +151,26 @@ function( Version, TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), CovConfig
   Map[["lambda2_k"]] = factor(Map[["lambda2_k"]])
 
   # Dynamic covariates
-  Var_tp = apply( TmbData[["X_xtp"]], MARGIN=2:3, FUN=var )
-  Map[["gamma1_tp"]] = Map[["gamma2_tp"]] = matrix( 1:(TmbData$n_t*TmbData$n_p), nrow=TmbData$n_t, ncol=TmbData$n_p )
-  for(t in 1:nrow(Var_tp)){
-  for(p in 1:ncol(Var_tp)){
-    if( Var_tp[t,p]==0 || sum(DynCovConfig)==0 ){
-      Map[["gamma1_tp"]][t,p] = NA
-      Map[["gamma2_tp"]][t,p] = NA
+  if( "X_xtp" %in% names(TmbData)){
+    Var_tp = apply( TmbData[["X_xtp"]], MARGIN=2:3, FUN=var )
+    Map[["gamma1_tp"]] = Map[["gamma2_tp"]] = matrix( 1:(TmbData$n_t*TmbData$n_p), nrow=TmbData$n_t, ncol=TmbData$n_p )
+    for(t in 1:nrow(Var_tp)){
+    for(p in 1:ncol(Var_tp)){
+      if( Var_tp[t,p]==0 || sum(DynCovConfig)==0 ){
+        Map[["gamma1_tp"]][t,p] = NA
+        Map[["gamma2_tp"]][t,p] = NA
+      }
+    }}
+    # By default, assume constant coefficient for all years of each variable
+    for(p in 1:ncol(Var_tp)){
+      if( all(Var_tp[,p]>0) ){
+        Map[["gamma1_tp"]][,p] = rep( Map[["gamma1_tp"]][1,p], TmbData$n_t )
+        Map[["gamma2_tp"]][,p] = rep( Map[["gamma2_tp"]][1,p], TmbData$n_t )
+      }
     }
-  }}
-  # By default, assume constant coefficient for all years of each variable
-  for(p in 1:ncol(Var_tp)){
-    if( all(Var_tp[,p]>0) ){
-      Map[["gamma1_tp"]][,p] = rep( Map[["gamma1_tp"]][1,p], TmbData$n_t )
-      Map[["gamma2_tp"]][,p] = rep( Map[["gamma2_tp"]][1,p], TmbData$n_t )
-    }
+    Map[["gamma1_tp"]] = factor(Map[["gamma1_tp"]])
+    Map[["gamma2_tp"]] = factor(Map[["gamma2_tp"]])
   }
-  Map[["gamma1_tp"]] = factor(Map[["gamma1_tp"]])
-  Map[["gamma2_tp"]] = factor(Map[["gamma2_tp"]])
-
 
   # Return
   return(Map)
