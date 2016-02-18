@@ -1,0 +1,20 @@
+# See https://help.github.com/articles/dealing-with-line-endings
+# Taken from: https://github.com/r4ss/r4ss/blob/master/.gitattributes
+
+# Set default behaviour, in case users don't have core.autocrlf set.
+* text=auto
+
+# Explicitly declare text files we want to always be normalized and converted
+# to native line endings on checkout.
+*.r text
+*.R text
+*.txt text
+*.md text
+*.tex text
+*.Rmd text
+*.Rnw text
+
+# Denote all files that are truly binary and should not be modified.
+*.png binary
+*.jpg binary
+*.pdf binary
