@@ -85,32 +85,32 @@ Print_Message = function( whichmessage ){
     NOAA Northeast Fisheries Science Center (NEFSC) Database Attributes for raw Haddock Data from Fall 1963 (Spring 1968) – Fall 2014 (Spring 2015)
 
     COMMON_NAME
-    •	Species common name as assigned in the NEFSC fisheries independent data system.
+    Species common name as assigned in the NEFSC fisheries independent data system.
 
     SVSPP
-    •	A three digit species code as assigned in the NEFSC fisheries independent database system.
+    A three digit species code as assigned in the NEFSC fisheries independent database system.
 
     PURPOSE_CODE
-    •	A two digit code identifying the overall purpose of survey cruise types as they pertain to qualifying data storage and retrieval
+    A two digit code identifying the overall purpose of survey cruise types as they pertain to qualifying data storage and retrieval
 
     SEASON
-    •	A six character field defining the season a survey cruise type was conducted.  NOTE:  Not all performed survey work is conducted
+    A six character field defining the season a survey cruise type was conducted.  NOTE:  Not all performed survey work is conducted
     	within the dates of standard seasonal definition.  Overlap can occur, but most work is performed within the season defined for a survey.
 
     CRUISE
-    •	A 6 digit alphanumeric field identifying a unique cruise.
+    A 6 digit alphanumeric field identifying a unique cruise.
 
     STRATA
-    •	A five digit alphanumeric code identifying the stratified random sampling areas used in the NEFSC standard fisheries independent trawl surveys.
+    A five digit alphanumeric code identifying the stratified random sampling areas used in the NEFSC standard fisheries independent trawl surveys.
 
     TOW
-    •	A three digit alphanumeric field identifying a completed survey trawling operation within a specified stratum.
+    A three digit alphanumeric field identifying a completed survey trawling operation within a specified stratum.
 
     STATION
-    •	A four digit alphanumeric field representing the sequential order in which randomly chosen survey trawling operations have been completed.
+    A four digit alphanumeric field representing the sequential order in which randomly chosen survey trawling operations have been completed.
 
     SHG
-    •	A three digit alphanumeric field derived from the concatenation of three separate fields used to provide a subjective representation of the
+    A three digit alphanumeric field derived from the concatenation of three separate fields used to provide a subjective representation of the
     	quality of a tow.  The S, or station type is used to define the type of tow being performed (e.g., stratified random, non-random, comparison haul, etc.).
     	The H, or haul value represents the relative success of a survey operation (e.g., representative tow, non-representative, may or may not be representative
     	due to gear problems or tow duration). The G, or gear condition identifies possible problems due to gear damage or obstructions in the gear. A combined value
@@ -118,51 +118,51 @@ Print_Message = function( whichmessage ){
     	and are not used in standard analysis.
 
     TOGA
-    •	A four digit alphanumeric code used to replace the SHG performance indicator upon the replacement of the RV Albatross IV with the FSV Henry B. Bigelow.
+    A four digit alphanumeric code used to replace the SHG performance indicator upon the replacement of the RV Albatross IV with the FSV Henry B. Bigelow.
     	TOGA is a detailed analysis of survey trawl and vessel performance during each tow, utilizing available data from trawl mensuration systems and vessel sensors
     	routinely logged by the Scientific Computing System (SCS). Tolerance limits and optimal values were calculated from data collected during the NEFSC calibration
     	experiments. These tolerance limits are intended to promote consistency of trawl geometry and towing procedure to validate comparison of the collected trawl survey
     	data with results from the calibration experiments.
 
     TOWDATE
-    •	A date field representing the UTC date and time the current survey trawling operation has started sampling.
+    A date field representing the UTC date and time the current survey trawling operation has started sampling.
 
     YEAR
-    •	A four digit alphanumeric field extracted from the TOWDATE field representing the UTC year when a survey trawling operation was conducted.
+    A four digit alphanumeric field extracted from the TOWDATE field representing the UTC year when a survey trawling operation was conducted.
 
     MON
-    •	A two digit alphanumeric field extracted from the TOWDATE field representing the UTC month when a survey trawling operation was conducted.
+    A two digit alphanumeric field extracted from the TOWDATE field representing the UTC month when a survey trawling operation was conducted.
 
     DAY
-    •	A two digit alphanumeric field extracted from the TOWDATE field representing the UTC day when a survey trawling operation was conducted.
+    A two digit alphanumeric field extracted from the TOWDATE field representing the UTC day when a survey trawling operation was conducted.
 
     TIME
-    •	An eight alphanumeric field extracted from the TOWDATE field representing the UTC time when a survey trawling operation was conducted.
+    An eight alphanumeric field extracted from the TOWDATE field representing the UTC time when a survey trawling operation was conducted.
 
     DEPTH
-    •	A four digit number recording the average depth, to the nearest meter, during a survey trawling operation. For surveys starting with the spring of 2001,
+    A four digit number recording the average depth, to the nearest meter, during a survey trawling operation. For surveys starting with the spring of 2001,
     	the depth is recorded every 10 seconds and averaged upon completion of a survey trawling operation. For surveys prior to spring 2001,   avgdepth is derived
     	using the fields SETDEPTH and ENDDEPTH (E.g., (SETDEPTH+ENDDEPTH)/2 avgdepth). When the setdepth is null, then the enddepth is used as the avgdepth and vice
     	versa. If neither setdepth or enddepth is recorded, then the average depth is recorded as null.
 
     BOT_TEMP
-    •	A three digit numeric field measuring water temperature to the nearest tenth of a degree Celsius near the bottom.  Temperature was recorded using a mechanical
+    A three digit numeric field measuring water temperature to the nearest tenth of a degree Celsius near the bottom.  Temperature was recorded using a mechanical
     	bathythermograph in the early years; an expendable bathythermograph (XBT) in the middle years; a CTD from the early 1990’s to present.
 
     CATCHWT
-    •	A nine digit field measuring the aggregate weight of a species.  Catch weights were recorded using a beam balance until the early 1990’s measured to the nearest
+    A nine digit field measuring the aggregate weight of a species.  Catch weights were recorded using a beam balance until the early 1990’s measured to the nearest
     	tenth of a kg.  A Marel motion compensating scale has been used to capture weights starting in the early 1990’s to present.  The weights included in data files
     	have been adjusted to account for gear and vessel changes over the entire time series where noted.
 
     CATCHNUM
-    •	A nine digit field identifying the total number of actual or expanded (sub-sampling) fish captured during a trawl operation.  The numbers included in this file
+    A nine digit field identifying the total number of actual or expanded (sub-sampling) fish captured during a trawl operation.  The numbers included in this file
     	have been adjusted to account for gear and vessel changes over the entire time series where noted.
 
     LATITUDE
-    •	A ten digit number representing degrees decimal minutes of latitude.  Precision of this value has changed over time based on changes in technology.
+    A ten digit number representing degrees decimal minutes of latitude.  Precision of this value has changed over time based on changes in technology.
 
     LONGITUDE
-    •	A ten digit number representing degrees decimal minutes of longitude.  Precision of this value has changed over time based on changes in technology
+    A ten digit number representing degrees decimal minutes of longitude.  Precision of this value has changed over time based on changes in technology
     "
     )
 
