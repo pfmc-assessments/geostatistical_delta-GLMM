@@ -230,7 +230,7 @@ Type objective_function<Type>::operator() ()
   Type kappa1_pow4 = kappa1_pow2*kappa1_pow2;
   Type SigmaE1 = 1 / sqrt(4*pi*exp(2*logtauE1)*exp(2*logkappa1));
   Type SigmaO1 = 1 / sqrt(4*pi*exp(2*logtauO1)*exp(2*logkappa1));
-  Type Range_raw1 = sqrt(8) / exp( logkappa1 );
+  Type Range_raw1 = sqrt(8) / exp( logkappa1 );   // Range = approx. distance @ 10% correlation
   Type SigmaV1 = exp( logsigmaV1 );
   Type SigmaVT1 = exp( logsigmaVT1 );
 
@@ -240,7 +240,7 @@ Type objective_function<Type>::operator() ()
   Type kappa2_pow4 = kappa2_pow2*kappa2_pow2;
   Type SigmaE2 = 1 / sqrt(4*pi*exp(2*logtauE2)*exp(2*logkappa2));
   Type SigmaO2 = 1 / sqrt(4*pi*exp(2*logtauO2)*exp(2*logkappa2));
-  Type Range_raw2 = sqrt(8) / exp( logkappa2 );
+  Type Range_raw2 = sqrt(8) / exp( logkappa2 );     // Range = approx. distance @ 10% correlation
   Type SigmaV2 = exp( logsigmaV2 );
   Type SigmaVT2 = exp( logsigmaVT2 );
   vector<Type> SigmaM(4);
