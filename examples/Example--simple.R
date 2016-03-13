@@ -30,8 +30,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Version = "geo_index_v3i"
   n_x = c(100, 250, 500, 1000, 2000)[1] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence; #Epsilon=Spatio-temporal; #Omega=Spatial
-  CovConfig = c("SST"=0, "RandomNoise"=0) # DON'T USE DURING REAL-WORLD DATA FOR ALL SPECIES (IT IS UNSTABLE FOR SOME)
-  Q_Config = c("Pass"=0)
   VesselConfig = c("Vessel"=0, "VesselYear"=0)
   ObsModel = 2  # 0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture
   Kmeans_Config = list( "randomseed"=1, "nstart"=100, "iter.max"=1e3 )     # Samples: Do K-means on trawl locs; Domain: Do K-means on extrapolation grid
@@ -76,12 +74,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     strata.limits = data.frame( 'STRATA'="All_areas" )
   }
 
-# Compile TMB software
-  #TmbDir = system.file("executables", package="SpatialDeltaGLMM")
-  TmbDir = "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/executables/"
-  setwd( TmbDir )
-  compile( paste(Version,".cpp",sep="") )
-      
 
 ################
 # Prepare data
@@ -181,14 +173,14 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 ################
 
 # Save options for future records
-  Record = bundlelist( c("Data_Set","Sim_Settings","Version","n_x","FieldConfig","CovConfig","Q_Config","VesselConfig","ObsModel","Kmeans_Config") )
+  Record = bundlelist( c("Data_Set","Sim_Settings","Version","n_x","FieldConfig","VesselConfig","ObsModel","Kmeans_Config") )
   capture.output( Record, file=paste0(DateFile,"Record.txt"))
 
   # Make TMB data list
   TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "MeshList"=MeshList )
 
   # Make TMB object
-  TmbList = Build_TMB_Fn("TmbData"=TmbData, "TmbDir"=TmbDir, "Version"=Version, "VesselConfig"=VesselConfig, "loc_x"=loc_x)
+  TmbList = Build_TMB_Fn("TmbData"=TmbData, "RunDir"=DateFile, "Version"=Version, "VesselConfig"=VesselConfig, "loc_x"=loc_x)
   Obj = TmbList[["Obj"]]
 
   # Run first time -- marginal likelihood
@@ -213,8 +205,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   save(Save, file=paste0(DateFile,"Save.RData"))
   capture.output( Opt, file=paste0(DateFile,"Opt.txt"))
   capture.output( Sdreport, file=paste0(DateFile,"Sdreport.txt"))
-  file.copy( from=paste0(system.file("executables", package="SpatialDeltaGLMM"),"/",Version,".cpp"), to=paste0(DateFile,Version,".cpp"), overwrite=TRUE)
-  
+
 ################
 # Make diagnostic plots
 ################

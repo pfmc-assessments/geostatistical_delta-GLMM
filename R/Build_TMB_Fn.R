@@ -1,6 +1,14 @@
 Build_TMB_Fn <-
-function( TmbData, TmbDir, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=TRUE, CovConfig=TRUE, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), ConvergeTol=1, Use_REML=FALSE, loc_x=NULL, Parameters="generate", Random="generate", Map="generate", DiagnosticDir=NULL ){
+function( TmbData, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=TRUE, CovConfig=TRUE,
+  RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0),
+  ConvergeTol=1, Use_REML=FALSE, loc_x=NULL, Parameters="generate", Random="generate", Map="generate",
+  DiagnosticDir=NULL, TmbDir=system.file("executables", package="SpatialDeltaGLMM"), RunDir=getwd() ){
                                             
+  # Compile TMB software
+  file.copy( from=paste0(TmbDir,"/",Version,".cpp"), to=paste0(RunDir,"/",Version,".cpp"), overwrite=FALSE)
+  setwd( RunDir )
+  compile( paste(Version,".cpp",sep="") )
+
   # Local functions
   boundsifpresent_fn = function( par, map, name, lower, upper, bounds ){
     if( name %in% names(par) ){
@@ -26,7 +34,7 @@ function( TmbData, TmbDir, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q
   if( "hyperparameters_z"%in%names(Parameters) && TmbData$Options_vec['AreaAbundanceCurveTF']==0 ) Map[["hyperparameters_z"]] = factor( rep(NA,length(Parameters[["hyperparameters_z"]])) )
 
   # Build object
-  dyn.load( paste0(TmbDir,"/",dynlib(Version)) ) # random=Random, 
+  dyn.load( paste0(RunDir,"/",dynlib(Version)) ) # random=Random,
   Obj <- MakeADFun(data=TmbData, parameters=Parameters, hessian=FALSE, map=Map, random=Random, inner.method="newton")
   Obj$control <- list(trace=1, parscale=1, REPORT=1, reltol=1e-12, maxit=100)
 
