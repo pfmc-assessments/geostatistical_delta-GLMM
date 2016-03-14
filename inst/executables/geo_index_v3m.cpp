@@ -114,7 +114,7 @@ Type dmixlnorm(Type x, Type logmean, Type sdlog1, Type mixprob, Type densratio, 
 
 // CMP distribution
 template<class Type>
-Type dCMP(Type x, Type mu, Type nu, int give_log=0, int iter_max=30){
+Type dCMP(Type x, Type mu, Type nu, int give_log=0, int iter_max=30, int break_point=10){
   // Explicit
   Type ln_S_1 = nu*mu - ((nu-1)/2)*log(mu) - ((nu-1)/2)*log(2*M_PI) - 0.5*log(nu);
   // Recursive
@@ -123,10 +123,11 @@ Type dCMP(Type x, Type mu, Type nu, int give_log=0, int iter_max=30){
   for(int i=1; i<iter_max; i++) S_i(i) = S_i(i-1) * pow( mu/Type(i), nu );
   Type ln_S_2 = log( sum(S_i) );
   // Blend (breakpoint:  mu=10)
-  Type prop_1 = invlogit((mu-10)*50);
-  Type S_comb = prop_1*exp(ln_S_1) + (1-prop_1)*exp(ln_S_2);
+  Type prop_1 = invlogit((mu-break_point)*50);
+  //Type S_comb = prop_1*exp(ln_S_1) + (1-prop_1)*exp(ln_S_2);
+  Type log_S_comb = prop_1*ln_S_1 + (1-prop_1)*ln_S_2;
   // Likelihood
-  Type loglike = nu*x*log(mu) - nu*lgamma(x+1) - log(S_comb);
+  Type loglike = nu*x*log(mu) - nu*lgamma(x+1) - log_S_comb;
   // Return
   if(give_log) return loglike; else return exp(loglike);
 }

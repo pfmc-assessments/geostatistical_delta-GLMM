@@ -9,9 +9,9 @@ function(MappingDetails, Report, Nknots=Inf, PlotDF, MapSizeRatio, Xlim, Ylim, F
   # Extract elements
   attach( Report )
   on.exit( detach(Report) )
-  plot_codes <- c("Pres", "Pos", "Dens", "Pos_Rescaled", "Dens_Rescaled", "Eps_Pres", "Eps_Pos")
+  plot_codes <- c("Pres", "Pos", "Dens", "Pos_Rescaled", "Dens_Rescaled", "Eps_Pres", "Eps_Pos", "LinPred_Pres", "LinPred_Pos")
   if( is.null(textmargin)){
-    textmargin <- c("", "", "Density, ln(kg. per square km.)", "", "", "", "")
+    textmargin <- c("", "", "Density, ln(kg. per square km.)", "", "", "", "", "", "")
   }
 
   # Select locations to plot
@@ -53,6 +53,14 @@ function(MappingDetails, Report, Nknots=Inf, PlotDF, MapSizeRatio, Xlim, Ylim, F
     if(plot_num==7){
       # Epsilon for positive values ("Eps_Pos")
       Mat = Epsilon2_st # maybe should be exponentiated?
+    }
+    if(plot_num==8){
+      # Linear predictor for probability of encounter
+      Mat = P1_xt
+    }
+    if(plot_num==9){
+      # Linear predictor for positive catch rates
+      Mat = P2_xt
     }
     # Do plot
     Return = PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat[,Years2Include], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[plot_num]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin, add=add, pch=pch, ...)
