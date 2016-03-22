@@ -123,7 +123,7 @@ Type dCMP(Type x, Type mu, Type nu, int give_log=0, int iter_max=30, int break_p
   for(int i=1; i<iter_max; i++) S_i(i) = S_i(i-1) * pow( mu/Type(i), nu );
   Type ln_S_2 = log( sum(S_i) );
   // Blend (breakpoint:  mu=10)
-  Type prop_1 = invlogit((mu-break_point)*50);
+  Type prop_1 = invlogit( (mu-break_point)*5 );
   //Type S_comb = prop_1*exp(ln_S_1) + (1-prop_1)*exp(ln_S_2);
   Type log_S_comb = prop_1*ln_S_1 + (1-prop_1)*ln_S_2;
   // Likelihood

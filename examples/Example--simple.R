@@ -27,7 +27,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 
   Data_Set = c("WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[4]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
-  Version = "geo_index_v3i"
+  Version = "geo_index_v3m"
   n_x = c(100, 250, 500, 1000, 2000)[1] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence; #Epsilon=Spatio-temporal; #Omega=Spatial
   VesselConfig = c("Vessel"=0, "VesselYear"=0)
@@ -177,7 +177,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   capture.output( Record, file=paste0(DateFile,"Record.txt"))
 
   # Make TMB data list
-  TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "MeshList"=MeshList )
+  TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=matrix(1,nrow=nrow(a_xl),ncol=1), "MeshList"=MeshList )
 
   # Make TMB object
   TmbList = Build_TMB_Fn("TmbData"=TmbData, "RunDir"=DateFile, "Version"=Version, "VesselConfig"=VesselConfig, "loc_x"=loc_x)
