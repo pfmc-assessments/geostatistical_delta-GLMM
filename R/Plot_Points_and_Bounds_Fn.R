@@ -3,7 +3,7 @@ Plot_Points_and_Bounds_Fn = function( x, y, ybounds, fn=lines, col_bounds="black
   fn( y=y, x=x, ... )
   if( bounds_type=="whiskers" ){
     for(t in 1:length(y)){
-      lines( x=rep(x[t],2), y=ybounds[t,], col=col_bounds)
+      lines( x=rep(x[t],2), y=ybounds[t,], col=col_bounds, lty=border_lty)
     }
   }
   if( bounds_type=="shading" ){

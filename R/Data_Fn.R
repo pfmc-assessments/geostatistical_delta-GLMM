@@ -29,6 +29,7 @@ function( Version, FieldConfig, ObsModel, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj=NU
   if( CheckForErrors==TRUE ){
     if( !is.matrix(a_xl) | !is.matrix(X_xj) | !is.matrix(Q_ik) ) stop("a_xl, X_xj, and Q_ik should be matrices")
     if( max(s_i)-1 > MeshList$mesh$n | min(s_i)<0 ) stop("s_i exceeds bounds in MeshList")
+    if( any(a_i)<=0 ) stop("a_i must be greater than zero for all observations, and at least one value of a_i is not")
   }
 
   # Check for bad data entry
