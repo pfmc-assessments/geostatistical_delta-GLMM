@@ -52,14 +52,17 @@ Known installation/usage issues
 =============
 none
 
-Example code for West Coast applications
+Example code
 =============
 Please see examples folder for an example of how to run the model:
-https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/example_for_NWFSC_shelf-slope_data.R
+https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/Example--simple.R
 
-This code illustrates how to loop through different default model configurations, plot diagnostics for each model, and obtain the AIC for each model.
+This code illustrates how to loop through different default model configurations,
+plot diagnostics for each model, and obtain the AIC for each model.
 
-Please also read the [Guidelines for West Coast users](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/wiki/West-Coast-Guidelines) wiki page, which is a living document and evolve over time as best practices become apparent.
+Please also read the [Guidelines for West Coast users](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/wiki/West-Coast-Guidelines)
+wiki page, which is a living document and will evolve over time as best practices
+become apparent.
 
 
 Further reading
