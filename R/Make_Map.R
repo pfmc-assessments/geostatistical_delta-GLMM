@@ -128,7 +128,7 @@ function( Version, TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), CovConfig
       Map[["beta2_t"]] = fixval_fn( fixvalTF=YearNotInData ) 
     }
   }
-  
+
   # Static covariates
   Var_j = apply( TmbData[["X_xj"]], MARGIN=2, FUN=var )
   Map[["gamma1_j"]] = Map[["gamma2_j"]] = 1:TmbData$n_j

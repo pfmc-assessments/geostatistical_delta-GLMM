@@ -27,6 +27,11 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
          width=Par$mfrow[2]*MapSizeRatio['Width(in)'],
          height=Par$mfrow[1]*MapSizeRatio['Height(in)'], res=Res, units='in')
   }
+  if(Format%in%c("tif","tiff")){
+    tiff(file=paste0(FileName, ".tif"),
+         width=Par$mfrow[2]*MapSizeRatio['Width(in)'],
+         height=Par$mfrow[1]*MapSizeRatio['Height(in)'], res=Res, units='in')
+  }
     if( add==FALSE ) par( Par )          # consider changing to Par=list() input, which overloads defaults a la optim() "control" input
     for(t in 1:length(Year_Set)){
       if( is.null(MappingDetails) ){
@@ -56,17 +61,21 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
     }
     mtext(side=1, outer=TRUE, outermargintext[1], cex=1.75, line=par()$oma[1]/2)
     mtext(side=2, outer=TRUE, outermargintext[2], cex=1.75, line=par()$oma[2]/2)
-  if(Format %in% c("png","jpg")) dev.off()
+  if(Format %in% c("png","jpg","tif","tiff")) dev.off()
   # Legend
   if(Format=="png"){
     png(file=paste0(FileName, "_Legend.png",sep=""),
-        width=1, height=2*MapSizeRatio['Height(in)'], res=200, units='in')
+        width=1, height=2*MapSizeRatio['Height(in)'], res=Res, units='in')
   }
   if(Format=="jpg"){
     jpeg(file=paste0(FileName, "_Legend.jpg",sep=""),
-         width=1, height=2*MapSizeRatio['Height(in)'], res=200, units='in')
+         width=1, height=2*MapSizeRatio['Height(in)'], res=Res, units='in')
   }
-  if(Format %in% c("png","jpg")){
+  if(Format%in%c("tif","tiff")){
+    tiff(file=paste0(FileName, "_Legend.tif",sep=""),
+         width=1, height=2*MapSizeRatio['Height(in)'], res=Res, units='in')
+  }
+  if(Format %in% c("png","jpg","tif","tiff")){
     Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), textmargin=textmargin )
     dev.off()
   }

@@ -3,11 +3,11 @@ function( TmbData, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=
   RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0),
   ConvergeTol=1, Use_REML=FALSE, loc_x=NULL, Parameters="generate", Random="generate", Map="generate",
   DiagnosticDir=NULL, TmbDir=system.file("executables", package="SpatialDeltaGLMM"), RunDir=getwd() ){
-                                            
+
   # Compile TMB software
   file.copy( from=paste0(TmbDir,"/",Version,".cpp"), to=paste0(RunDir,"/",Version,".cpp"), overwrite=FALSE)
   setwd( RunDir )
-  compile( paste(Version,".cpp",sep="") )
+  compile( paste0(Version,".cpp") )
 
   # Local functions
   boundsifpresent_fn = function( par, map, name, lower, upper, bounds ){
@@ -16,7 +16,7 @@ function( TmbData, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=
     }
     return( bounds )
   }
-  
+
   # Parameters
   if( length(Parameters)==1 && Parameters=="generate" ) Parameters = Param_Fn( Version=Version, DataList=TmbData, RhoConfig=RhoConfig )
 
@@ -53,7 +53,7 @@ function( TmbData, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=
     }
     write.table( matrix(Obj$par,nrow=1), row.names=FALSE, sep=",", col.names=FALSE, file=paste0(DiagnosticDir,"trace.csv"))
   }
-  
+
   # Declare upper and lower bounds for parameter search
   Bounds = matrix( NA, ncol=2, nrow=length(Obj$par), dimnames=list(names(Obj$par),c("Lower","Upper")) )
   Bounds[,'Lower'] = rep(-50, length(Obj$par))
