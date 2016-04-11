@@ -31,7 +31,7 @@ function( Version, FieldConfig, ObsModel, b_i, a_i, v_i, s_i, t_i, a_xl, X_xj=NU
     if( max(s_i)-1 > MeshList$mesh$n | min(s_i)<0 ) stop("s_i exceeds bounds in MeshList")
     if( any(a_i<=0) ) stop("a_i must be greater than zero for all observations, and at least one value of a_i is not")
     # Warnings about all positive or zero
-    Prop_nonzero = tapply( TmbData$b_i, INDEX=TmbData$t_i, FUN=function(vec){mean(vec>0)} )
+    Prop_nonzero = tapply( b_i, INDEX=t_i, FUN=function(vec){mean(vec>0)} )
     if( any(Prop_nonzero==0|Prop_nonzero==1) & any(FieldConfig[1:2]==1) ){
       print( Prop_nonzero )
       stop("Some years have either all or no encounters")

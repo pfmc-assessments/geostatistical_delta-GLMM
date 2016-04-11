@@ -25,17 +25,18 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Settings
 ###############
 
-  Data_Set = c("WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[4]
+  Data_Set = c("Iceland_cod", "WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[1]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3m"
   n_x = c(100, 250, 500, 1000, 2000)[1] # Number of stations
   FieldConfig = c("Omega1"=1, "Epsilon1"=1, "Omega2"=1, "Epsilon2"=1) # 1=Presence-absence; 2=Density given presence; #Epsilon=Spatio-temporal; #Omega=Spatial
+  RhoConfig = c("Beta1"=0, "Beta2"=0, "Epsilon1"=0, "Epsilon2"=0) # Structure for beta or epsilon over time: 0=None (default); 1=WhiteNoise; 2=RandomWalk; 3=Constant
   VesselConfig = c("Vessel"=0, "VesselYear"=0)
   ObsModel = 2  # 0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture
   Kmeans_Config = list( "randomseed"=1, "nstart"=100, "iter.max"=1e3 )     # Samples: Do K-means on trawl locs; Domain: Do K-means on extrapolation grid
 
   # Determine region
-  Region = switch( Data_Set, "WCGBTS_canary"="California_current", "BC_pacific_cod"="British_Columbia", "EBS_pollock"="Eastern_Bering_Sea", "GOA_Pcod"="Gulf_of_Alaska", "GOA_pollock"="Gulf_of_Alaska", "GB_spring_haddock"="Northwest_Atlantic", "GB_fall_haddock"="Northwest_Atlantic", "SAWC_jacopever"="South_Africa", "Sim"="California_current")
+  Region = switch( Data_Set, "Iceland_cod"="Iceland", "WCGBTS_canary"="California_current", "BC_pacific_cod"="British_Columbia", "EBS_pollock"="Eastern_Bering_Sea", "GOA_Pcod"="Gulf_of_Alaska", "GOA_pollock"="Gulf_of_Alaska", "GB_spring_haddock"="Northwest_Atlantic", "GB_fall_haddock"="Northwest_Atlantic", "SAWC_jacopever"="South_Africa", "Sim"="California_current")
 
 # Decide on strata for use when calculating indices
   if( Data_Set %in% c("WCGBTS_canary","Sim")){
@@ -73,6 +74,16 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   if( Data_Set %in% c("SAWC_jacopever")){
     strata.limits = data.frame( 'STRATA'="All_areas" )
   }
+  if( Data_Set %in% c("Iceland_cod")){
+    strata.limits = data.frame( 'STRATA'="All_areas" )
+    # Turn off all spatial, temporal, and spatio-temporal variation in probability of occurrence, because they occur almost everywhere
+    FieldConfig = c("Omega1"=0, "Epsilon1"=0, "Omega2"=1, "Epsilon2"=1)
+    RhoConfig = c("Beta1"=3, "Beta2"=0, "Epsilon1"=0, "Epsilon2"=0) # 0=Off; 1=WhiteNoise; 2=RandomWalk; 3=Constant
+  }
+
+  # Save options for future records
+  Record = bundlelist( c("Data_Set","Sim_Settings","Version","n_x","FieldConfig","RhoConfig","VesselConfig","ObsModel","Kmeans_Config") )
+  capture.output( Record, file=paste0(DateFile,"Record.txt"))
 
 
 ################
@@ -129,6 +140,13 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     Data_Geostat = Sim_DataSet[['Data_Geostat']]
     True_Index = Sim_DataSet[['True_Index']]
   }
+  if( Data_Set %in% c("Iceland_cod")){
+    # WARNING:  This data set has not undergone much evaluation for spatio-temporal analysis
+    #data( iceland_cod )
+    load( "../data/iceland_cod.rda" )
+    Data_Geostat = data.frame( "Catch_KG"=iceland_cod[,'Catch_b'], "Year"=iceland_cod[,'year'], "Vessel"=1, "AreaSwept_km2"=iceland_cod[,'towlength'], "Lat"=iceland_cod[,'lat1'], "Lon"=iceland_cod[,'lon1'])
+    Data_Geostat = na.omit( Data_Geostat )
+  }
   Year_Set = sort(unique(Data_Geostat[,'Year']))
 
 # Get extrapolation data
@@ -149,6 +167,9 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   }
   if( Region == "South_Africa" ){
     Extrapolation_List = Prepare_SA_Extrapolation_Data_Fn( strata.limits=strata.limits, region="west_coast" )
+  }
+  if( Region == "Iceland" ){
+    Extrapolation_List = Prepare_Other_Extrapolation_Data_Fn( strata.limits=strata.limits, observations_LL=Data_Geostat[,c('Lat','Lon')], maximum_distance_from_sample=15 )
   }
 
 # Convert to an Eastings-Northings coordinate system
@@ -172,15 +193,11 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # (THIS WILL BE SIMILAR FOR EVERY DATA SET) 
 ################
 
-# Save options for future records
-  Record = bundlelist( c("Data_Set","Sim_Settings","Version","n_x","FieldConfig","VesselConfig","ObsModel","Kmeans_Config") )
-  capture.output( Record, file=paste0(DateFile,"Record.txt"))
-
   # Make TMB data list
-  TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=matrix(1,nrow=nrow(a_xl),ncol=1), "MeshList"=MeshList )
+  TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "RhoConfig"=RhoConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year']-min(Data_Geostat[,'Year']), "a_xl"=a_xl, "X_xj"=matrix(1,nrow=nrow(a_xl),ncol=1), "MeshList"=MeshList )
 
   # Make TMB object
-  TmbList = Build_TMB_Fn("TmbData"=TmbData, "RunDir"=DateFile, "Version"=Version, "VesselConfig"=VesselConfig, "loc_x"=loc_x)
+  TmbList = Build_TMB_Fn("TmbData"=TmbData, "RunDir"=DateFile, "Version"=Version, "RhoConfig"=RhoConfig, "VesselConfig"=VesselConfig, "loc_x"=loc_x)
   Obj = TmbList[["Obj"]]
 
   # Run first time -- marginal likelihood
