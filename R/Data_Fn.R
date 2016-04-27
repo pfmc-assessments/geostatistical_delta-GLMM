@@ -1,5 +1,5 @@
 Data_Fn <-
-function( Version, FieldConfig, ObsModel, b_i, a_i, v_i, s_i, t_i, PredTF_i=rep(0,length(b_i)), a_xl, X_xj=NULL, X_xtp=NULL, Q_ik=NULL, MeshList, Aniso=1, R2_interpretation=0, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Options=c('SD_site_density'=0,'SD_site_logdensity'=0,'Calculate_Range'=0,'Calculate_evenness'=0,'Calculate_effective_area'=0), CheckForErrors=TRUE, Alpha=2 ){
+function( Version, FieldConfig, ObsModel, b_i, a_i, s_i, t_i, v_i=rep(0,length(b_i)), PredTF_i=rep(0,length(b_i)), a_xl, X_xj=NULL, X_xtp=NULL, Q_ik=NULL, MeshList, Aniso=1, R2_interpretation=0, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Options=c('SD_site_density'=0,'SD_site_logdensity'=0,'Calculate_Range'=0,'Calculate_evenness'=0,'Calculate_effective_area'=0), CheckForErrors=TRUE, Alpha=2 ){
 
   # Determine dimensions
   n_t = max(t_i) - min(t_i) + 1
