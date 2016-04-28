@@ -88,6 +88,13 @@ Type dlnorm(Type x, Type meanlog, Type sdlog, int give_log=0){
   if(give_log) return logres; else return exp(logres);
 }
 
+// dlnorm
+template<class Type>
+Type dinvgauss(Type x, Type mean, Type shape, int give_log=0){
+  Type logres = 0.5*log(shape) - 0.5*log(2*M_PI*pow(x,3)) - (shape * pow(x-mean,2) / (2*pow(mean,2)*x));
+  if(give_log) return logres; else return exp(logres);
+}
+
 // dmixgamma
 template<class Type>
 Type dmixgamma(Type x, Type mean, Type cv1, Type mixprob, Type densratio, Type cv2, int give_log=0){
