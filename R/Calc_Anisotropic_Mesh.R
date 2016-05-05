@@ -1,3 +1,14 @@
+
+#' Make mesh for distances among points
+#'
+#' \code{Calc_Anistropic_Mesh} builds a tagged list representing distances for isotropic or geometric anisotropic triangulated mesh
+#'
+#' @param loc_x location (eastings and northings in kilometers, UTM) for each sample or knot
+#' @param mesh OPTIONAL, isotropic mesh (if missing, its recalculated from loc_x)
+#' @param refine OPTIONAL, specify whether to add additional points (beyond loc_x and minimal boundary knots)
+
+#' @return Tagged list containing distance metrics
+
 Calc_Anisotropic_Mesh <-
 function(loc_x, mesh=NULL, refine=FALSE, ...){
   # Check and load INLA
