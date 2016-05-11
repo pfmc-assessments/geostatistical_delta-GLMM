@@ -58,6 +58,15 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List ){
     Rotate = 0
     Cex = 0.1
   }
+  if( Region == "Gulf_of_St_Lawrence" ){
+    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Area_km2_x"]]>0))
+    MappingDetails = list("worldHires", "Canada" )
+    Xlim = range(Extrapolation_List[["Data_Extrap"]][which(Extrapolation_List[["Area_km2_x"]]>0),'Lon'])
+    Ylim = range(Extrapolation_List[["Data_Extrap"]][which(Extrapolation_List[["Area_km2_x"]]>0),'Lat'])
+    MapSizeRatio = c("Height(in)"=4,"Width(in)"=4)
+    Rotate = 0
+    Cex = 1.0
+  }
   if( is.null(PlotDF) ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Area_km2_x"]]>0))
     MappingDetails = list("world", NULL )

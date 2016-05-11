@@ -1,0 +1,27 @@
+$Data_Set
+[1] "GSL_haddock"
+
+$Version
+[1] "geo_index_v3m"
+
+$n_x
+[1] 500
+
+$FieldConfig
+  Omega1 Epsilon1   Omega2 Epsilon2 
+       1        1        1        1 
+
+$ObsModel
+[1] 1
+
+$Kmeans_Config
+$Kmeans_Config$randomseed
+[1] 1
+
+$Kmeans_Config$nstart
+[1] 100
+
+$Kmeans_Config$iter.max
+[1] 1000
+
+

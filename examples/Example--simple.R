@@ -1,5 +1,4 @@
 
-# setwd("C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/examples/")
 
 # Install TMB
 # Must be installed from: https://github.com/kaskr/adcomp
@@ -10,6 +9,8 @@
 # Install geostatistical delta-GLMM package
 devtools::install_github("nwfsc-assess/geostatistical_delta-GLMM") # This is the developement version.  Please check GitHub for the latest release number.
 devtools::install_github("james-thorson/utilities")
+
+# setwd("C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/examples/")
 
 # Load libraries
 library(TMB)
@@ -25,7 +26,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Settings
 ###############
 
-  Data_Set = c("Iceland_cod", "WCGBTS_canary", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[1]
+  Data_Set = c("Iceland_cod", "WCGBTS_canary", "GSL_american_plaice", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Sim")[3]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v3m"
   n_x = c(100, 250, 500, 1000, 2000)[3] # Number of stations
@@ -36,7 +37,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Kmeans_Config = list( "randomseed"=1, "nstart"=100, "iter.max"=1e3 )     # Samples: Do K-means on trawl locs; Domain: Do K-means on extrapolation grid
 
   # Determine region
-  Region = switch( Data_Set, "Iceland_cod"="Iceland", "WCGBTS_canary"="California_current", "BC_pacific_cod"="British_Columbia", "EBS_pollock"="Eastern_Bering_Sea", "GOA_Pcod"="Gulf_of_Alaska", "GOA_pollock"="Gulf_of_Alaska", "GB_spring_haddock"="Northwest_Atlantic", "GB_fall_haddock"="Northwest_Atlantic", "SAWC_jacopever"="South_Africa", "Sim"="California_current")
+  Region = switch( Data_Set, "Iceland_cod"="Iceland", "WCGBTS_canary"="California_current", "GSL_american_plaice"="Gulf_of_St_Lawrence", "BC_pacific_cod"="British_Columbia", "EBS_pollock"="Eastern_Bering_Sea", "GOA_Pcod"="Gulf_of_Alaska", "GOA_pollock"="Gulf_of_Alaska", "GB_spring_haddock"="Northwest_Atlantic", "GB_fall_haddock"="Northwest_Atlantic", "SAWC_jacopever"="South_Africa", "Sim"="California_current")
 
 # Decide on strata for use when calculating indices
   if( Data_Set %in% c("WCGBTS_canary","Sim")){
@@ -50,6 +51,9 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     )
     # Override default settings for vessels
     VesselConfig = c("Vessel"=0, "VesselYear"=1)
+  }
+  if( Data_Set %in% c("GSL_american_plaice")){
+    strata.limits <- data.frame( 'STRATA'="All_areas")
   }
   if( Data_Set %in% c("BC_pacific_cod")){
     # In this case, will not restrict the extrapolation domain at all while calculating an index
@@ -101,6 +105,11 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     Data_Geostat = na.omit( Data_Geostat )
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
+  if( Data_Set %in% c("GSL_american_plaice")){
+    data( GSL_american_plaice )
+    Print_Message( "GSL_american_plaice" )
+    Data_Geostat = data.frame( "Year"=GSL_american_plaice[,'year'], "Lat"=GSL_american_plaice[,'latitude'], "Lon"=GSL_american_plaice[,'longitude'], "Vessel"="missing", "AreaSwept_km2"=GSL_american_plaice[,'swept'], "Catch_KG"=GSL_american_plaice[,'biomass']*GSL_american_plaice[,'vstd'] )
+  }
   if(Data_Set=="EBS_pollock"){
     data( EBS_pollock_data )
     Data_Geostat = data.frame( "Catch_KG"=EBS_pollock_data[,'catch'], "Year"=EBS_pollock_data[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=EBS_pollock_data[,'lat'], "Lon"=EBS_pollock_data[,'long'], "Pass"=0)
@@ -146,7 +155,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     Data_Geostat = data.frame( "Catch_KG"=iceland_cod[,'Catch_b'], "Year"=iceland_cod[,'year'], "Vessel"=1, "AreaSwept_km2"=iceland_cod[,'towlength'], "Lat"=iceland_cod[,'lat1'], "Lon"=iceland_cod[,'lon1'])
     Data_Geostat = na.omit( Data_Geostat )
   }
-  Year_Set = sort(unique(Data_Geostat[,'Year']))
 
 # Get extrapolation data
   if( Region == "California_current" ){
@@ -169,6 +177,9 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   }
   if( Region == "Iceland" ){
     Extrapolation_List = Prepare_Other_Extrapolation_Data_Fn( strata.limits=strata.limits, observations_LL=Data_Geostat[,c('Lat','Lon')], maximum_distance_from_sample=15 )
+  }
+  if( Region == "Gulf_of_St_Lawrence" ){
+    Extrapolation_List = Prepare_GSL_Extrapolation_Data_Fn( strata.limits=strata.limits )
   }
 
 # Convert to an Eastings-Northings coordinate system
@@ -193,7 +204,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 ################
 
   # Make TMB data list
-  TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "RhoConfig"=RhoConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year'], "a_xl"=a_xl, "X_xj"=matrix(1,nrow=nrow(a_xl),ncol=1), "MeshList"=MeshList )
+  TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "RhoConfig"=RhoConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year'], "a_xl"=a_xl, "MeshList"=MeshList )
 
   # Make TMB object
   TmbList = Build_TMB_Fn("TmbData"=TmbData, "RunDir"=DateFile, "Version"=Version, "RhoConfig"=RhoConfig, "VesselConfig"=VesselConfig, "loc_x"=loc_x)
@@ -232,13 +243,13 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   }
 
   # Plot surface
-  Dim = c("Nrow"=ceiling(sqrt(length(Year_Set)))); Dim = c(Dim,"Ncol"=ceiling(length(Year_Set)/Dim['Nrow']))
+  Dim = c( "Nrow"=ceiling(sqrt(TmbData$n_t)), "Ncol"=ceiling(TmbData$n_t/ceiling(sqrt(TmbData$n_t))) )
   par( mfrow=Dim )
   MapDetails_List = MapDetails_Fn( "Region"=Region, "NN_Extrap"=PolygonList$NN_Extrap, "Extrapolation_List"=Extrapolation_List )
-  PlotResultsOnMap_Fn(plot_set=1:3, MappingDetails=MapDetails_List[["MappingDetails"]], Report=Report, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Rotate=MapDetails_List[["Rotate"]], mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=MapDetails_List[["Cex"]])
+  PlotResultsOnMap_Fn(plot_set=1:3, MappingDetails=MapDetails_List[["MappingDetails"]], Report=Report, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=paste0(DateFile,"Field_"), Year_Set=sort(unique(Data_Geostat[,'Year'])), Rotate=MapDetails_List[["Rotate"]], mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=MapDetails_List[["Cex"]])
                                                                                                                            
   # Plot index
-  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, strata_names=strata.limits[,1], use_biascorr=TRUE )
+  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=sort(unique(Data_Geostat[,'Year'])), strata_names=strata.limits[,1], use_biascorr=TRUE )
 
   # Positive catch rate Q-Q plot
   Q = QQ_Fn( TmbData=TmbData, Report=Report, FileName_PP=paste0(DateFile,"Posterior_Predictive.jpg"), FileName_Phist=paste0(DateFile,"Posterior_Predictive-Histogram.jpg"), FileName_QQ=paste0(DateFile,"Q-Q_plot.jpg"), FileName_Qhist=paste0(DateFile,"Q-Q_hist.jpg"))
@@ -246,9 +257,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   # Plot center of gravity
   Plot_range_shifts(Sdreport=Sdreport, Report=Report, TmbData=TmbData, Znames=colnames(TmbData$Z_xm), FileName_COG=paste0(DateFile,"center_of_gravity.png"))
 
-  # Covariate effect
-  #PlotCov_Fn(Report=Report, NN_Extrap=PolygonList$NN_Extrap, X_xj=X_xj, FileName=paste0(DateFile,"Cov_"))
-  
   # Vessel effects
   #Return = Vessel_Fn(TmbData=TmbData, Sdreport=Sdreport, FileName_VYplot=paste0(DateFile,"VY-effect.jpg"))
 

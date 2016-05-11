@@ -1,5 +1,12 @@
 
 Print_Message = function( whichmessage ){
+  if( whichmessage=="GSL_american_plaice" ){
+  message(
+    "This data set contains data for American plaice in the Gulf of St. Lawrence, as provided by Hugues Benoit.
+    The data are from the Gulf Region September Bottom-Trawl survey Database, from the Aquatic Resources Division, Science Branch, Department of Fisheries and Oceans
+    "
+  )
+  }
   if( whichmessage=="GB_haddock" ){
   message(
     "This haddock data set is from the Northeast Fishery Science Center's Spring and Fall Bottom Trawl Survey.
