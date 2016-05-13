@@ -129,7 +129,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   if( Data_Set=="GB_spring_haddock"){
     data( georges_bank_haddock_spring )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
     Print_Message( "GB_haddock" )
-    #load( paste0(getwd(),"/../../data/georges_bank_haddock_spring.rda") )         
     Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_spring[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_spring[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112*1.852^2, "Lat"=georges_bank_haddock_spring[,'LATITUDE'], "Lon"=georges_bank_haddock_spring[,'LONGITUDE'])
   }
   if( Data_Set=="GB_fall_haddock"){

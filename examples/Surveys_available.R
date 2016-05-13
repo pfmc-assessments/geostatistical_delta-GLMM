@@ -18,7 +18,7 @@ png( file="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/
     if(i==2) Extrapolation_List = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=data.frame('STRATA'="All_areas"), strata_to_use=c("SOG","WCVI","QCS","HS","WCHG") )
     if(i==3) Extrapolation_List = Prepare_EBS_Extrapolation_Data_Fn( strata.limits=data.frame('STRATA'="All_areas") )
     if(i==4) Extrapolation_List = Prepare_GOA_Extrapolation_Data_Fn( strata.limits=data.frame('STRATA'="All_areas") )
-    if(i==5) Extrapolation_List = Prepare_NWA_Extrapolation_Data_Fn( strata.limits=data.frame('STRATA'="All_areas") )
+    if(i==5) Extrapolation_List = Prepare_NWA_Extrapolation_Data_Fn( strata.limits=list('All_areas'=1:1e5) )
     if(i==6) Extrapolation_List = Prepare_SA_Extrapolation_Data_Fn( strata.limits=data.frame('STRATA'="All_areas"), region=c("south_coast","west_coast") )
     if(i==7){
       data( iceland_cod )
@@ -29,7 +29,7 @@ png( file="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/
     if(i==8) Extrapolation_List = Prepare_GSL_Extrapolation_Data_Fn( strata.limits=data.frame('STRATA'="All_areas") )
 
     # Plot
-    Which = which( Extrapolation_List$a_el>0 )
+    Which = which( Extrapolation_List$a_el>0 )     # 1:nrow(Extrapolation_List$a_el)
     points( Extrapolation_List$Data_Extrap[Which,c('Lon','Lat')], pch=20, cex=0.01, col=rainbow(8)[i])
   }
 dev.off()
