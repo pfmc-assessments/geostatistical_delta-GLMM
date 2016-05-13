@@ -7,7 +7,8 @@ SpatialDeltaGLMM
 * Is intended to improve analysis speed, replicability, peer-review, and interpretation of index standardization methods
 * Will eventually be improved to incorporate informative help files accessible via standard R commands.
 
-![alt text](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/tree/master/examples/global_coverage.png "global data coverage")
+Regions available in the [example script](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/Example--simple.R): 
+![alt text](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/raw/master/examples/global_coverage.png "Logo Title Text 1")
 
 Background
 * This tool is designed to estimate spatial variation in density using fishery-independent data, with the goal of estimating total abundance for a target species in one or more years.  
