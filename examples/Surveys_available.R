@@ -5,12 +5,13 @@ library( SpatialDeltaGLMM )
 library( maps )
 
 # Plot global coverage of database
-png( file="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/examples/global_coverage.png", width=8, height=4, res=200, units="in")
+png( file="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/examples/global_coverage.png", width=8, height=4, res=600, units="in")
   map( "worldHires", mar=c(4,4,2,0), mgp=c(2,0.5,0), tck=-0.02, oma=c(2,2,0,0), xaxs="i", yaxs="i" )
   box()
   axis(1)
   axis(2)
   mtext( side=1:2, outer=TRUE, text=c("Longitude", "Latitude"))
+  title( "Global data coverage" )
 
   # Get extrapolation data
   for(i in 1:8 ){
