@@ -2,6 +2,7 @@ Prepare_Other_Extrapolation_Data_Fn <-
 function( strata.limits, observations_LL, grid_dim_km=c(2,2), maximum_distance_from_sample=sqrt((grid_dim_km[1]/2)^2+(grid_dim_km[2]/2)^2), zone=NA ){
   require( maptools )
   require( RANN )
+  if( !("ThorsonUtilities" %in% installed.packages()[,1]) ) devtools::install_github("james-thorson/utilities")
 
   # Get range
   observations_UTM = Convert_LL_to_UTM_Fn( Lon=observations_LL[,'Lon'], Lat=observations_LL[,'Lat'], zone=zone)                                                         #$
@@ -12,11 +13,11 @@ function( strata.limits, observations_LL, grid_dim_km=c(2,2), maximum_distance_f
   Data_Extrap = expand.grid( "E_km"=seq(E_lim[1],E_lim[2],by=grid_dim_km[1]), "N_km"=seq(N_lim[1],N_lim[2],by=grid_dim_km[2]), "Area_km2"=prod(grid_dim_km) )
 
   # Add LL
-  TmpUTM = rename_columns( Data_Extrap[,c("E_km","N_km")], newname=c("X","Y"))
+  TmpUTM = ThorsonUtilities::rename_columns( Data_Extrap[,c("E_km","N_km")], newname=c("X","Y"))
   attr(TmpUTM, "projection") = "UTM"
   attr(TmpUTM, "zone") = attr(observations_UTM,"zone")
   TmpLL = convUL(TmpUTM)
-  Data_Extrap = cbind( Data_Extrap, rename_columns(TmpLL,newname=c("Lon","Lat")) )
+  Data_Extrap = cbind( Data_Extrap, ThorsonUtilities::rename_columns(TmpLL,newname=c("Lon","Lat")) )
 
   # Restrict to grid locations near samples
   NN_Extrap = nn2( query=Data_Extrap[,c("E_km","N_km")], data=observations_UTM[,c("X","Y")], k=1)
