@@ -7,6 +7,8 @@ SpatialDeltaGLMM
 * Is intended to improve analysis speed, replicability, peer-review, and interpretation of index standardization methods
 * Will eventually be improved to incorporate informative help files accessible via standard R commands.
 
+![alt text](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/tree/master/examples/global_coverage.png "global data coverage")
+
 Background
 * This tool is designed to estimate spatial variation in density using fishery-independent data, with the goal of estimating total abundance for a target species in one or more years.  
 * The model builds upon delta-generalized linear mixed modelling techniques (Thorson and Ward 2013,2014), which separately models the proportion of tows that catch at least one individual ("encounter probability") and catch rates for tows with at least one individual ("positive catch rates").  
