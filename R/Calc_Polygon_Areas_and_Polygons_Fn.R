@@ -1,3 +1,15 @@
+
+#' Calculate areas and covariates for a given triangulated mesh
+#'
+#' \code{Calc_Polygon_Areas_and_Polygons_Fn} builds outputs for a given triangulated mesh used for approximating spatial variation
+#'
+#' @param Data_Extrap the output from e.g., \code{Extrapolation_List <- Prepare_WCGBTS_Extrapolation_Data_Fn()} using slot \code{Extrapolation_List$Data_Extrap}
+#' @param Covariates character vector giving names of columns from Data_Extrap that should be used as covariates (default="none", which results in a design matrix with one columns of 1s)
+#' @param a_el a matrix with \code{nrow(Data_Extrap)} rows and l columns, giving the area within the l-th stratum for the e-th row of Data_Extrap
+#' @inheritParams Calc_Anisotropic_Mesh
+
+#' @return Tagged list containing distance metrics
+
 Calc_Polygon_Areas_and_Polygons_Fn <-
 function( loc_x, Data_Extrap, Covariates="none", a_el=NULL ){
 

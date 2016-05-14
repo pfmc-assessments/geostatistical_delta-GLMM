@@ -1,12 +1,32 @@
 Package: SpatialDeltaGLMM
 Type: Package
-Title: Package for conducting spatial estimation of CPUE index standardization (fisheries, ecology, etc).
+Title: Package for conducting spatial estimation of CPUE index standardization
+    (fisheries, ecology, etc).
 Version: 1.0
 Date: 2014-10-25
 Author: James Thorson
 Maintainer: James Thorson <James.Thorson@noaa.gov>
-Description: SpatialDeltaGLMM is an R package for implementing a spatial delta-generalized linear mixed model (delta-GLMM) for use when standardizing fishery-independent index data for U.S. West Coast surveys with (2) built in diagnostic functions and model-comparison tools, and (3) is intended to improve analysis speed, replicability, peer-review, and interpretation of index standardization methods
-Depends: R (>= 3.1.0), maps, mapdata, mapproj, maptools, deldir, PBSmapping, RANN, stats, colorspace, RandomFields, rgeos, shape
+Description: SpatialDeltaGLMM is an R package for implementing a spatial delta-
+    generalized linear mixed model (delta-GLMM) for use when standardizing fishery-
+    independent index data for U.S. West Coast surveys with (2) built in diagnostic
+    functions and model-comparison tools, and (3) is intended to improve analysis
+    speed, replicability, peer-review, and interpretation of index standardization
+    methods
+Depends:
+    R (>= 3.1.0),
+    maps,
+    mapdata,
+    mapproj,
+    maptools,
+    deldir,
+    PBSmapping,
+    RANN,
+    stats,
+    colorspace,
+    RandomFields,
+    rgeos,
+    shape
 License: GPL-2
 LazyData: yes
 BuildVignettes: yes
+RoxygenNote: 5.0.1

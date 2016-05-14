@@ -53,7 +53,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     VesselConfig = c("Vessel"=0, "VesselYear"=1)
   }
   if( Data_Set %in% c("GSL_american_plaice")){
-    strata.limits <- data.frame( 'STRATA'="All_areas")
+    strata.limits <- data.frame('STRATA'="All_areas")
   }
   if( Data_Set %in% c("BC_pacific_cod")){
     # In this case, will not restrict the extrapolation domain at all while calculating an index

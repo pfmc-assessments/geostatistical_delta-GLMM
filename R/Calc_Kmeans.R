@@ -1,3 +1,23 @@
+
+#' Calculate location for knots approximating spatial variation
+#'
+#' \code{Calc_Kmeans} determines the location for a set of knots for approximating spatial variation
+#'
+#' @param n_x the number of knots to select
+#' @param loc_orig a matrix with two columns where each row gives the 2-dimensional coordinates to be approximated
+#' @param nstart the number of times that the k-means algorithm is run while searching for the best solution (default=100)
+#' @param randomseed a random number seed
+#' @param iter.max the number of iterations used per k-means algorithm (default=1000)
+#' @param DirPath a directory where the algorithm looks for a previously-saved output (Default=NULL, which turns off this feature)
+#' @param Save_Results a boolean stating whether to save the output (Default=TRUE)
+
+#' @return Tagged list containing outputs
+#' \describe{
+#'   \item{centers}{a matrix with 2 columns and n_x rows}
+#'   \item{cluster}{A vector with length \code{nrow(loc_orig)} specifying which row of \code{centers} corresponds to each row of loc_orig}
+#'   \item{tot.withinss}{the objective function (to be minimized) for the selected k-means solution}
+#' }
+
 Calc_Kmeans <-
 function(n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=NULL, Save_Results=TRUE){
   # get old seed

@@ -1,3 +1,19 @@
+
+#' Convert from Lat-Long to UTM
+#'
+#' \code{Convert_LL_to_UTM_Fn} converts from Latitude-Longitude to Universal Transverse Mercator projections for a given location
+#'
+#' @param Lat vector of latitudes
+#' @param Lon vector of longitudes
+#' @param zone zone used for UTM projection
+#' @param flip_around_dateline boolean specifying whether to flip Lat-Lon locations around the dateline, and then retransform back (only useful if Lat-Lon straddle the dateline)
+
+#' @return A data frame with the following columns
+#' \describe{
+#'   \item{X}{The UTM eastings for each value of Lon}
+#'   \item{Y}{The UTM northings measured from the equator for each Lat}
+#' }
+
 Convert_LL_to_UTM_Fn <-
 function( Lon, Lat, zone=NA, flip_around_dateline=FALSE ){
 
