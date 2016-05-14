@@ -17,7 +17,7 @@ function( strata.limits=data.frame( 'STRATA'="All_areas"), surveyname='propInWCG
   }
 
   # Convert extrapolation-data to an Eastings-Northings coordinate system
-  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=zone)                                                         #$
+  tmpUTM = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=zone)                                                         #$
   Data_Extrap = cbind( Data_Extrap, 'Include'=(Data_Extrap[,'Cowcod']==0 & Data_Extrap[,'Ngdc_m']<(-35)))
   Data_Extrap[,c('E_km','N_km')] = tmpUTM[,c('X','Y')]
 

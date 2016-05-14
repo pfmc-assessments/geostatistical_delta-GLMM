@@ -23,7 +23,7 @@ function( Lon, Lat, zone=NA, flip_around_dateline=FALSE ){
   if( flip_around_dateline==TRUE ) Tmp['Lon'] = 180 + ifelse( Tmp['Lon']>0, Tmp['Lon']-360, Tmp['Lon'])
   attr(Tmp,"projection") = "LL"
   attr(Tmp,"zone") = zone
-  tmpUTM = convUL(Tmp)                                                         #$
+  tmpUTM = PBSmapping::convUL(Tmp)                                                         #$
   if( !is.na(zone)) message("convUL: For the UTM conversion, used zone ",zone," as specified")
 
   # Return results

@@ -19,7 +19,7 @@ function( loc_x, Data_Extrap, Covariates="none", a_el=NULL ){
   }
 
   # Nearest extrapolation grid for each knot
-  NN_Extrap = nn2( data=loc_x[,c('E_km','N_km')], query=Data_Extrap[,c('E_km','N_km')], k=1 )
+  NN_Extrap = RANN::nn2( data=loc_x[,c('E_km','N_km')], query=Data_Extrap[,c('E_km','N_km')], k=1 )
 
   # Calculate area for each knot
   a_xl = matrix(NA, ncol=ncol(a_el), nrow=nrow(loc_x), dimnames=list(NULL,colnames(a_el)))

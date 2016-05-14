@@ -48,7 +48,7 @@ function( TmbData, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=
   }
 
   # Parameters
-  if( length(Parameters)==1 && Parameters=="generate" ) Parameters = Param_Fn( Version=Version, DataList=TmbData, RhoConfig=RhoConfig )
+  if( length(Parameters)==1 && Parameters=="generate" ) Parameters = SpatialDeltaGLMM::Param_Fn( Version=Version, DataList=TmbData, RhoConfig=RhoConfig )
 
   # Which are random
   if( length(Random)==1 && Random=="generate" ) Random = c("Epsiloninput1_st", "Omegainput1_s", "Epsiloninput2_st", "Omegainput2_s", "nu1_v", "nu2_v", "nu1_vt", "nu2_vt")
@@ -60,12 +60,12 @@ function( TmbData, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=
   }
 
   # Which parameters are turned off
-  if( length(Map)==1 && Map=="generate" ) Map = Make_Map( Version=Version, TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, RhoConfig=RhoConfig, Aniso=TmbData[['Options_vec']]['Aniso'])
+  if( length(Map)==1 && Map=="generate" ) Map = SpatialDeltaGLMM::Make_Map( Version=Version, TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, RhoConfig=RhoConfig, Aniso=TmbData[['Options_vec']]['Aniso'])
   if( "hyperparameters_z"%in%names(Parameters) && TmbData$Options_vec['AreaAbundanceCurveTF']==0 ) Map[["hyperparameters_z"]] = factor( rep(NA,length(Parameters[["hyperparameters_z"]])) )
 
   # Build object
-  dyn.load( paste0(RunDir,"/",dynlib(Version)) ) # random=Random,
-  Obj <- MakeADFun(data=TmbData, parameters=Parameters, hessian=FALSE, map=Map, random=Random, inner.method="newton", DLL=Version)  #
+  dyn.load( paste0(RunDir,"/",TMB::dynlib(Version)) ) # random=Random,
+  Obj <- TMB::MakeADFun(data=TmbData, parameters=Parameters, hessian=FALSE, map=Map, random=Random, inner.method="newton", DLL=Version)  #
   Obj$control <- list(trace=1, parscale=1, REPORT=1, reltol=1e-12, maxit=100)
 
   # Diagnostic functions (optional)
