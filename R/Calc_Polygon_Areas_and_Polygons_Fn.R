@@ -10,6 +10,7 @@
 
 #' @return Tagged list containing distance metrics
 
+#' @export
 Calc_Polygon_Areas_and_Polygons_Fn <-
 function( loc_x, Data_Extrap, Covariates="none", a_el=NULL ){
 

@@ -18,6 +18,7 @@
 #'   \item{tot.withinss}{the objective function (to be minimized) for the selected k-means solution}
 #' }
 
+#' @export
 Calc_Kmeans <-
 function(n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=NULL, Save_Results=TRUE){
   # get old seed

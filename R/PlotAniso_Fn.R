@@ -1,3 +1,5 @@
+
+#' @export
 PlotAniso_Fn <-
 function( FileName, Report, ControlList=list("Width"=4, "Height"=5, "Res"=200, "Units"='in'), type="ellipse"){
   # Decomposition

@@ -1,3 +1,4 @@
+#' @export
 QQ_Fn <-
 function(TmbData, Report, FileName_PP=NULL, FileName_Phist=NULL, FileName_QQ=NULL, FileName_Qhist=NULL){
   attach(TmbData)

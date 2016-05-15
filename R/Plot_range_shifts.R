@@ -1,4 +1,5 @@
 
+#' @export
 Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, FileName_COG=paste0(getwd(),"/center_of_gravity.png"), FileName_Area=paste0(getwd(),"/Area.png"), Znames=rep("",ncol(Report$mean_Z_tm)), use_biascorr=TRUE, ...){
   # Default inputs
   if( is.null(Year_Set)) Year_Set = 1:TmbData$n_t
@@ -26,14 +27,14 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, FileName
         WhichRows = 1:TmbData$n_t + TmbData$n_t*(m-1)
         Ybounds = (SD_mean_Z_tm[WhichRows,'Estimate']%o%c(1,1) + SD_mean_Z_tm[WhichRows,'Std. Error']%o%c(-1,1))
         Ylim = range(Ybounds,na.rm=TRUE)
-        Plot_Points_and_Bounds_Fn(x=Year_Set, y=SD_mean_Z_tm[WhichRows,1], ybounds=Ybounds, col_bounds=rgb(1,0,0,0.2), fn=plot, type="l", lwd=2, col="red", bounds_type="shading", ylim=Ylim, xlab="Year", ylab=ifelse(m==1,"Location",""), main=Znames[m])
+        SpatialDeltaGLMM::Plot_Points_and_Bounds_Fn(x=Year_Set, y=SD_mean_Z_tm[WhichRows,1], ybounds=Ybounds, col_bounds=rgb(1,0,0,0.2), fn=plot, type="l", lwd=2, col="red", bounds_type="shading", ylim=Ylim, xlab="Year", ylab=ifelse(m==1,"Location",""), main=Znames[m])
       }
     dev.off()
 
     # Plot area
     png( file=FileName_Area, width=4, height=4, res=200, units="in")
       par( mfrow=c(1,1), mar=c(3,3,2,0), mgp=c(1.75,0.25,0), tck=-0.02, oma=c(0,0,0,0))
-      Plot_Points_and_Bounds_Fn( x=Year_Set, y=SD_log_area_Z_tmm[,2,1,1], ybounds=SD_log_area_Z_tmm[,2,1,1]%o%rep(1,2)+SD_log_area_Z_tmm[,2,1,2]%o%c(-1,1), fn=plot, bounds_type="shading", col_bounds=rgb(1,0,0,0.2), col="red", lwd=2, xlab="Year", ylab="log(km^2)", type="l", main="Total area")
+      SpatialDeltaGLMM::Plot_Points_and_Bounds_Fn( x=Year_Set, y=SD_log_area_Z_tmm[,2,1,1], ybounds=SD_log_area_Z_tmm[,2,1,1]%o%rep(1,2)+SD_log_area_Z_tmm[,2,1,2]%o%c(-1,1), fn=plot, bounds_type="shading", col_bounds=rgb(1,0,0,0.2), col="red", lwd=2, xlab="Year", ylab="log(km^2)", type="l", main="Total area")
     dev.off()
 
     # Return stuff

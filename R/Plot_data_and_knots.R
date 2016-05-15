@@ -1,4 +1,5 @@
 
+#' @export
 Plot_data_and_knots = function( Data_Extrap, Extrap_Area_km2, loc_x, Data_Geostat, Plot_name=paste0(getwd(),"/Data_and_knots.png"), Data_name=paste0(getwd(),"/Data_by_year.png"), ...){
 
   # Plot data and grid

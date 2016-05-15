@@ -1,3 +1,5 @@
+
+#' @export
 Geostat_Sim <-
 function(Sim_Settings, Extrapolation_List, MakePlot=TRUE){
   # Terminology

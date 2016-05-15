@@ -28,6 +28,7 @@
 #'   \item{Random}{A character vector of random effects, for similar use as Parameters}
 #' }
 
+#' @export
 Build_TMB_Fn <-
 function( TmbData, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=TRUE, CovConfig=TRUE,
   RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0),

@@ -9,6 +9,7 @@
 
 #' @return Tagged list containing distance metrics
 
+#' @export
 Calc_Anisotropic_Mesh <-
 function(loc_x, mesh=NULL, refine=FALSE, ...){
   # Check and load INLA

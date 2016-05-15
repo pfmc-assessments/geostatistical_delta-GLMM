@@ -1,4 +1,5 @@
 
+#' @export
 MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List ){
   PlotDF = NULL
   if( Region == "California_current" ){

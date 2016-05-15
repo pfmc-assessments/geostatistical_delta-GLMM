@@ -14,6 +14,7 @@
 #'   \item{Y}{The UTM northings measured from the equator for each Lat}
 #' }
 
+#' @export
 Convert_LL_to_UTM_Fn <-
 function( Lon, Lat, zone=NA, flip_around_dateline=FALSE ){
 

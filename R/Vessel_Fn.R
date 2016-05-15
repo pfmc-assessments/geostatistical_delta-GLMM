@@ -1,3 +1,4 @@
+#' @export
 Vessel_Fn <-
 function( TmbData, Sdreport, FileName_VYplot=NULL ){
   attach(TmbData)
