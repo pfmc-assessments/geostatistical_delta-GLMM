@@ -2,6 +2,8 @@ PlotMap_Fn <-
 function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
          Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, textmargin="", add=FALSE, pch=20, outermargintext=c("Eastings","Northings"), zlim=NULL, ...){
 
+  # maps and mapdata must be attached to use worldHires plotting
+
   # Transform to grid or other coordinates
   Mat = Mat[PlotDF[,'x2i'],,drop=FALSE]
   Which = which( PlotDF[,'Include']>0 )

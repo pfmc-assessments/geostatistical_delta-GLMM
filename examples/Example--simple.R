@@ -157,28 +157,28 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 
 # Get extrapolation data
   if( Region == "California_current" ){
-    Extrapolation_List = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits )
   }
   if( Region == "British_Columbia" ){
-    Extrapolation_List = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, strata_to_use=c("HS","QCS") )
+    Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, strata_to_use=c("HS","QCS") )
   }
   if( Region == "Eastern_Bering_Sea" ){
-    Extrapolation_List = Prepare_EBS_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits )
   }
   if( Region == "Gulf_of_Alaska" ){
-    Extrapolation_List = Prepare_GOA_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits )
   }
   if( Region == "Northwest_Atlantic" ){
-    Extrapolation_List = Prepare_NWA_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits )
   }
   if( Region == "South_Africa" ){
-    Extrapolation_List = Prepare_SA_Extrapolation_Data_Fn( strata.limits=strata.limits, region="west_coast" )
+    Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, region="west_coast" )
   }
   if( Region == "Iceland" ){
-    Extrapolation_List = Prepare_Other_Extrapolation_Data_Fn( strata.limits=strata.limits, observations_LL=Data_Geostat[,c('Lat','Lon')], maximum_distance_from_sample=15 )
+    Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, observations_LL=Data_Geostat[,c('Lat','Lon')], maximum_distance_from_sample=15 )
   }
   if( Region == "Gulf_of_St_Lawrence" ){
-    Extrapolation_List = Prepare_GSL_Extrapolation_Data_Fn( strata.limits=strata.limits )
+    Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits )
   }
 
 # Convert to an Eastings-Northings coordinate system

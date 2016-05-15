@@ -13,8 +13,6 @@ Description: SpatialDeltaGLMM is an R package for implementing a spatial delta-
     speed, replicability, peer-review, and interpretation of index standardization
     methods
 Imports:
-    maps,
-    mapdata,
     mapproj,
     maptools,
     deldir,
@@ -27,6 +25,8 @@ Imports:
     shape
 Depends:
     R (>= 3.1.0),
+    maps,
+    mapdata,
 License: GPL-2
 LazyData: yes
 BuildVignettes: yes

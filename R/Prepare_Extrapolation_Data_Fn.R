@@ -1,4 +1,22 @@
 
+#' Build extrapolation grid
+#'
+#' \code{Prepare_Extrapolation_Data_Fn} builds an object used to determine areas to extrapolation densities to when calculating indices
+#'
+#' @param Region a character entry that is matched against potential values to determine the region for the extrapolation grid.
+#' @param strata.limits an input for determining stratification of indices (see example script)
+#' @param observations_LL a matrix with two columns giving latitude and longitude for each observation (only used when Region doesn't match known entries)
+#' @param ... other objects passed for individual regions (see example script)
+
+#' @return Tagged list used in other functions
+#' \describe{
+#'   \item{a_el}{The area associated with each extrapolation grid cell (rows) and strata (columns)}
+#'   \item{Data_Extrap}{A data frame describing the extrapolation grid}
+#'   \item{zone}{the zone used to convert Lat-Long to UTM by PBSmapping package}
+#'   \item{flip_around_dateline}{a boolean stating whether the Lat-Long is flipped around the dateline during conversion to UTM}
+#'   \item{Area_km2_x}{the area associated with each row of Data_Extrap, in units square-kilometers}
+#' }
+
 #' @export
 Prepare_Extrapolation_Data_Fn = function( Region, strata.limits, observations_LL=NULL, ... ){
 
