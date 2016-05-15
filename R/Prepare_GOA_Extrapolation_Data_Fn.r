@@ -1,5 +1,11 @@
 Prepare_GOA_Extrapolation_Data_Fn <-
-function( strata.limits, zone=NA ){
+function( strata.limits=NULL, zone=NA ){
+  # Infer strata
+  if( is.null(strata.limits)){
+    strata.limits = data.frame('STRATA'="All_areas")
+  }
+  message("Using strata ", strata.limits)
+
   # Read extrapolation data
   data( gulf_of_alaska_grid )
   Data_Extrap <- gulf_of_alaska_grid

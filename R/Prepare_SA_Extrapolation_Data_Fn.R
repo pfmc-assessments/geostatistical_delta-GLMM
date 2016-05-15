@@ -1,5 +1,11 @@
 Prepare_SA_Extrapolation_Data_Fn <-
-function( strata.limits, region=c("south_coast","west_coast"), zone=NA ){
+function( strata.limits=NULL, region=c("south_coast","west_coast"), zone=NA ){
+  # Infer strata
+  if( is.null(strata.limits)){
+    strata.limits = data.frame('STRATA'="All_areas")
+  }
+  message("Using strata ", strata.limits)
+
   # Read extrapolation data
   data( south_africa_grid )
   Data_Extrap <- south_africa_grid

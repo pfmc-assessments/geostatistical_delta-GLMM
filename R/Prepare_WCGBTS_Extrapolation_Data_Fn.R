@@ -1,5 +1,11 @@
 Prepare_WCGBTS_Extrapolation_Data_Fn <-
-function( strata.limits=data.frame( 'STRATA'="All_areas"), surveyname='propInWCGBTS', zone=NA ){
+function( strata.limits=NULL, surveyname='propInWCGBTS', zone=NA ){
+  # Infer strata
+  if( is.null(strata.limits)){
+    strata.limits = data.frame('STRATA'="All_areas")
+  }
+  message("Using strata ", strata.limits)
+
   # Read extrapolation data
   data( california_current_grid )
   Data_Extrap <- california_current_grid

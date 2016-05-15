@@ -1,12 +1,14 @@
 Prepare_GSL_Extrapolation_Data_Fn <-
-function( strata.limits, Data=NULL, zone=NA ){
-  # Read extrapolation data
-  if( is.null(Data) ){
-    data( gulf_of_st_lawrence_grid )
-    Data_Extrap <- gulf_of_st_lawrence_grid
-  }else{
-    Data_Extrap <- Data
+function( strata.limits=NULL, zone=NA ){
+  # Infer strata
+  if( is.null(strata.limits)){
+    strata.limits = data.frame('STRATA'="All_areas")
   }
+  message("Using strata ", strata.limits)
+
+  # Read extrapolation data
+  data( gulf_of_st_lawrence_grid )
+  Data_Extrap <- gulf_of_st_lawrence_grid
 
   # Survey areas
   Area_km2_x = Data_Extrap[,'area'] # Convert from nm^2 to km^2

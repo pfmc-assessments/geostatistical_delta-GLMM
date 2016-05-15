@@ -1,5 +1,11 @@
 Prepare_BC_Coast_Extrapolation_Data_Fn <-
-function( strata.limits, strata_to_use=c('SOG','WCVI','QCS','HS','WCHG'), zone=NA ){
+function( strata.limits=NULL, strata_to_use=c('SOG','WCVI','QCS','HS','WCHG'), zone=NA ){
+  # Infer strata
+  if( is.null(strata.limits)){
+    strata.limits = data.frame('STRATA'="All_areas")
+  }
+  message("Using strata ", strata.limits)
+
   # Read extrapolation data
   data( bc_coast_grid )
   bc_coast_grid <- cbind( bc_coast_grid, "ALL"=13.74)

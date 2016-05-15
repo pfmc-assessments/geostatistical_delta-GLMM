@@ -1,5 +1,11 @@
 Prepare_EBS_Extrapolation_Data_Fn <-
-function( strata.limits, zone=NA ){
+function( strata.limits=NULL, zone=NA ){
+  # Infer strata
+  if( is.null(strata.limits)){
+    strata.limits = data.frame('STRATA'="All_areas")
+  }
+  message("Using strata ", strata.limits)
+
   # Read extrapolation data
   data( eastern_bering_sea_grid )
   Data_Extrap <- eastern_bering_sea_grid
