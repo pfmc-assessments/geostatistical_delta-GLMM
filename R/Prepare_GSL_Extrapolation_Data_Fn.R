@@ -17,12 +17,12 @@ function( strata.limits=NULL, zone=NA ){
   Tmp = cbind("BEST_DEPTH_M"=0, "BEST_LAT_DD"=Data_Extrap[,'latitude'], "BEST_LON_DD"=Data_Extrap[,'longitude'])
   a_el = as.data.frame(matrix(NA, nrow=nrow(Data_Extrap), ncol=length(strata.limits), dimnames=list(NULL,names(strata.limits))))
   for(l in 1:ncol(a_el)){
-    a_el[,l] = apply(Tmp, MARGIN=1, FUN=match_strata_fn, strata_dataframe=strata.limits[l,,drop=FALSE])
+    a_el[,l] = apply(Tmp, MARGIN=1, FUN=SpatialDeltaGLMM:::match_strata_fn, strata_dataframe=strata.limits[l,,drop=FALSE])
     a_el[,l] = ifelse( is.na(a_el[,l]), 0, Area_km2_x)
   }
 
   # Convert extrapolation-data to an Eastings-Northings coordinate system
-  tmpUTM = Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'longitude'], Lat=Data_Extrap[,'latitude'], zone=zone)
+  tmpUTM = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'longitude'], Lat=Data_Extrap[,'latitude'], zone=zone)
   
   # Extra junk
   Data_Extrap = cbind( Data_Extrap, 'Include'=1)

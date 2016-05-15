@@ -39,14 +39,14 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
         points(x=PlotDF[Which,'Lon'], y=PlotDF[Which,'Lat'], col=Col(n=50)[ceiling(f(Mat[Which,],zlim=zlim)[,t]*49)+1], cex=0.01)
       }else{
         boundary_around_limits = 3
-        Map = map(MappingDetails[[1]], MappingDetails[[2]], plot=FALSE, ylim=mean(Ylim)+boundary_around_limits*c(-0.5,0.5)*diff(Ylim), xlim=mean(Xlim)+boundary_around_limits*c(-0.5,0.5)*diff(Xlim), fill=TRUE) # , orientation=c(mean(y.lim),mean(x.lim),15)
+        Map = maps::map(MappingDetails[[1]], MappingDetails[[2]], plot=FALSE, ylim=mean(Ylim)+boundary_around_limits*c(-0.5,0.5)*diff(Ylim), xlim=mean(Xlim)+boundary_around_limits*c(-0.5,0.5)*diff(Xlim), fill=TRUE) # , orientation=c(mean(y.lim),mean(x.lim),15)
         Tmp1 = na.omit( cbind('PID'=cumsum(is.na(Map$x)), 'POS'=1:length(Map$x), 'X'=Map$x, 'Y'=Map$y, matrix(0,ncol=length(Year_Set),nrow=length(Map$x),dimnames=list(NULL,Year_Set))) )
         Tmp2 = rbind( Tmp1, cbind('PID'=max(Tmp1[,1])+1,'POS'=1:length(Which)+max(Tmp1[,2]),'X'=PlotDF[Which,'Lon'], 'Y'=PlotDF[Which,'Lat'], Mat[Which,]) )
         attr(Tmp2,"projection") = "LL"
         attr(Tmp2,"zone") = zone
-        tmpUTM = suppressMessages(convUL(Tmp2))                                                         #$
+        tmpUTM = suppressMessages(PBSmapping::convUL(Tmp2))                                                         #$
         coordinates(tmpUTM) = c("X","Y")
-        tmp <- elide( tmpUTM, rotate=Rotate)
+        tmp <- maptools::elide( tmpUTM, rotate=Rotate)
         plot(tmp[-c(1:nrow(Tmp1)),], pch="", xlim=range(tmp@coords[-c(1:nrow(Tmp1)),'x']), ylim=range(tmp@coords[-c(1:nrow(Tmp1)),'y']) )
         Col_Bin = ceiling(f(tmp@data[-c(1:nrow(Tmp1)),-c(1:2),drop=FALSE],zlim=zlim)[,t]*49) + 1
         if( any(Col_Bin<1 | Col_Bin>50) ) stop("zlim doesn't span the range of the variable")
@@ -78,7 +78,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
          width=1, height=2*MapSizeRatio['Height(in)'], res=Res, units='in')
   }
   if(Format %in% c("png","jpg","tif","tiff")){
-    Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), textmargin=textmargin )
+    SpatialDeltaGLMM:::Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), textmargin=textmargin )
     dev.off()
   }
   return( invisible(list("Par"=Par)) )

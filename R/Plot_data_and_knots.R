@@ -6,7 +6,7 @@ Plot_data_and_knots = function( Data_Extrap, Extrap_Area_km2, loc_x, Data_Geosta
   png( file=Plot_name, width=6, height=6, res=200, units="in")
     par( mfrow=c(2,2), mar=c(3,3,2,0), mgp=c(1.75,0.25,0) )
     plot( Data_Extrap[which(Extrap_Area_km2>0),c('Lon','Lat')], cex=0.01, main="Extrapolation (UTM)" )
-    map( "world", add=TRUE )
+    maps::map( "world", add=TRUE )
     plot( Data_Extrap[which(Extrap_Area_km2>0),c('E_km','N_km')], cex=0.01, main="Extrapolation (North-East)" )
     plot( loc_x, col="red", pch=20, main="Knots (North-East)")
     plot( Data_Geostat[,c('E_km','N_km')], col="blue", pch=20, cex=0.1, main="Data (North-East)")
@@ -23,7 +23,7 @@ Plot_data_and_knots = function( Data_Extrap, Extrap_Area_km2, loc_x, Data_Geosta
     for( t in 1:length(Year_Set) ){
       Which = which( Data_Geostat$Year == Year_Set[t] )
       plot( x=Data_Geostat[Which,'Lon'], y=Data_Geostat[Which,'Lat'], cex=0.01, main=Year_Set[t], xlim=range(Data_Geostat[,'Lon']), ylim=range(Data_Geostat[,'Lat']), xaxt="n", yaxt="n", ... )
-      map( "world", add=TRUE )
+      maps::map( "world", add=TRUE )
       if( t>(length(Year_Set)-Ncol) ) axis(1)
       if( t%%Ncol == 1 ) axis(2)
       mtext( side=c(1,2), text=c("Longitude","Latitude"), outer=TRUE, line=1)

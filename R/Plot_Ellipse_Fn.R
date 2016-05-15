@@ -1,9 +1,6 @@
 
 
 Plot_Ellipse_Fn = function( filename, yearset=NULL, years2include=NULL, MappingDetails, MapSizeRatio=c("Height(in)"=4,"Width(in)"=4), Xlim, Ylim, ZinUTM=TRUE, zone=NA, ncol_legend=2, Format="png", ... ){
-  # Library for ellipse function
-  if( !("mixtools" %in% installed.packages()[,'Package']) ) stop("Please install package 'mixtools' and re-try")
-
   # Only run if necessary outputs are available
   if( all(c("mean_Z_tl","cov_Z_tl") %in% names(Report)) ){
     # Decide on years
@@ -14,9 +11,9 @@ Plot_Ellipse_Fn = function( filename, yearset=NULL, years2include=NULL, MappingD
       # Settings
       ColBorder = colorRampPalette(colors=c("darkblue","blue","lightblue","lightgreen","yellow","orange","red","darkred"))(nrow(Report$mean_Z_tl)) # c("blue","red")# c("darkblue","blue","lightblue","lightgreen","yellow","orange","red","darkred")
       if( ZinUTM==FALSE ){
-        map(MappingDetails[[1]], MappingDetails[[2]], ylim=mean(Ylim)+1*c(-0.5,0.5)*diff(Ylim), xlim=mean(Xlim)+1*c(-0.5,0.5)*diff(Xlim), fill=TRUE, ...) # , orientation=c(mean(y.lim),mean(x.lim),15)
+        maps::map(MappingDetails[[1]], MappingDetails[[2]], ylim=mean(Ylim)+1*c(-0.5,0.5)*diff(Ylim), xlim=mean(Xlim)+1*c(-0.5,0.5)*diff(Xlim), fill=TRUE, ...) # , orientation=c(mean(y.lim),mean(x.lim),15)
       }else{
-        Plot_States_in_UTM_Fn( MappingDetails=MappingDetails, fillcol=NA, xlim=Xlim, ylim=Ylim, zone=zone, ... )
+        SpatialDeltaGLMM:::Plot_States_in_UTM_Fn( MappingDetails=MappingDetails, fillcol=NA, xlim=Xlim, ylim=Ylim, zone=zone, ... )
       }
       # Plot ellipsoids
       for(t in years2include){
