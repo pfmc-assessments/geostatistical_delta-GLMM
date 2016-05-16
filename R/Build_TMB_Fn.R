@@ -113,6 +113,10 @@ function( TmbData, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=
   Obj$env$inner.control$tol10 <- c(1e-6,1e-8,1e-12)[ConvergeTol]  # Default : 1e-3     # Change in pen.like limit inner optimization
   Obj$env$inner.control$grad.tol <- c(1e-8,1e-12,1e-15)[ConvergeTol] # # Default : 1e-8  # Maximum gradient limit inner optimization
 
+  # Print number of parameters
+  message("Number of fixed and random effects:")
+  print( table(names(Obj$env$last.par)) )
+
   # Return stuff
   Return = list("Obj"=Obj, "Upper"=Bounds[,'Upper'], "Lower"=Bounds[,'Lower'], "Parameters"=Parameters, "Map"=Map, "Random"=Random)
   return( Return )
