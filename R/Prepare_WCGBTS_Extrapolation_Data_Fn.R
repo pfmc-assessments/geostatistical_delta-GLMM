@@ -1,3 +1,4 @@
+#' @export
 Prepare_WCGBTS_Extrapolation_Data_Fn <-
 function( strata.limits=NULL, surveyname='propInWCGBTS', zone=NA ){
   # Infer strata

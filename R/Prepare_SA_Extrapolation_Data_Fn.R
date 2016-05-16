@@ -1,3 +1,4 @@
+#' @export
 Prepare_SA_Extrapolation_Data_Fn <-
 function( strata.limits=NULL, region=c("south_coast","west_coast"), zone=NA ){
   # Infer strata
