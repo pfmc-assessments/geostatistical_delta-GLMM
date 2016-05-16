@@ -8,7 +8,7 @@ function( strata.limits=NULL, region=c("south_coast","west_coast"), zone=NA ){
   message("Using strata ", strata.limits)
 
   # Read extrapolation data
-  data( south_africa_grid )
+  data( south_africa_grid, package="SpatialDeltaGLMM" )
   Data_Extrap <- south_africa_grid
 
   # Survey areas

@@ -8,7 +8,7 @@ function( strata.limits=NULL, zone=NA ){
   message("Using strata ", strata.limits)
 
   # Read extrapolation data
-  data( gulf_of_st_lawrence_grid )
+  data( gulf_of_st_lawrence_grid, package="SpatialDeltaGLMM" )
   Data_Extrap <- gulf_of_st_lawrence_grid
 
   # Survey areas

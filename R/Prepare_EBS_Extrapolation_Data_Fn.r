@@ -8,7 +8,7 @@ function( strata.limits=NULL, zone=NA ){
   message("Using strata ", strata.limits)
 
   # Read extrapolation data
-  data( eastern_bering_sea_grid )
+  data( eastern_bering_sea_grid, package="SpatialDeltaGLMM" )
   Data_Extrap <- eastern_bering_sea_grid
 
   # Survey areas

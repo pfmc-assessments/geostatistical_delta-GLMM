@@ -96,48 +96,48 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 
 # Read or simulate trawl data
   if(Data_Set=="WCGBTS_canary"){
-    data( WCGBTS_Canary_example )
+    data( WCGBTS_Canary_example, package="SpatialDeltaGLMM" )
     Data_Geostat = data.frame( "Catch_KG"=WCGBTS_Canary_example[,'HAUL_WT_KG'], "Year"=as.numeric(sapply(WCGBTS_Canary_example[,'PROJECT_CYCLE'],FUN=function(Char){strsplit(as.character(Char)," ")[[1]][2]})), "Vessel"=WCGBTS_Canary_example[,"VESSEL"], "AreaSwept_km2"=WCGBTS_Canary_example[,"AREA_SWEPT_HA"]/1e2, "Lat"=WCGBTS_Canary_example[,'BEST_LAT_DD'], "Lon"=WCGBTS_Canary_example[,'BEST_LON_DD'], "Pass"=WCGBTS_Canary_example[,'PASS']-1.5)
   }
   if( Data_Set %in% c("BC_pacific_cod")){
-    data( BC_pacific_cod_example )
+    data( BC_pacific_cod_example, package="SpatialDeltaGLMM" )
     Data_Geostat = data.frame( "Catch_KG"=BC_pacific_cod_example[,'PCOD_WEIGHT'], "Year"=BC_pacific_cod_example[,'Year'], "Vessel"="missing", "AreaSwept_km2"=BC_pacific_cod_example[,'TOW.LENGTH..KM.']/100, "Lat"=BC_pacific_cod_example[,'LAT'], "Lon"=BC_pacific_cod_example[,'LON'], "Pass"=0)
     Data_Geostat = na.omit( Data_Geostat )
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if( Data_Set %in% c("GSL_american_plaice")){
-    data( GSL_american_plaice )
+    data( GSL_american_plaice, package="SpatialDeltaGLMM" )
     Print_Message( "GSL_american_plaice" )
     Data_Geostat = data.frame( "Year"=GSL_american_plaice[,'year'], "Lat"=GSL_american_plaice[,'latitude'], "Lon"=GSL_american_plaice[,'longitude'], "Vessel"="missing", "AreaSwept_km2"=GSL_american_plaice[,'swept'], "Catch_KG"=GSL_american_plaice[,'biomass']*GSL_american_plaice[,'vstd'] )
   }
   if(Data_Set=="EBS_pollock"){
-    data( EBS_pollock_data )
+    data( EBS_pollock_data, package="SpatialDeltaGLMM" )
     Data_Geostat = data.frame( "Catch_KG"=EBS_pollock_data[,'catch'], "Year"=EBS_pollock_data[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=EBS_pollock_data[,'lat'], "Lon"=EBS_pollock_data[,'long'], "Pass"=0)
   }
   if(Data_Set=="GOA_Pcod"){
-    data( GOA_pacific_cod )
+    data( GOA_pacific_cod , package="SpatialDeltaGLMM")
     Data_Geostat = data.frame( "Catch_KG"=GOA_pacific_cod[,'catch'], "Year"=GOA_pacific_cod[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=GOA_pacific_cod[,'lat'], "Lon"=GOA_pacific_cod[,'lon'], "Pass"=0)
     # Rename years and keep track of correspondance (for computational speed, given that there's missing years)
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if(Data_Set=="GOA_pollock"){
-    data( GOA_walleye_pollock )
+    data( GOA_walleye_pollock, package="SpatialDeltaGLMM" )
     Data_Geostat = data.frame( "Catch_KG"=GOA_walleye_pollock[,'catch'], "Year"=GOA_walleye_pollock[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=GOA_walleye_pollock[,'lat'], "Lon"=GOA_walleye_pollock[,'lon'], "Pass"=0)
     # Rename years and keep track of correspondance (for computational speed, given that there's missing years)
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if( Data_Set=="GB_spring_haddock"){
-    data( georges_bank_haddock_spring )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
+    data( georges_bank_haddock_spring, package="SpatialDeltaGLMM" )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
     Print_Message( "GB_haddock" )
     Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_spring[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_spring[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112*1.852^2, "Lat"=georges_bank_haddock_spring[,'LATITUDE'], "Lon"=georges_bank_haddock_spring[,'LONGITUDE'])
   }
   if( Data_Set=="GB_fall_haddock"){
-    data( georges_bank_haddock_fall )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
+    data( georges_bank_haddock_fall, package="SpatialDeltaGLMM" )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
     Print_Message( "GB_haddock" )
     Data_Geostat = data.frame( "Catch_KG"=georges_bank_haddock_fall[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_fall[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112*1.852^2, "Lat"=georges_bank_haddock_fall[,'LATITUDE'], "Lon"=georges_bank_haddock_fall[,'LONGITUDE'])
   }
   if( Data_Set=="SAWC_jacopever"){
-    data( south_africa_westcoast_jacopever )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
+    data( south_africa_westcoast_jacopever, package="SpatialDeltaGLMM" )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
     #Data = read.csv( paste0(getwd(),"/../../examples/archive of data inputs for creation of grid files/South Africa/SAWC_geodata.csv") )
     Data_Geostat = data.frame( "Catch_KG"=south_africa_westcoast_jacopever[,'HELDAC'], "Year"=south_africa_westcoast_jacopever[,'Year'], "Vessel"="missing", "AreaSwept_km2"=south_africa_westcoast_jacopever[,'area_swept_nm2']*1.852^2, "Lat"=south_africa_westcoast_jacopever[,'cen_lat'], "Lon"=south_africa_westcoast_jacopever[,'cen_long'])
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
@@ -149,8 +149,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   }
   if( Data_Set %in% c("Iceland_cod")){
     # WARNING:  This data set has not undergone much evaluation for spatio-temporal analysis
-    data( iceland_cod )
-    #load( "../data/iceland_cod.rda" )
+    data( iceland_cod, package="SpatialDeltaGLMM" )
     Data_Geostat = data.frame( "Catch_KG"=iceland_cod[,'Catch_b'], "Year"=iceland_cod[,'year'], "Vessel"=1, "AreaSwept_km2"=iceland_cod[,'towlength'], "Lat"=iceland_cod[,'lat1'], "Lon"=iceland_cod[,'lon1'])
     Data_Geostat = na.omit( Data_Geostat )
   }
