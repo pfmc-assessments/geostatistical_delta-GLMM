@@ -297,8 +297,6 @@ Type objective_function<Type>::operator() ()
   if( Options_vec(0)==0 ){
     Q1 = Q_spde_generalized(spde, exp(logkappa1), Options_vec(3));
     Q2 = Q_spde_generalized(spde, exp(logkappa2), Options_vec(3));
-    //Q1 = kappa1_pow4*G0 + Type(2.0)*kappa1_pow2*G1 + G2;
-    //Q2 = kappa2_pow4*G0 + Type(2.0)*kappa2_pow2*G1 + G2;
   }
   if( Options_vec(0)==1 ){
     Q1 = Q_spde_generalized(spde_aniso, exp(logkappa1), H, Options_vec(3));
@@ -307,7 +305,6 @@ Type objective_function<Type>::operator() ()
   GMRF_t<Type> Tmp1 = GMRF(Q1);
   GMRF_t<Type> Tmp2 = GMRF(Q2);
   if(FieldConfig(0)==1) jnll_comp(0) = Tmp1(Omegainput1_s);
-  //if(FieldConfig(1)==1) jnll_comp(1) = SEPARABLE(AR1(Epsilon_rho1),Tmp1)(Epsiloninput1_st);
   if(FieldConfig(1)==1){
     for(t=0;t<n_t;t++){
       if(t==0) jnll_comp(1) += Tmp1(Epsiloninput1_st.col(t));
@@ -315,7 +312,6 @@ Type objective_function<Type>::operator() ()
     }
   }
   if(FieldConfig(2)==1) jnll_comp(2) = Tmp2(Omegainput2_s);
-  //if(FieldConfig(3)==1) jnll_comp(3) = SEPARABLE(AR1(Epsilon_rho2),Tmp2)(Epsiloninput2_st);
   if(FieldConfig(3)==1){
     for(t=0;t<n_t;t++){
       if(t==0) jnll_comp(3) += Tmp2(Epsiloninput2_st.col(t));
