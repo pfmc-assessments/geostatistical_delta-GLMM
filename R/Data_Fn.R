@@ -5,7 +5,18 @@
 #'
 #' @param Version a version number (see example for current default).
 #' @param FieldConfig a vector of format c("Omega1"=0, "Epsilon1"=10, "Omega2"="AR1", "Epsilon2"=10), where Omega refers to spatial variation, Epsilon refers to spatio-temporal variation, Omega1 refers to variation in encounter probability, and Omega2 refers to variation in positive catch rates, where 0 is off, "AR1" is an AR1 process, and >0 is the number of elements in a factor-analysis covariance
-#' @param ObsModel an optimal vector of format c("PosDist"=1,"Link"=0), where PosDist specifies the distribution for positive catch rates (0 is normal, 1 is lognormal, 2 is gamma), and Link is the functional form for encounter probabilities (0 is conventional logit-link, 1 is a novel parameterization involving density)
+#' @param ObsModel an optional integer that specifies the distribution for positive catch rates (Default=2, i.e., Gamma)
+#' \describe{
+#'   \item{ObsModel=0}{Normal}
+#'   \item{ObsModel=1}{Lognormal}
+#'   \item{ObsModel=2}{Gamma}
+#'   \item{ObsModel=3}{A tagged list of parameter starting values used when building Obj, which can be extracted, modified, and then put back into \code{Build_TMB_Fn} to define different starting values}
+#'   \item{ObsModel=11}{Mixture lognormal}
+#'   \item{ObsModel=12}{Mixture gamma}
+#'   \item{ObsModel=4}{Zero-adjusted negative binomial}
+#'   \item{ObsModel=5}{Zero-inflated negativee binomial}
+#'   \item{ObsModel=6}{Conway-Maxwell-Poisson distribution}
+#' }
 #' @param b_i Sampled biomass for each observation i
 #' @param a_i Sampled area for each observation i
 #' @param s_i Spatial knot (e.g., grid cell) for each observation i
@@ -26,7 +37,7 @@
 
 #' @export
 Data_Fn <-
-function( Version, FieldConfig, ObsModel, b_i, a_i, s_i, t_i, a_xl, MeshList, v_i=rep(0,length(b_i)), PredTF_i=rep(0,length(b_i)), X_xj=NULL, X_xtp=NULL, Q_ik=NULL, Aniso=1, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Options=c('SD_site_density'=0,'SD_site_logdensity'=0,'Calculate_Range'=0,'Calculate_evenness'=0,'Calculate_effective_area'=0), CheckForErrors=TRUE, Alpha=2 ){
+function( Version, FieldConfig, ObsModel=2, b_i, a_i, s_i, t_i, a_xl, MeshList, v_i=rep(0,length(b_i)), PredTF_i=rep(0,length(b_i)), X_xj=NULL, X_xtp=NULL, Q_ik=NULL, Aniso=1, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Options=c('SD_site_density'=0,'SD_site_logdensity'=0,'Calculate_Range'=0,'Calculate_evenness'=0,'Calculate_effective_area'=0), CheckForErrors=TRUE, Alpha=2 ){
   if( require(INLA)==FALSE ) stop("Must install INLA from: source('http://www.math.ntnu.no/inla/givemeINLA.R')")
 
   # Determine dimensions
