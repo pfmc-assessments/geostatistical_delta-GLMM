@@ -60,6 +60,6 @@ Spatial_Information_Fn = function( Method="Grid", Lon, Lat, Extrapolation_List, 
   GridList = list("M0"=M0, "M1"=M1, "M2"=M2, "grid_size_km"=grid_size_km)
 
   # Return
-  Return = list("MeshList"=MeshList, "GridList"=GridList, "a_xl"=a_xl, "loc_UTM"=loc_UTM, "Kmeans"=Kmeans, "knot_i"=knot_i, "Method"=Method, "loc_x"=loc_x)
+  Return = list("MeshList"=MeshList, "GridList"=GridList, "a_xl"=a_xl, "loc_UTM"=loc_UTM, "Kmeans"=Kmeans, "knot_i"=knot_i, "Method"=Method, "loc_x"=loc_x, "PolygonList"=PolygonList, "NN_Extrap"=PolygonList$NN_Extrap)
   return( Return )
 }
