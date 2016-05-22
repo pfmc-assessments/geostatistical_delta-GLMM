@@ -23,6 +23,7 @@
 #'   \item{loc_x}{The UTM location for each knot}
 #' }
 
+#' @export
 Spatial_Information_Fn = function( Method="Grid", Lon, Lat, Extrapolation_List, zone=NA, grid_size_km=50, n_x, ... ){
   # Convert to an Eastings-Northings coordinate system
   tmpUTM = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Lon, Lat=Lat, zone=zone )                                                         #$
