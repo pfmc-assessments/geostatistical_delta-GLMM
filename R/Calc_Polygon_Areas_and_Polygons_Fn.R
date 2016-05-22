@@ -9,6 +9,9 @@
 #' @inheritParams Calc_Anisotropic_Mesh
 
 #' @return Tagged list containing distance metrics
+#' \describe{
+#'   \item{a_xl}{A data frame with areas for each knot and each strattum}
+#' }
 
 #' @export
 Calc_Polygon_Areas_and_Polygons_Fn <-

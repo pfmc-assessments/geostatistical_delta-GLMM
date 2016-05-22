@@ -15,12 +15,12 @@
 #' \describe{
 #'   \item{centers}{a matrix with 2 columns and n_x rows}
 #'   \item{cluster}{A vector with length \code{nrow(loc_orig)} specifying which row of \code{centers} corresponds to each row of loc_orig}
-#'   \item{tot.withinss}{the objective function (to be minimized) for the selected k-means solution}
 #' }
 
 #' @export
 Calc_Kmeans <-
-function(n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=NULL, Save_Results=TRUE){
+function( n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=NULL, Save_Results=TRUE){
+
   # get old seed
   oldseed = ceiling(runif(1,min=1,max=1e6))
   # fix new seed
@@ -29,18 +29,21 @@ function(n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=NULL
   options( "warn" = -1 )
   on.exit( options(old.options) )
   if( is.null(DirPath) ) DirPath = paste0(getwd(),"/")
-  # Only calculate if knots > number of locations
+
+  # Calculate knots for SPDE mesh
   if( length(unique(paste(loc_orig[,1],loc_orig[,2],sep="_")))<=n_x ){
-    Unique = unique(paste(loc_orig[,1],loc_orig[,2],sep="_"))
+    # If number of knots is less than number of sample locations
     Kmeans = NULL
-    Kmeans[["centers"]] = as.matrix(loc_orig[match(Unique,paste(loc_orig[,1],loc_orig[,2],sep="_")),])
-    Kmeans[["cluster"]] = match( paste(loc_orig[,1],loc_orig[,2],sep="_"), Unique )
+    Kmeans[["centers"]] = unique( loc_orig )
+    Kmeans[["cluster"]] = RANN::nn2( data=Kmeans[["centers"]], query=loc_orig, k=1)$nn.idx[,1]
     message( "n_x less than n_unique so no calculation necessary" )
   }else{
     if( paste0("Kmeans-",n_x,".RData") %in% list.files(DirPath) ){
+      # If previously saved knots are available
       load( file=paste0(DirPath,"/","Kmeans-",n_x,".RData") )
       message( "Loaded from ",DirPath,"/","Kmeans-",n_x,".RData" )
     }else{
+      # Multiple runs to find optimal knots
       Kmeans = list( "tot.withinss"=Inf )
       for(i in 1:nstart){
         Tmp = kmeans( x=loc_orig, centers=n_x, iter.max=iter.max, nstart=1, trace=0)
@@ -53,8 +56,11 @@ function(n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=NULL
       message( "Calculated and saved to ",DirPath,"/","Kmeans-",n_x,".RData" )
     }
   }
+
   # fix to old seed
   if( !is.null(randomseed) ) set.seed( oldseed )
-  # return stuff
-  return( Kmeans )
+
+  # Return stuff
+  Return = list("centers"=Kmeans[["centers"]], "cluster"=Kmeans[["cluster"]] )
+  return( Return )
 }
