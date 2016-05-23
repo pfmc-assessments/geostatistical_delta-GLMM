@@ -27,7 +27,7 @@ Prepare_Extrapolation_Data_Fn = function( Region, strata.limits, observations_LL
   if( Region == "British_Columbia" ){
     Extrapolation_List = SpatialDeltaGLMM:::Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
-  if( Region == "Eastern_Bering_Sea" ){
+  if( Region == "Eastern_Bering_Sea" ){ #
     Extrapolation_List = SpatialDeltaGLMM:::Prepare_EBS_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
   if( Region == "Gulf_of_Alaska" ){

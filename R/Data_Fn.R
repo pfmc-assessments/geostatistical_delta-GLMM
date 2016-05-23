@@ -67,7 +67,7 @@ function( Version, FieldConfig, ObsModel=2, b_i, a_i, s_i, t_i, a_xl, MeshList, 
   # Check for bad data entry
   if( CheckForErrors==TRUE ){
     if( !is.matrix(a_xl) | !is.matrix(X_xj) | !is.matrix(Q_ik) ) stop("a_xl, X_xj, and Q_ik should be matrices")
-    if( max(s_i)-1 > MeshList$mesh$n | min(s_i)<0 ) stop("s_i exceeds bounds in MeshList")
+    if( (max(s_i)-1)>n_x | min(s_i)<0 ) stop("s_i exceeds bounds in MeshList")
     if( any(a_i<=0) ) stop("a_i must be greater than zero for all observations, and at least one value of a_i is not")
     # Warnings about all positive or zero
     Prop_nonzero = tapply( b_i, INDEX=t_i, FUN=function(vec){mean(vec>0)} )

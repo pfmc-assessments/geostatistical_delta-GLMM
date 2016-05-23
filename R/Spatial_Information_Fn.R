@@ -7,7 +7,6 @@
 #' @param Lon, Longitude for each sample
 #' @param Lat, Latitude for each sample
 #' @param Extrapolation_List, the output from \code{Prepare_Extrapolation_Data_Fn}
-#' @param zone, a zone for converting Lat-Long to UTM (Default: detects from Lat-Lon inputs)
 #' @param grid_size_km, the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid")
 #' @param n_x, the number of vertices in the SPDE mesh (determines the spatial resolution when Method="Mesh")
 
@@ -24,18 +23,20 @@
 #' }
 
 #' @export
-Spatial_Information_Fn = function( Method="Grid", Lon, Lat, Extrapolation_List, zone=NA, grid_size_km=50, n_x, ... ){
+Spatial_Information_Fn = function( Method="Grid", Lon, Lat, Extrapolation_List, grid_size_km=50, n_x, ... ){
   # Convert to an Eastings-Northings coordinate system
-  tmpUTM = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Lon, Lat=Lat, zone=zone )                                                         #$
+  tmpUTM = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Lon, Lat=Lat, zone=Extrapolation_List$zone, flip_around_dateline=Extrapolation_List$flip_around_dateline )                                                         #$
   loc_UTM = cbind( 'E_km'=tmpUTM[,'X'], 'N_km'=tmpUTM[,'Y'])
 
   # Calculate k-means centroids (but only once for all species)
   Kmeans = SpatialDeltaGLMM::Calc_Kmeans(n_x=n_x, loc_orig=loc_UTM[,c("E_km", "N_km")], ... )
 
   # Calculate grid for 2D AR1 process
-  loc_UTM_on_grid = grid_size_km * round(loc_UTM/grid_size_km)
-  loc_grid = unique( loc_UTM_on_grid )
-  grid_num = RANN::nn2( data=loc_grid, query=loc_UTM_on_grid, k=1)$nn.idx[,1]
+  Grid_bounds = grid_size_km * apply(Extrapolation_List$Data_Extrap[,c('E_km','N_km')]/grid_size_km, MARGIN=2, FUN=function(vec){trunc(range(vec))+c(0,1)})
+  loc_grid = expand.grid( 'E_km'=seq(Grid_bounds[1,1],Grid_bounds[2,1],by=grid_size_km), 'N_km'=seq(Grid_bounds[1,2],Grid_bounds[2,2],by=grid_size_km) )
+  Which = sort(unique(RANN::nn2(data=loc_grid, query=Extrapolation_List$Data_Extrap[which(Extrapolation_List$Data_Extrap$Area_in_survey_km2>0),c('E_km','N_km')], k=1)$nn.idx[,1]))
+  loc_grid = loc_grid[Which,]
+  grid_num = RANN::nn2( data=loc_grid, query=loc_UTM, k=1)$nn.idx[,1]
 
   # Calc design matrix and areas
   if( Method=="Grid" ){

@@ -5,7 +5,7 @@
 \title{Build objects related to spatial information}
 \usage{
 Spatial_Information_Fn(Method = "Grid", Lon, Lat, Extrapolation_List,
-  zone = NA, grid_size_km = 50, n_x, ...)
+  grid_size_km = 50, n_x, ...)
 }
 \arguments{
 \item{Method, }{a character of either "Grid" or "Mesh" where "Grid" is a 2D AR1 process, and "Mesh" is the SPDE method with geometric anisotropy}
@@ -15,8 +15,6 @@ Spatial_Information_Fn(Method = "Grid", Lon, Lat, Extrapolation_List,
 \item{Lat, }{Latitude for each sample}
 
 \item{Extrapolation_List, }{the output from \code{Prepare_Extrapolation_Data_Fn}}
-
-\item{zone, }{a zone for converting Lat-Long to UTM (Default: detects from Lat-Lon inputs)}
 
 \item{grid_size_km, }{the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid")}
 

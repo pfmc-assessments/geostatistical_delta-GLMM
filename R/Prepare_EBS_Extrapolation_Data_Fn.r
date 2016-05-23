@@ -22,17 +22,16 @@ function( strata.limits=NULL, zone=NA ){
     a_el[,l] = apply(Tmp, MARGIN=1, FUN=SpatialDeltaGLMM:::match_strata_fn, strata_dataframe=strata.limits[l,,drop=FALSE])
     a_el[,l] = ifelse( is.na(a_el[,l]), 0, Area_km2_x)
   }
-
+             #
   # Convert extrapolation-data to an Eastings-Northings coordinate system
-  #Data_Extrap[,'Lon'] = 180 + ifelse( Data_Extrap[,'Lon']>0, Data_Extrap[,'Lon']-360, Data_Extrap[,'Lon'])
-  tmpUTM = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=zone, flip_around_dateline=FALSE)                                                         #$
-  #Data_Extrap[,'Lon'] = -180 + ifelse( Data_Extrap[,'Lon']<0, Data_Extrap[,'Lon']+360, Data_Extrap[,'Lon'])
-  
+  tmpUTM = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=zone, flip_around_dateline=TRUE)                                                         #$
+           #
+
   # Extra junk
   Data_Extrap = cbind( Data_Extrap, 'Include'=1)
   Data_Extrap[,c('E_km','N_km')] = tmpUTM[,c('X','Y')]
 
   # Return
-  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"), "flip_around_dateline"=FALSE, "Area_km2_x"=Area_km2_x)
+  Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"), "flip_around_dateline"=TRUE, "Area_km2_x"=Area_km2_x)
   return( Return )
 }
