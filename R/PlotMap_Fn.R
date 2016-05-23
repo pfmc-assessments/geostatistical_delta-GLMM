@@ -59,7 +59,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
           polygon(tmp@coords[indx,'x'], tmp@coords[indx,'y'], col="grey")
         }
       }
-      title( Year_Set[t], line=0.1, cex.main=1.5 )
+      title( Year_Set[t], line=0.1, cex.main=ifelse(is.null(Par$cex.main), 1.8, Par$cex.main), cex=ifelse(is.null(Par$cex.main), 1.8, Par$cex.main) )
       box()
       #if(t==1) compassRose( x=c(0.75,0.25)%*%par()$usr[1:2], y=c(0.25,0.75)%*%par()$usr[3:4], rotate=Rotate)
     }
@@ -83,5 +83,5 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
     SpatialDeltaGLMM:::Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), textmargin=textmargin )
     dev.off()
   }
-  return( invisible(list("Par"=Par)) )
+  return( invisible(list("Par"=Par, "par"=par())) )
 }
