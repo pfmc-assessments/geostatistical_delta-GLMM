@@ -99,7 +99,7 @@ function( TmbData, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=
   Bounds[grep("logtau",names(Obj$par)),'Upper'] = 10   # Version < v2i
   Bounds[grep("logeta",names(Obj$par)),'Upper'] = log(1/(1e-2*sqrt(4*pi))) # Version >= v2i: Lower bound on margSD = 1e-4
   Bounds[grep("SigmaM",names(Obj$par)),'Upper'] = 10 # ZINB can crash if it gets > 20
-  if( !is.null(loc_x) ){
+  if( !is.null(loc_x) && !is.na(TmbData$Options_vec['Method']) && TmbData$Options_vec['Method']==0 ){
     Dist = dist(loc_x)
     Bounds[grep("logkappa",names(Obj$par)),'Lower'] = log( sqrt(8)/max(Dist) ) # Range = nu*sqrt(8)/kappa
     Bounds[grep("logkappa",names(Obj$par)),'Upper'] = log( sqrt(8)/min(Dist) ) # Range = nu*sqrt(8)/kappa
