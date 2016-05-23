@@ -42,6 +42,9 @@ Prepare_Extrapolation_Data_Fn = function( Region, strata.limits, observations_LL
   if( Region == "Gulf_of_St_Lawrence" ){
     Extrapolation_List = SpatialDeltaGLMM:::Prepare_GSL_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
+  if( Region == "New_Zealand" ){
+    Extrapolation_List = SpatialDeltaGLMM:::Prepare_NZ_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+  }
   if( is.null(Extrapolation_List) ){
     if( is.null(observations_LL)) message("Because you're using a new region, please provide 'observations_LL' input")
     Extrapolation_List = SpatialDeltaGLMM:::Prepare_Other_Extrapolation_Data_Fn( strata.limits=strata.limits, observations_LL=observations_LL, ... )

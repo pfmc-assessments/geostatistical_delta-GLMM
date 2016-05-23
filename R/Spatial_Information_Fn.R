@@ -34,7 +34,7 @@ Spatial_Information_Fn = function( Method="Grid", Lon, Lat, Extrapolation_List, 
   # Calculate grid for 2D AR1 process
   Grid_bounds = grid_size_km * apply(Extrapolation_List$Data_Extrap[,c('E_km','N_km')]/grid_size_km, MARGIN=2, FUN=function(vec){trunc(range(vec))+c(0,1)})
   loc_grid = expand.grid( 'E_km'=seq(Grid_bounds[1,1],Grid_bounds[2,1],by=grid_size_km), 'N_km'=seq(Grid_bounds[1,2],Grid_bounds[2,2],by=grid_size_km) )
-  Which = sort(unique(RANN::nn2(data=loc_grid, query=Extrapolation_List$Data_Extrap[which(Extrapolation_List$Data_Extrap$Area_in_survey_km2>0),c('E_km','N_km')], k=1)$nn.idx[,1]))
+  Which = sort(unique(RANN::nn2(data=loc_grid, query=Extrapolation_List$Data_Extrap[which(Extrapolation_List$Area_km2_x>0),c('E_km','N_km')], k=1)$nn.idx[,1]))
   loc_grid = loc_grid[Which,]
   grid_num = RANN::nn2( data=loc_grid, query=loc_UTM, k=1)$nn.idx[,1]
 
