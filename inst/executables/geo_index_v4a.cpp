@@ -262,21 +262,11 @@ Type objective_function<Type>::operator() ()
   // Derived parameters
   Type logtauE1 = logetaE1 - logkappa1;
   Type logtauO1 = logetaO1 - logkappa1;
-  Type kappa1_pow2 = exp(2.0*logkappa1);
-  Type kappa1_pow4 = kappa1_pow2*kappa1_pow2;
-  Type SigmaE1 = 1 / sqrt(4*M_PI*exp(2*logtauE1)*exp(2*logkappa1));
-  Type SigmaO1 = 1 / sqrt(4*M_PI*exp(2*logtauO1)*exp(2*logkappa1));
-  Type Range_raw1 = sqrt(8) / exp( logkappa1 );   // Range = approx. distance @ 10% correlation
   Type SigmaV1 = exp( logsigmaV1 );
   Type SigmaVT1 = exp( logsigmaVT1 );
-
+  Type SigmaE1, SigmaO1, Range_raw1, SigmaE2, SigmaO2, Range_raw2;
   Type logtauE2 = logetaE2 - logkappa2;
   Type logtauO2 = logetaO2 - logkappa2;
-  Type kappa2_pow2 = exp(2.0*logkappa2);
-  Type kappa2_pow4 = kappa2_pow2*kappa2_pow2;
-  Type SigmaE2 = 1 / sqrt(4*M_PI*exp(2*logtauE2)*exp(2*logkappa2));
-  Type SigmaO2 = 1 / sqrt(4*M_PI*exp(2*logtauO2)*exp(2*logkappa2));
-  Type Range_raw2 = sqrt(8) / exp( logkappa2 );     // Range = approx. distance @ 10% correlation
   Type SigmaV2 = exp( logsigmaV2 );
   Type SigmaVT2 = exp( logsigmaVT2 );
   vector<Type> SigmaM(4);
@@ -284,7 +274,26 @@ Type objective_function<Type>::operator() ()
   SigmaM(1) = 1 / (1 + exp(-1 * logSigmaM(1)));
   SigmaM(2) = exp(logSigmaM(2));
   SigmaM(3) = exp(logSigmaM(3));
-  
+
+  // Derived that vary by settings
+  // SEE: https://github.com/James-Thorson/TMB_experiments/tree/master/SPDE%20vs%202D_AR1
+  if( Options_vec(7)==0 ){
+    SigmaE1 = 1 / sqrt(4*M_PI*exp(2*logtauE1)*exp(2*logkappa1));
+    SigmaO1 = 1 / sqrt(4*M_PI*exp(2*logtauO1)*exp(2*logkappa1));
+    Range_raw1 = sqrt(8) / exp( logkappa1 );   // Range = approx. distance @ 10% correlation
+    SigmaE2 = 1 / sqrt(4*M_PI*exp(2*logtauE2)*exp(2*logkappa2));
+    SigmaO2 = 1 / sqrt(4*M_PI*exp(2*logtauO2)*exp(2*logkappa2));
+    Range_raw2 = sqrt(8) / exp( logkappa2 );     // Range = approx. distance @ 10% correlation
+  }
+  if( Options_vec(7)==1 ){
+    SigmaE1 = 1 / sqrt( (1-exp(logkappa1*2)) * exp(2*logtauE1) );
+    SigmaO1 = 1 / sqrt( (1-exp(logkappa1*2)) * exp(2*logtauO1) );
+    Range_raw1 = log(0.1) / logkappa1;   // Range = approx. distance @ 10% correlation
+    SigmaE2 = 1 / sqrt( (1-exp(logkappa2*2)) * exp(2*logtauE2) );
+    SigmaO2 = 1 / sqrt( (1-exp(logkappa2*2)) * exp(2*logtauO2) );
+    Range_raw2 = log(0.1) / logkappa2;     // Range = approx. distance @ 10% correlation
+  }
+
   // Anisotropy elements
   matrix<Type> H(2,2);
   H(0,0) = exp(ln_H_input(0));
@@ -318,8 +327,8 @@ Type objective_function<Type>::operator() ()
     Q2 = Q_spde_generalized(spde_aniso, exp(logkappa2), H, Options_vec(3));
   }
   if( Options_vec(7)==1 ){
-    Q1 = pow(1/(exp(logkappa1)*sqrt(4*M_PI)),2) * (M0*pow(1+exp(logkappa1*2),2) + M1*(1+exp(logkappa1*2))*(-exp(logkappa1)) + M2*exp(logkappa1*2));  // Same scale as SPDE method
-    Q2 = pow(1/(exp(logkappa2)*sqrt(4*M_PI)),2) * (M0*pow(1+exp(logkappa2*2),2) + M1*(1+exp(logkappa2*2))*(-exp(logkappa2)) + M2*exp(logkappa2*2));  // Same scale as SPDE method
+    Q1 = M0*pow(1+exp(logkappa1*2),2) + M1*(1+exp(logkappa1*2))*(-exp(logkappa1)) + M2*exp(logkappa1*2);  // Same scale as SPDE method
+    Q2 = M0*pow(1+exp(logkappa2*2),2) + M1*(1+exp(logkappa2*2))*(-exp(logkappa2)) + M2*exp(logkappa2*2);  // Same scale as SPDE method
   }
   GMRF_t<Type> gmrf1 = GMRF(Q1);
   GMRF_t<Type> gmrf2 = GMRF(Q2);
