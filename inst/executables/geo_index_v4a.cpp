@@ -212,8 +212,8 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(gamma1_j);        // Static covariate effect
   PARAMETER_MATRIX(gamma1_tp);       // Dynamic covariate effect
   PARAMETER_VECTOR(lambda1_k);       // Catchability coefficients
-  PARAMETER(logetaE1);      
-  PARAMETER(logetaO1);
+  PARAMETER(logetaE1);               // etaE1 := kappa1 * tauE1
+  PARAMETER(logetaO1);               // etaO1 := kappa1 * tauO1
   PARAMETER(logkappa1);
   PARAMETER(logsigmaV1);
   PARAMETER(logsigmaVT1);
@@ -233,8 +233,8 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(gamma2_j);        // Covariate effect
   PARAMETER_MATRIX(gamma2_tp);       // Dynamic covariate effect
   PARAMETER_VECTOR(lambda2_k);       // Catchability coefficients
-  PARAMETER(logetaE2);      
-  PARAMETER(logetaO2);
+  PARAMETER(logetaE2);               // etaE2 := kappa2 * tauE2
+  PARAMETER(logetaO2);               // etaO2 := kappa2 * tauO2
   PARAMETER(logkappa2);
   PARAMETER(logsigmaV2);
   PARAMETER(logsigmaVT2);
@@ -260,13 +260,12 @@ Type objective_function<Type>::operator() ()
   Type jnll = 0;                
   
   // Derived parameters
-  Type pi = 3.141592;
   Type logtauE1 = logetaE1 - logkappa1;
   Type logtauO1 = logetaO1 - logkappa1;
   Type kappa1_pow2 = exp(2.0*logkappa1);
   Type kappa1_pow4 = kappa1_pow2*kappa1_pow2;
-  Type SigmaE1 = 1 / sqrt(4*pi*exp(2*logtauE1)*exp(2*logkappa1));
-  Type SigmaO1 = 1 / sqrt(4*pi*exp(2*logtauO1)*exp(2*logkappa1));
+  Type SigmaE1 = 1 / sqrt(4*M_PI*exp(2*logtauE1)*exp(2*logkappa1));
+  Type SigmaO1 = 1 / sqrt(4*M_PI*exp(2*logtauO1)*exp(2*logkappa1));
   Type Range_raw1 = sqrt(8) / exp( logkappa1 );   // Range = approx. distance @ 10% correlation
   Type SigmaV1 = exp( logsigmaV1 );
   Type SigmaVT1 = exp( logsigmaVT1 );
@@ -275,8 +274,8 @@ Type objective_function<Type>::operator() ()
   Type logtauO2 = logetaO2 - logkappa2;
   Type kappa2_pow2 = exp(2.0*logkappa2);
   Type kappa2_pow4 = kappa2_pow2*kappa2_pow2;
-  Type SigmaE2 = 1 / sqrt(4*pi*exp(2*logtauE2)*exp(2*logkappa2));
-  Type SigmaO2 = 1 / sqrt(4*pi*exp(2*logtauO2)*exp(2*logkappa2));
+  Type SigmaE2 = 1 / sqrt(4*M_PI*exp(2*logtauE2)*exp(2*logkappa2));
+  Type SigmaO2 = 1 / sqrt(4*M_PI*exp(2*logtauO2)*exp(2*logkappa2));
   Type Range_raw2 = sqrt(8) / exp( logkappa2 );     // Range = approx. distance @ 10% correlation
   Type SigmaV2 = exp( logsigmaV2 );
   Type SigmaVT2 = exp( logsigmaVT2 );
@@ -298,15 +297,29 @@ Type objective_function<Type>::operator() ()
   matrix<Type> Epsilon1_st(n_s,n_t);
   vector<Type> Omega2_s(n_s);
   matrix<Type> Epsilon2_st(n_s,n_t);
-  for(s=0;s<n_s;s++){
-    Omega1_s(s) = Omegainput1_s(s) / exp(logtauO1);
-    Omega2_s(s) = Omegainput2_s(s) / exp(logtauO2);
-    for(t=0;t<n_t;t++){
-      Epsilon1_st(s,t) = Epsiloninput1_st(s,t) / exp(logtauE1);
-      Epsilon2_st(s,t) = Epsiloninput2_st(s,t) / exp(logtauE2);
+  // SPDE method
+  if( Options_vec(7)==0 ){
+    for(s=0;s<n_s;s++){
+      Omega1_s(s) = Omegainput1_s(s) / exp(logtauO1);
+      Omega2_s(s) = Omegainput2_s(s) / exp(logtauO2);
+      for(t=0;t<n_t;t++){
+        Epsilon1_st(s,t) = Epsiloninput1_st(s,t) / exp(logtauE1);
+        Epsilon2_st(s,t) = Epsiloninput2_st(s,t) / exp(logtauE2);
+      }
     }
   }
-  
+  // 2D AR1 method
+  if( Options_vec(7)==1 ){
+    for(s=0;s<n_s;s++){
+      Omega1_s(s) = Omegainput1_s(s) * (1/exp(2*logetaO1)/pow(4*M_PI,0.5));             // marg_sigma := 1 / (sqrt(4*PI)*eta^2)
+      Omega2_s(s) = Omegainput2_s(s) * (1/exp(2*logetaO2)/pow(4*M_PI,0.5));             // marg_sigma := 1 / (sqrt(4*PI)*eta^2)
+      for(t=0;t<n_t;t++){
+        Epsilon1_st(s,t) = Epsiloninput1_st(s,t) * (1/exp(2*logetaE1)/pow(4*M_PI,0.5)); // marg_sigma := 1 / (sqrt(4*PI)*eta^2)
+        Epsilon2_st(s,t) = Epsiloninput2_st(s,t) * (1/exp(2*logetaE2)/pow(4*M_PI,0.5));  // marg_sigma := 1 / (sqrt(4*PI)*eta^2)
+      }
+    }
+  }
+
   // Random field probability                                                                                                                              
   Eigen::SparseMatrix<Type> Q1;
   Eigen::SparseMatrix<Type> Q2;
@@ -319,23 +332,23 @@ Type objective_function<Type>::operator() ()
     Q2 = Q_spde_generalized(spde_aniso, exp(logkappa2), H, Options_vec(3));
   }
   if( Options_vec(7)==1 ){
-    Q1 = pow(1/(exp(logkappa1)*sqrt(4*M_PI)),2) * (M0*pow(1+exp(logkappa1*2),2) + M1*(1+exp(logkappa1*2))*(-exp(logkappa1)) + M2*exp(logkappa1*2));
-    Q2 = pow(1/(exp(logkappa2)*sqrt(4*M_PI)),2) * (M0*pow(1+exp(logkappa2*2),2) + M1*(1+exp(logkappa2*2))*(-exp(logkappa2)) + M2*exp(logkappa2*2));
+    Q1 = M0*pow(1+exp(logkappa1*2),2) + M1*(1+exp(logkappa1*2))*(-exp(logkappa1)) + M2*exp(logkappa1*2);
+    Q2 = M0*pow(1+exp(logkappa2*2),2) + M1*(1+exp(logkappa2*2))*(-exp(logkappa2)) + M2*exp(logkappa2*2);
   }
-  GMRF_t<Type> Tmp1 = GMRF(Q1);
-  GMRF_t<Type> Tmp2 = GMRF(Q2);
-  if(FieldConfig(0)==1) jnll_comp(0) = Tmp1(Omegainput1_s);
+  GMRF_t<Type> gmrf1 = GMRF(Q1);
+  GMRF_t<Type> gmrf2 = GMRF(Q2);
+  if(FieldConfig(0)==1) jnll_comp(0) = gmrf1(Omegainput1_s);
   if(FieldConfig(1)==1){
     for(t=0;t<n_t;t++){
-      if(t==0) jnll_comp(1) += Tmp1(Epsiloninput1_st.col(t));
-      if(t>=1) jnll_comp(1) += Tmp1(Epsiloninput1_st.col(t)-Epsilon_rho1*Epsiloninput1_st.col(t-1));
+      if(t==0) jnll_comp(1) += gmrf1(Epsiloninput1_st.col(t));
+      if(t>=1) jnll_comp(1) += gmrf1(Epsiloninput1_st.col(t)-Epsilon_rho1*Epsiloninput1_st.col(t-1));
     }
   }
-  if(FieldConfig(2)==1) jnll_comp(2) = Tmp2(Omegainput2_s);
+  if(FieldConfig(2)==1) jnll_comp(2) = gmrf2(Omegainput2_s);
   if(FieldConfig(3)==1){
     for(t=0;t<n_t;t++){
-      if(t==0) jnll_comp(3) += Tmp2(Epsiloninput2_st.col(t));
-      if(t>=1) jnll_comp(3) += Tmp2(Epsiloninput2_st.col(t)-Epsilon_rho2*Epsiloninput2_st.col(t-1));
+      if(t==0) jnll_comp(3) += gmrf2(Epsiloninput2_st.col(t));
+      if(t>=1) jnll_comp(3) += gmrf2(Epsiloninput2_st.col(t)-Epsilon_rho2*Epsiloninput2_st.col(t-1));
     }
   }
 
