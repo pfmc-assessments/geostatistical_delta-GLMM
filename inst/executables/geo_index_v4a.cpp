@@ -264,7 +264,6 @@ Type objective_function<Type>::operator() ()
   Type logtauO1 = logetaO1 - logkappa1;
   Type SigmaV1 = exp( logsigmaV1 );
   Type SigmaVT1 = exp( logsigmaVT1 );
-  Type SigmaE1, SigmaO1, Range_raw1, SigmaE2, SigmaO2, Range_raw2;
   Type logtauE2 = logetaE2 - logkappa2;
   Type logtauO2 = logetaO2 - logkappa2;
   Type SigmaV2 = exp( logsigmaV2 );
@@ -277,12 +276,13 @@ Type objective_function<Type>::operator() ()
 
   // Derived that vary by settings
   // SEE: https://github.com/James-Thorson/TMB_experiments/tree/master/SPDE%20vs%202D_AR1
+  Type SigmaE1, SigmaO1, Range_raw1, SigmaE2, SigmaO2, Range_raw2;
   if( Options_vec(7)==0 ){
-    SigmaE1 = 1 / sqrt(4*M_PI*exp(2*logtauE1)*exp(2*logkappa1));
-    SigmaO1 = 1 / sqrt(4*M_PI*exp(2*logtauO1)*exp(2*logkappa1));
+    SigmaE1 = 1 / sqrt( 4*M_PI * exp(2*logtauE1) * exp(2*logkappa1) );
+    SigmaO1 = 1 / sqrt( 4*M_PI * exp(2*logtauO1) * exp(2*logkappa1) );
     Range_raw1 = sqrt(8) / exp( logkappa1 );   // Range = approx. distance @ 10% correlation
-    SigmaE2 = 1 / sqrt(4*M_PI*exp(2*logtauE2)*exp(2*logkappa2));
-    SigmaO2 = 1 / sqrt(4*M_PI*exp(2*logtauO2)*exp(2*logkappa2));
+    SigmaE2 = 1 / sqrt( 4*M_PI * exp(2*logtauE2) * exp(2*logkappa2) );
+    SigmaO2 = 1 / sqrt( 4*M_PI * exp(2*logtauO2) * exp(2*logkappa2) );
     Range_raw2 = sqrt(8) / exp( logkappa2 );     // Range = approx. distance @ 10% correlation
   }
   if( Options_vec(7)==1 ){

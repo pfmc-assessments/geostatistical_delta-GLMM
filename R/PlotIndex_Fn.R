@@ -6,13 +6,20 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
   if( is.null(Years2Include) ) Years2Include = 1:TmbData$n_t
   if( is.null(strata_names) ) strata_names = 1:TmbData$n_l
 
+  # Which parameters
+  if( "ln_Index_tl" %in% rownames(summary(Sdreport)) ){
+    ParName = "Index_tl"
+  }else{
+    ParName = "Index_ctl"
+  }
+
   # Extract index
   if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
-    log_Index = array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)=="ln_Index_tl")],summary(Sdreport)[which(rownames(summary(Sdreport))=="ln_Index_tl"),'Std. Error']), dim=c(unlist(TmbData[c('n_t','n_l')]),2), dimnames=list(NULL,NULL,c('Estimate','Std. Error')) )
-    Index = array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)=="Index_tl")],summary(Sdreport)[which(rownames(summary(Sdreport))=="Index_tl"),'Std. Error']), dim=c(unlist(TmbData[c('n_t','n_l')]),2), dimnames=list(NULL,NULL,c('Estimate','Std. Error')) )
+    log_Index = array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)==paste0("ln_",ParName))],summary(Sdreport)[which(rownames(summary(Sdreport))==paste0("ln_",ParName)),'Std. Error']), dim=c(unlist(TmbData[c('n_t','n_l')]),2), dimnames=list(NULL,NULL,c('Estimate','Std. Error')) )
+    Index = array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)==ParName)],summary(Sdreport)[which(rownames(summary(Sdreport))==ParName),'Std. Error']), dim=c(unlist(TmbData[c('n_t','n_l')]),2), dimnames=list(NULL,NULL,c('Estimate','Std. Error')) )
   }else{
-    log_Index = array( summary(Sdreport)[which(rownames(summary(Sdreport))=="ln_Index_tl"),], dim=c(unlist(TmbData[c('n_t','n_l')]),2), dimnames=list(NULL,NULL,c('Estimate','Std. Error')) )
-    Index = array( summary(Sdreport)[which(rownames(summary(Sdreport))=="Index_tl"),], dim=c(unlist(TmbData[c('n_t','n_l')]),2), dimnames=list(NULL,NULL,c('Estimate','Std. Error')) )
+    log_Index = array( summary(Sdreport)[which(rownames(summary(Sdreport))==paste0("ln_",ParName)),], dim=c(unlist(TmbData[c('n_t','n_l')]),2), dimnames=list(NULL,NULL,c('Estimate','Std. Error')) )
+    Index = array( summary(Sdreport)[which(rownames(summary(Sdreport))==ParName),], dim=c(unlist(TmbData[c('n_t','n_l')]),2), dimnames=list(NULL,NULL,c('Estimate','Std. Error')) )
   }
   
   # Calculate design-based
