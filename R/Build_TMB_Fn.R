@@ -36,6 +36,9 @@ function( TmbData, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=
   DiagnosticDir=NULL, TmbDir=system.file("executables",package="SpatialDeltaGLMM"), RunDir=getwd() ){
 
   # Compile TMB software
+  if( !file.exists(paste0(TmbDir,"/",Version,".cpp")) ){
+    stop("Make sure that ",TmbDir," contains ",Version,".cpp")
+  }
   file.copy( from=paste0(TmbDir,"/",Version,".cpp"), to=paste0(RunDir,"/",Version,".cpp"), overwrite=FALSE)
   setwd( RunDir )
   compile( paste0(Version,".cpp") )
