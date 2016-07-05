@@ -1,3 +1,15 @@
+#' @title
+#' Plot maps with areal results
+#'
+#' @description
+#' \code{PlotMap_Fn} is a hidden function to plot a map and fill in regions with colors to represent intensity in an areal-interpretion of model results
+#'
+#' @details
+#' This function was necessary to buiild because \code{mapproj::mapproject} as used in \code{maps::map} has difficulties with both rotations (for most projections) and
+#' truncating the cocuntry boundaries within the plotting region (which \code{mapproj::mapproject} appears to do prior to projection,
+#' so that the post-projection is often missing boundaries that are within the plotting rectangle).  I use rectangular projections by default, but Lamberts or Albers conformal
+#' projections would also be useful for many cases.
+
 PlotMap_Fn <-
 function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
          Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, textmargin="", add=FALSE, pch=20, outermargintext=c("Eastings","Northings"), zlim=NULL, ...){
