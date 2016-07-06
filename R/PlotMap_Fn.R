@@ -55,20 +55,24 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
         boundary_around_limits = 3
         Map = maps::map(MappingDetails[[1]], MappingDetails[[2]], plot=FALSE, ylim=mean(Ylim)+boundary_around_limits*c(-0.5,0.5)*diff(Ylim), xlim=mean(Xlim)+boundary_around_limits*c(-0.5,0.5)*diff(Xlim), fill=TRUE) # , orientation=c(mean(y.lim),mean(x.lim),15)
         Tmp1 = na.omit( cbind('PID'=cumsum(is.na(Map$x)), 'POS'=1:length(Map$x), 'X'=Map$x, 'Y'=Map$y, matrix(0,ncol=length(Year_Set),nrow=length(Map$x),dimnames=list(NULL,Year_Set))) )
-        Tmp2 = rbind( Tmp1, cbind('PID'=max(Tmp1[,1])+1,'POS'=1:length(Which)+max(Tmp1[,2]),'X'=PlotDF[Which,'Lon'], 'Y'=PlotDF[Which,'Lat'], Mat[Which,]) )
-        attr(Tmp2,"projection") = "LL"
-        attr(Tmp2,"zone") = zone
-        tmpUTM = suppressMessages(PBSmapping::convUL(Tmp2))                                                         #$
+        TmpLL = rbind( Tmp1, cbind('PID'=max(Tmp1[,1])+1,'POS'=1:length(Which)+max(Tmp1[,2]),'X'=PlotDF[Which,'Lon'], 'Y'=PlotDF[Which,'Lat'], Mat[Which,]) )
+        attr(TmpLL,"projection") = "LL"
+        attr(TmpLL,"zone") = zone
+        tmpUTM = suppressMessages(PBSmapping::convUL(TmpLL))                                                         #$
         coordinates(tmpUTM) = c("X","Y")
-        tmp <- maptools::elide( tmpUTM, rotate=Rotate)
-        plot(tmp[-c(1:nrow(Tmp1)),], pch="", xlim=range(tmp@coords[-c(1:nrow(Tmp1)),'x']), ylim=range(tmp@coords[-c(1:nrow(Tmp1)),'y']) )
-        Col_Bin = ceiling(f(tmp@data[-c(1:nrow(Tmp1)),-c(1:2),drop=FALSE],zlim=zlim)[,t]*49) + 1
+        tmpUTM_rotated <- maptools::elide( tmpUTM, rotate=Rotate)
+        plot(tmpUTM_rotated[-c(1:nrow(Tmp1)),], pch="", xlim=range(tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'x']), ylim=range(tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'y']) )
+        Col_Bin = ceiling(f(tmpUTM_rotated@data[-c(1:nrow(Tmp1)),-c(1:2),drop=FALSE],zlim=zlim)[,t]*49) + 1
         if( any(Col_Bin<1 | Col_Bin>50) ) stop("zlim doesn't span the range of the variable")
-        points(x=tmp@coords[-c(1:nrow(Tmp1)),'x'], y=tmp@coords[-c(1:nrow(Tmp1)),'y'], col=Col(n=50)[Col_Bin], cex=Cex, pch=pch)
-        lev = levels(as.factor(tmp@data$PID))
+        points(x=tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'x'], y=tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'y'], col=Col(n=50)[Col_Bin], cex=Cex, pch=pch)
+        lev = levels(as.factor(tmpUTM_rotated@data$PID))
         for(levI in 1:(length(lev)-1)) {
           indx = which(tmpUTM$PID == lev[levI])
-          polygon(tmp@coords[indx,'x'], tmp@coords[indx,'y'], col="grey")
+          if( var(sign(TmpLL[indx,'Y']))==0 ){
+            polygon(x=tmpUTM_rotated@coords[indx,'x'], y=tmpUTM_rotated@coords[indx,'y'], col="grey")
+          }else{
+            warning( "Skipping map polygons that straddle equation, because PBSmapping::convUL doesn't work for these cases" )
+          }
         }
       }
       title( Year_Set[t], line=0.1, cex.main=ifelse(is.null(Par$cex.main), 1.8, Par$cex.main), cex=ifelse(is.null(Par$cex.main), 1.8, Par$cex.main) )

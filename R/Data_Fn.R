@@ -132,7 +132,9 @@ function( Version, FieldConfig, ObsModel=2, b_i, a_i, s_i, t_i, a_xl, MeshList, 
   }
   if( "spde" %in% names(Return) ) Return[['spde']] = INLA::inla.spde2.matern(MeshList$mesh)$param.inla[c("M0","M1","M2")]
   if( "spde_aniso" %in% names(Return) ) Return[['spde_aniso']] = list("n_s"=MeshList$spde$n.spde, "n_tri"=nrow(MeshList$mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0"=MeshList$spde$param.inla$M0, "G0_inv"=inla.as.dgTMatrix(solve(MeshList$spde$param.inla$M0)) )
-  if( is.null(GridList) & "spde"%in%names(Return) ) Return[c("M0","M1","M2")] = Return$spde[c("M0","M1","M2")]
+
+  # Feed in a default M0/M1/M2 in the event that the user doesn't specify values
+  if( is.null(GridList) & "spde"%in%names(Return) & "M0"%in%names(Return) ) Return[c("M0","M1","M2")] = Return$spde[c("M0","M1","M2")]
 
   # Check for NAs
   if( CheckForErrors==TRUE ){
