@@ -22,13 +22,11 @@ Imports:
     colorspace,
     RandomFields,
     rgeos,
-    shape, 
-    INLA
+    shape 
 Depends:
     R (>= 3.1.0),
     maps,
     mapdata,
-Additional_repositories: https://www.math.ntnu.no/inla/R/stable
 License: GPL-2
 LazyData: yes
 BuildVignettes: yes
