@@ -23,7 +23,9 @@ Imports:
     RandomFields,
     rgeos,
     shape,
-    devtools 
+    devtools,
+    sp,
+    TMB 
 Depends:
     R (>= 3.1.0),
     maps,

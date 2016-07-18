@@ -137,7 +137,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'_b/',sep='')
   }
   if( Data_Set=="SAWC_jacopever"){
     data( south_africa_westcoast_jacopever, package="SpatialDeltaGLMM" )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
-    #Data = read.csv( paste0(getwd(),"/../../examples/archive of data inputs for creation of grid files/South Africa/SAWC_geodata.csv") )
     Data_Geostat = data.frame( "Catch_KG"=south_africa_westcoast_jacopever[,'HELDAC'], "Year"=south_africa_westcoast_jacopever[,'Year'], "Vessel"="missing", "AreaSwept_km2"=south_africa_westcoast_jacopever[,'area_swept_nm2']*1.852^2, "Lat"=south_africa_westcoast_jacopever[,'cen_lat'], "Lon"=south_africa_westcoast_jacopever[,'cen_long'])
     Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
@@ -153,8 +152,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'_b/',sep='')
     Data_Geostat = na.omit( Data_Geostat )
   }
   if( Data_Set %in% c("Chatham_rise_hake")){
-    data( iceland_cod, package="SpatialDeltaGLMM" )
-    #load( "C:/Users/James.Thorson/Desktop/UW Hideaway/Collaborations/2016 -- New Zealand example/chatham_rise_example_V2/chatham_rise_hake.rda" )
+    data( chatham_rise_hake, package="SpatialDeltaGLMM" )
     Data_Geostat = data.frame( "Catch_KG"=chatham_rise_hake[,'Hake_kg_per_km2'], "Year"=chatham_rise_hake[,'Year'], "Vessel"=1, "AreaSwept_km2"=1, "Lat"=chatham_rise_hake[,'Lat'], "Lon"=chatham_rise_hake[,'Lon'])
   }
 
