@@ -21,7 +21,6 @@ Imports:
     stats,
     colorspace,
     RandomFields,
-    rgeos,
     shape,
     devtools,
     sp,
@@ -31,6 +30,7 @@ Depends:
     maps,
     mapdata,
 Suggests:
+    rgeos,
     INLA
 Additional_repositories: https://www.math.ntnu.no/inla/R/stable
 License: GPL-2

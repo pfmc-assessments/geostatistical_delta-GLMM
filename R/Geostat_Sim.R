@@ -15,10 +15,10 @@ function(Sim_Settings, Extrapolation_List, MakePlot=TRUE){
   on.exit( detach(Extrapolation_List) )
 
   # Initialize GM models
-  model_O1 = RMgauss(var=Sim_Settings[['SigmaO1']]^2, scale=Sim_Settings[['Range1']])
-  model_E1 = RMgauss(var=Sim_Settings[['SigmaE1']]^2, scale=Sim_Settings[['Range1']])
-  model_O2 = RMgauss(var=Sim_Settings[['SigmaO2']]^2, scale=Sim_Settings[['Range2']])
-  model_E2 = RMgauss(var=Sim_Settings[['SigmaE2']]^2, scale=Sim_Settings[['Range2']])
+  model_O1 = RandomFields::RMgauss(var=Sim_Settings[['SigmaO1']]^2, scale=Sim_Settings[['Range1']])
+  model_E1 = RandomFields::RMgauss(var=Sim_Settings[['SigmaE1']]^2, scale=Sim_Settings[['Range1']])
+  model_O2 = RandomFields::RMgauss(var=Sim_Settings[['SigmaO2']]^2, scale=Sim_Settings[['Range2']])
+  model_E2 = RandomFields::RMgauss(var=Sim_Settings[['SigmaE2']]^2, scale=Sim_Settings[['Range2']])
 
   # Generate locations, years, vessel for each sample i
   s_i = sample(1:nrow(Data_Extrap), size=Sim_Settings[['Nyears']]*Sim_Settings[['Nsamp_per_year']]) #, nrow=Sim_Settings[['Nsamp_per_year']], ncol=Sim_Settings[['Nyears']])
@@ -27,12 +27,12 @@ function(Sim_Settings, Extrapolation_List, MakePlot=TRUE){
   v_i = rep(rep( 1:4, each=Sim_Settings[['Nsamp_per_year']]/4), Sim_Settings[['Nyears']])
 
   # Simulate random components
-  O1_i = RFsimulate(model=model_O1, x=loc_i[,'E_km'], y=loc_i[,'N_km'])@data[,1] #), nrow=Sim_Settings[['Nsamp_per_year']], ncol=Sim_Settings[['Nyears']])
-  O2_i = RFsimulate(model=model_O2, x=loc_i[,'E_km'], y=loc_i[,'N_km'])@data[,1] #), nrow=Sim_Settings[['Nsamp_per_year']], ncol=Sim_Settings[['Nyears']])
+  O1_i = RandomFields::RFsimulate(model=model_O1, x=loc_i[,'E_km'], y=loc_i[,'N_km'])@data[,1] #), nrow=Sim_Settings[['Nsamp_per_year']], ncol=Sim_Settings[['Nyears']])
+  O2_i = RandomFields::RFsimulate(model=model_O2, x=loc_i[,'E_km'], y=loc_i[,'N_km'])@data[,1] #), nrow=Sim_Settings[['Nsamp_per_year']], ncol=Sim_Settings[['Nyears']])
   E1_i = E2_i = rep(NA, Sim_Settings[['Nsamp_per_year']]*Sim_Settings[['Nyears']] )
   for(t in 1:Sim_Settings[['Nyears']]){
-    E1_i[which(t_i==t)] = RFsimulate(model=model_E1, x=loc_i[which(t_i==t),'E_km'], y=loc_i[which(t_i==t),'N_km'])@data[,1]
-    E2_i[which(t_i==t)] = RFsimulate(model=model_E2, x=loc_i[which(t_i==t),'E_km'], y=loc_i[which(t_i==t),'N_km'])@data[,1]
+    E1_i[which(t_i==t)] = RandomFields::RFsimulate(model=model_E1, x=loc_i[which(t_i==t),'E_km'], y=loc_i[which(t_i==t),'N_km'])@data[,1]
+    E2_i[which(t_i==t)] = RandomFields::RFsimulate(model=model_E2, x=loc_i[which(t_i==t),'E_km'], y=loc_i[which(t_i==t),'N_km'])@data[,1]
   }
   X_ij = as.matrix(Data_Extrap[s_i,c('Depth_km','Depth_km2','Rock_dist_')])
   X_ij = ifelse( is.na(X_ij), outer(rep(1,nrow(X_ij)),colMeans(X_ij,na.rm=TRUE)), X_ij)
@@ -66,14 +66,14 @@ function(Sim_Settings, Extrapolation_List, MakePlot=TRUE){
       png(file=paste(DateFile,"True_",switch(RespI, "Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled"),".png",sep=""), width=5*MapSizeRatio['Width(in)'], height=2*MapSizeRatio['Height(in)'], res=200, units='in')
         par(mfrow=c(2,5), mar=c(2,2,0,0))
         for(t in 1:Sim_Settings[['Nyears']]){
-          map("worldHires", ylim=Ylim, xlim=Xlim, col="grey90",fill=T, main="", mar=c(0,0,2.5,0),interior=TRUE)
+          maps::map("worldHires", ylim=Ylim, xlim=Xlim, col="grey90",fill=T, main="", mar=c(0,0,2.5,0),interior=TRUE)
           points(x=Data_Extrap[,'Lon'], y=Data_Extrap[,'Lat'], col=Col(n=10)[ceiling(f(Mat)[,t]*9)+1], cex=0.01)
           #points( x=Data_Geostat[,'Lon'], y=Data_Geostat[,'Lat'], col=Col(n=10)[ceiling(f(Mat)[,t]*9)+1], cex=0.05)
         }
       dev.off()
       # Legend
       png(file=paste0(DateFile,"True_",switch(RespI, "Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled"),"_Legend.png",sep=""), width=1, height=2*MapSizeRatio['Height(in)'], res=200, units='in')
-        Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), margintext=switch(RespI, "Encounter probability","log(Positive catch rate)",expression(paste("log Density, log(kg. / ",km^2,")",sep="")),NULL,NULL) )
+        SpatialDeltaGLMM:::Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), margintext=switch(RespI, "Encounter probability","log(Positive catch rate)",expression(paste("log Density, log(kg. / ",km^2,")",sep="")),NULL,NULL) )
       dev.off()
     }
   }
