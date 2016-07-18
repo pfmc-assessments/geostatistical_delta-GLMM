@@ -7,13 +7,12 @@ devtools::install_github("james-thorson/utilities")
 # setwd("C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/examples/")
 
 # Load libraries
-library(TMB)
-library(INLA)
+library(TMB)               # Can instead load library(TMBdebug)
 library(SpatialDeltaGLMM)
 library(ThorsonUtilities)
 
 # This is where all runs will be located
-DateFile = paste(getwd(),'/',Sys.Date(),'_b/',sep='')
+DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   dir.create(DateFile)
 
 ###############
@@ -229,9 +228,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'_b/',sep='')
 ################
 
   # Plot Anisotropy
-  if( TmbData$Options_vec['Aniso']==1 ){
-    PlotAniso_Fn( FileName=paste0(DateFile,"Aniso.png"), Report=Report )
-  }
+  PlotAniso_Fn( FileName=paste0(DateFile,"Aniso.png"), Report=Report, TmbData=TmbData )
 
   # Plot surface
   Year_Set = seq(min(Data_Geostat[,'Year']),max(Data_Geostat[,'Year']))

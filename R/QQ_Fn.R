@@ -1,45 +1,41 @@
 #' @export
 QQ_Fn <-
 function(TmbData, Report, FileName_PP=NULL, FileName_Phist=NULL, FileName_QQ=NULL, FileName_Qhist=NULL){
-  attach(TmbData)
-  attach(Report)
-  on.exit( detach(TmbData) )
-  on.exit( detach(Report), add=TRUE )
   pow = function(a,b) a^b
-  Which = which(b_i>0)
+  Which = which(TmbData$b_i>0)
   Q = rep(NA, length(Which) ) # vector to track quantiles for each observation
   y = array(NA, dim=c(length(Which),1000))
   
   # Make plot while calculating posterior predictives
   if( !is.null(FileName_PP) ) jpeg(FileName_PP,width=10,height=3,res=200,units="in")
     par(mar=c(2,2,2,0), mgp=c(1.25,0.25,0), tck=-0.02)
-    plot( b_i[Which], ylab="", xlab="",log="y", main="", col="blue")
+    plot( TmbData$b_i[Which], ylab="", xlab="",log="y", main="", col="blue")
     # mean(u.nz[,2])
     for(ObsI in 1:length(Which)){
-      Pred = (R2_i[Which[ObsI]]*a_i[Which[ObsI]])
+      Pred = (Report$R2_i[Which[ObsI]]*TmbData$a_i[Which[ObsI]])
       if(TmbData$ObsModel==1){     
-        y[ObsI,] = rlnorm(n=ncol(y), meanlog=log(Pred)-pow(SigmaM[1],2)/2, sdlog=SigmaM[1])   # Plotting in log-space
+        y[ObsI,] = rlnorm(n=ncol(y), meanlog=log(Pred)-pow(Report$SigmaM[1],2)/2, sdlog=Report$SigmaM[1])   # Plotting in log-space
       }
       if(TmbData$ObsModel==2){     
-        b = pow(SigmaM[1],2) * Pred;    
-        y[ObsI,] = rgamma(n=ncol(y), shape=1/pow(SigmaM[1],2), scale=b)
+        b = pow(Report$SigmaM[1],2) * Pred;
+        y[ObsI,] = rgamma(n=ncol(y), shape=1/pow(Report$SigmaM[1],2), scale=b)
       }
       if(TmbData$ObsModel==11){     
-        ECE = rbinom(n=1000, size=1, prob=1-SigmaM[2])
-        y[ObsI,] = rlnorm(n=ncol(y), meanlog=log(Pred)-pow(SigmaM[1],2)/2, sdlog=SigmaM[1])*(1-ECE) + rlnorm(n=ncol(y), meanlog=log(Pred)-pow(SigmaM[4],2)/2+log(1+SigmaM[3]), sdlog=SigmaM[4])*ECE
+        ECE = rbinom(n=1000, size=1, prob=1-Report$SigmaM[2])
+        y[ObsI,] = rlnorm(n=ncol(y), meanlog=log(Pred)-pow(Report$SigmaM[1],2)/2, sdlog=Report$SigmaM[1])*(1-Report$ECE) + rlnorm(n=ncol(y), meanlog=log(Pred)-pow(Report$SigmaM[4],2)/2+log(1+Report$SigmaM[3]), sdlog=Report$SigmaM[4])*Report$ECE
       }
       if(TmbData$ObsModel==12){     
-        b = pow(SigmaM[1],2) * Pred;    
-        b2 = pow(SigmaM[4],2) * Pred * (1+SigmaM[3]);    
-        ECE = rbinom(n=ncol(y), size=1, prob=1-SigmaM[2])
-        y[ObsI,] = rgamma(n=ncol(y), shape=1/pow(SigmaM[1],2), scale=b)*(1-ECE) + rgamma(n=ncol(y), shape=1/pow(SigmaM[4],2), scale=b2)*ECE
+        b = pow(Report$SigmaM[1],2) * Pred;
+        b2 = pow(Report$SigmaM[4],2) * Pred * (1+Report$SigmaM[3]);
+        ECE = rbinom(n=ncol(y), size=1, prob=1-Report$SigmaM[2])
+        y[ObsI,] = rgamma(n=ncol(y), shape=1/pow(Report$SigmaM[1],2), scale=b)*(1-Report$ECE) + rgamma(n=ncol(y), shape=1/pow(Report$SigmaM[4],2), scale=b2)*Report$ECE
       }
-      Q[ObsI] = mean(y[ObsI,]>b_i[Which[ObsI]])
+      Q[ObsI] = mean(y[ObsI,] > TmbData$b_i[Which[ObsI]])
       Quantiles = quantile(y[ObsI,],prob=c(0.025,0.25,0.75,0.975))
       lines(x=c(ObsI,ObsI), y=Quantiles[2:3], lwd=2)
       lines(x=c(ObsI,ObsI), y=Quantiles[c(1,4)], lwd=1,lty="dotted")
-      if(b_i[Which[ObsI]]>max(Quantiles) | b_i[Which[ObsI]]<min(Quantiles)){
-        points(x=ObsI,y=b_i[Which[ObsI]],pch=4,col="red",cex=2)
+      if(TmbData$b_i[Which[ObsI]]>max(Quantiles) | TmbData$b_i[Which[ObsI]]<min(Quantiles)){
+        points(x=ObsI,y=TmbData$b_i[Which[ObsI]],pch=4,col="red",cex=2)
       }
     }
   if( !is.null(FileName_PP) ) dev.off()
