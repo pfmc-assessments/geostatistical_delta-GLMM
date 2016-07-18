@@ -22,7 +22,8 @@ Imports:
     colorspace,
     RandomFields,
     rgeos,
-    shape 
+    shape,
+    devtools 
 Depends:
     R (>= 3.1.0),
     maps,

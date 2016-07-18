@@ -1,11 +1,5 @@
 
 
-# Install TMB
-# Must be installed from: https://github.com/kaskr/adcomp
-
-# Install INLA
-# Must be installed from: http://www.r-inla.org/download
-
 # Install geostatistical delta-GLMM package
 devtools::install_github("nwfsc-assess/geostatistical_delta-GLMM") # This is the developement version.  Please check GitHub for the latest release number.
 devtools::install_github("james-thorson/utilities")
@@ -159,8 +153,8 @@ DateFile = paste(getwd(),'/',Sys.Date(),'_b/',sep='')
     Data_Geostat = na.omit( Data_Geostat )
   }
   if( Data_Set %in% c("Chatham_rise_hake")){
-    #data( iceland_cod, package="SpatialDeltaGLMM" )
-    load( "C:/Users/James.Thorson/Desktop/UW Hideaway/Collaborations/2016 -- New Zealand example/chatham_rise_example_V2/chatham_rise_hake.rda" )
+    data( iceland_cod, package="SpatialDeltaGLMM" )
+    #load( "C:/Users/James.Thorson/Desktop/UW Hideaway/Collaborations/2016 -- New Zealand example/chatham_rise_example_V2/chatham_rise_hake.rda" )
     Data_Geostat = data.frame( "Catch_KG"=chatham_rise_hake[,'Hake_kg_per_km2'], "Year"=chatham_rise_hake[,'Year'], "Vessel"=1, "AreaSwept_km2"=1, "Lat"=chatham_rise_hake[,'Lat'], "Lon"=chatham_rise_hake[,'Lon'])
   }
 
