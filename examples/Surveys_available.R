@@ -2,11 +2,11 @@
 
 #devtools::install_github("nwfsc-assess/geostatistical_delta-GLMM")
 library( SpatialDeltaGLMM )
-library( maps )
+library( mapdata )
 
 # Plot global coverage of database
 png( file="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/examples/global_coverage.png", width=8, height=4, res=600, units="in")
-  map( "worldHires", mar=c(4,4,2,0), mgp=c(2,0.5,0), tck=-0.02, oma=c(2,2,0,0), xaxs="i", yaxs="i", interior=FALSE, resolution=0, fill=TRUE, col="grey", lwd=0.001, myborder=0 )   #
+  map( "worldHires", mar=c(4,4,2,0), mgp=c(2,0.5,0), tck=-0.02, oma=c(2,2,0,0), xlim=c(-180,180), xaxs="i", yaxs="i", interior=FALSE, resolution=0, fill=TRUE, col="grey", lwd=0.001, myborder=0 )   #
   box()
   axis(1)
   axis(2)
@@ -14,7 +14,7 @@ png( file="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/
   title( "Global data coverage" )
 
   # Get extrapolation data
-  for(i in 1:11 ){
+  for(i in 1:12 ){
     if(i==1) Extrapolation_List = Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=data.frame('STRATA'="All_areas") )
     if(i==2) Extrapolation_List = Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=data.frame('STRATA'="All_areas"), strata_to_use=c("SOG","WCVI","QCS","HS","WCHG") )
     if(i==3) Extrapolation_List = Prepare_EBS_Extrapolation_Data_Fn( strata.limits=data.frame('STRATA'="All_areas") )
@@ -37,9 +37,10 @@ png( file="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/
       load( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/data/north_sea_IBTS_sample_locations.rda" )
       Extrapolation_List = Prepare_Other_Extrapolation_Data_Fn( strata.limits=data.frame('STRATA'="All_areas"), maximum_distance_from_sample=25, grid_dim_km=c(10,10), observations_LL=north_sea_IBTS_sample_locations[,c("Lon","Lat")] )
     }
+    if(i==12) Extrapolation_List = Prepare_AI_Extrapolation_Data_Fn( strata.limits=data.frame('STRATA'="All_areas") )
 
     # Plot
     Which = which( Extrapolation_List$a_el>0 )     # 1:nrow(Extrapolation_List$a_el)
-    points( Extrapolation_List$Data_Extrap[Which,c('Lon','Lat')], pch=20, cex=0.01, col=rainbow(11)[i])
+    points( Extrapolation_List$Data_Extrap[Which,c('Lon','Lat')], pch=20, cex=0.01, col=rainbow(12)[i])
   }
 dev.off()
