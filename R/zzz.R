@@ -13,4 +13,8 @@
     message("Installing TMB...")
     devtools::install_github("kaskr/adcomp/TMB")
   }
+  if( !"TMBhelper" %in% installed.packages()[,1] ){
+    print("Installing package: TMBhelper...")
+    devtools::install_github("kaskr/TMB_contrib_R/TMBhelper")
+  }
 }
