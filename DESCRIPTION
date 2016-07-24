@@ -12,7 +12,7 @@ Description: SpatialDeltaGLMM is an R package for implementing a spatial delta-
     functions and model-comparison tools, and (3) is intended to improve analysis
     speed, replicability, peer-review, and interpretation of index standardization
     methods
-Imports:
+Imports: 
     mapproj,
     maptools,
     deldir,
@@ -25,14 +25,18 @@ Imports:
     devtools,
     sp,
     TMB 
-Depends:
+Depends: 
     R (>= 3.1.0),
     maps,
     mapdata,
-Suggests:
+Suggests: 
     rgeos,
-    INLA
-Additional_repositories: https://www.math.ntnu.no/inla/R/stable
+    INLA,
+    testthat
+Additional_repositories: 
+    https://www.math.ntnu.no/inla/R/stable
+Remotes: 
+    github::kaskr/TMB_contrib_R/TMBhelper
 License: GPL-2
 LazyData: yes
 BuildVignettes: yes

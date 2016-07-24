@@ -84,7 +84,8 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   }
 
   # Save options for future records
-  Record = bundlelist( c("Data_Set","Sim_Settings","Version","Method","grid_size_km","n_x","FieldConfig","RhoConfig","VesselConfig","ObsModel","Kmeans_Config") )
+  Record = bundlelist( c("Data_Set","Sim_Settings","strata.limits","Region","Version","Method","grid_size_km","n_x","FieldConfig","RhoConfig","VesselConfig","ObsModel","Kmeans_Config") )
+  save( Record, file=file.path(DateFile,"Record.RData"))
   capture.output( Record, file=paste0(DateFile,"Record.txt"))
 
 ################
@@ -142,7 +143,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   if(Data_Set=="Sim"){
     Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, Extrapolation_List=Extrapolation_List, MakePlot=TRUE)
     Data_Geostat = Sim_DataSet[['Data_Geostat']]
-    True_Index = Sim_DataSet[['True_Index']]
   }
   if( Data_Set %in% c("Iceland_cod")){
     # WARNING:  This data set has not undergone much evaluation for spatio-temporal analysis
@@ -200,28 +200,14 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   TmbList = Build_TMB_Fn("TmbData"=TmbData, "RunDir"=DateFile, "Version"=Version, "RhoConfig"=RhoConfig, "VesselConfig"=VesselConfig, "loc_x"=Spatial_List$loc_x)
   Obj = TmbList[["Obj"]]
 
-  # Run first time -- marginal likelihood
-  Start_time = Sys.time()
-  Obj$fn(Obj$par)
-  # Run first time -- gradient with respect to fixed effects
-  Obj$gr(Obj$par)
-
   # Run model
-  for(i in 1:2) Opt = nlminb(start=Obj$env$last.par.best[-Obj$env$random], objective=Obj$fn, gradient=Obj$gr, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]], control=list(eval.max=1e4, iter.max=1e4, trace=1))  # , rel.tol=1e-20
-  Opt[["final_diagnostics"]] = data.frame( "Name"=names(Opt$par), "Lwr"=TmbList[["Lower"]], "Est"=Opt$par, "Upr"=TmbList[["Upper"]], "Gradient"=Obj$gr(Opt$par) )
-  Opt[["total_time_to_run"]] = Sys.time() - Start_time
-  Opt[["number_of_coefficients"]] = c("Total"=length(unlist(Obj$env$parameters)), "Fixed"=length(Obj$par), "Random"=length(unlist(Obj$env$parameters))-length(Obj$par) )
-  capture.output( Opt, file=paste0(DateFile,"Opt.txt"))
-    
-  # Reports
-  Report = Obj$report()                                      
-  Sdreport = sdreport(Obj, bias.correct=TRUE)
-  
+  Opt = TMBhelper::Optimize( obj=Obj, savedir=DateFile, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]] )  # , rel.tol=1e-20
+  Report = Obj$report()
+
   # Save stuff
-  Save = list("Opt"=Opt, "Report"=Report, "Sdreport"=Sdreport, "ParHat"=Obj$env$parList(Opt$par), "TmbData"=TmbData)
+  Save = list("Opt"=Opt, "Report"=Report, "ParHat"=Obj$env$parList(Opt$par), "TmbData"=TmbData)
   save(Save, file=paste0(DateFile,"Save.RData"))
   capture.output( Opt, file=paste0(DateFile,"Opt.txt"))
-  capture.output( Sdreport, file=paste0(DateFile,"Sdreport.txt"))
 
 ################
 # Make diagnostic plots
@@ -239,13 +225,13 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   PlotResultsOnMap_Fn(plot_set=1:3, MappingDetails=MapDetails_List[["MappingDetails"]], Report=Report, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=paste0(DateFile,"Field_"), Year_Set=Year_Set, Years2Include=Years2Include, Rotate=MapDetails_List[["Rotate"]], mfrow=Dim, mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), Cex=MapDetails_List[["Cex"]], cex=1.8)
                                                                                                                            
   # Plot index
-  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Sdreport, Year_Set=Year_Set, Years2Include=Years2Include, strata_names=strata.limits[,1], use_biascorr=TRUE )
+  PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Opt[["Sdreport"]], Year_Set=Year_Set, Years2Include=Years2Include, strata_names=strata.limits[,1], use_biascorr=TRUE )
 
   # Positive catch rate Q-Q plot
   Q = QQ_Fn( TmbData=TmbData, Report=Report, FileName_PP=paste0(DateFile,"Posterior_Predictive.jpg"), FileName_Phist=paste0(DateFile,"Posterior_Predictive-Histogram.jpg"), FileName_QQ=paste0(DateFile,"Q-Q_plot.jpg"), FileName_Qhist=paste0(DateFile,"Q-Q_hist.jpg"))
 
   # Plot center of gravity
-  Plot_range_shifts(Sdreport=Sdreport, Report=Report, TmbData=TmbData, Znames=colnames(TmbData$Z_xm), FileName_COG=paste0(DateFile,"center_of_gravity.png"))
+  Plot_range_shifts(Report=Report, TmbData=TmbData, Sdreport=Opt[["Sdreport"]], Znames=colnames(TmbData$Z_xm), FileName_COG=paste0(DateFile,"center_of_gravity.png"))
 
   # Vessel effects
   #Return = Vessel_Fn(TmbData=TmbData, Sdreport=Sdreport, FileName_VYplot=paste0(DateFile,"VY-effect.jpg"))
