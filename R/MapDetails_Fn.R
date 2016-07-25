@@ -30,6 +30,18 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List ){
     Rotate = 0
     Cex = 0.01
   }
+  if( Region == "Aleutian_Islands" ){
+    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Area_km2_x"]]>0) )
+    PlotDF[,'Lon'] = PlotDF[,'Lon'] %% 360 # Change units to match world2Hires
+    MappingDetails = list("world2Hires", NULL)
+    Xlim = c(170,195)
+    Ylim=c(51,55)
+    MapSizeRatio = c("Height(in)"=2,"Width(in)"=5)
+    Rotate = 0
+    Cex = 0.01
+    #map(MappingDetails[[1]], MappingDetails[[2]], xlim=Xlim, ylim=Ylim)
+    #points( x=PlotDF[,'Lon'], y=PlotDF[,'Lat'] )
+  }
   if( Region == "Gulf_of_Alaska" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Area_km2_x"]]>0))
     MappingDetails = list("world", NULL)

@@ -14,7 +14,10 @@ PlotMap_Fn <-
 function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
          Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, textmargin="", add=FALSE, pch=20, outermargintext=c("Eastings","Northings"), zlim=NULL, ...){
 
-  # maps and mapdata must be attached to use worldHires plotting
+  # avoid attaching maps and mapdata to use worldHires plotting
+  data(worldHiresMapEnv, package="mapdata", envir=as.environment(-1))
+  data(worldMapEnv, package="maps", envir=as.environment(-1))
+  #on.exit( remove(list=c("worldMapEnv","worldHiresMapEnv")) )
 
   # Transform to grid or other coordinates
   Mat = Mat[PlotDF[,'x2i'],,drop=FALSE]
@@ -55,14 +58,17 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
         boundary_around_limits = 3
         Map = maps::map(MappingDetails[[1]], MappingDetails[[2]], plot=FALSE, ylim=mean(Ylim)+boundary_around_limits*c(-0.5,0.5)*diff(Ylim), xlim=mean(Xlim)+boundary_around_limits*c(-0.5,0.5)*diff(Xlim), fill=TRUE) # , orientation=c(mean(y.lim),mean(x.lim),15)
         Tmp1 = na.omit( cbind('PID'=cumsum(is.na(Map$x)), 'POS'=1:length(Map$x), 'X'=Map$x, 'Y'=Map$y, matrix(0,ncol=length(Year_Set),nrow=length(Map$x),dimnames=list(NULL,Year_Set))) )
-        TmpLL = rbind( Tmp1, cbind('PID'=max(Tmp1[,1])+1,'POS'=1:length(Which)+max(Tmp1[,2]),'X'=PlotDF[Which,'Lon'], 'Y'=PlotDF[Which,'Lat'], Mat[Which,]) )
-        attr(TmpLL,"projection") = "LL"
-        attr(TmpLL,"zone") = zone
-        tmpUTM = suppressMessages(PBSmapping::convUL(TmpLL))                                                         #$
+        TmpLL = rbind( Tmp1, cbind('PID'=max(Tmp1[,1])+1, 'POS'=1:length(Which)+max(Tmp1[,2]), 'X'=PlotDF[Which,'Lon'], 'Y'=PlotDF[Which,'Lat'], Mat[Which,]) )
+        #attr(TmpLL,"projection") = "LL"
+        #attr(TmpLL,"zone") = zone
+        #tmpUTM = suppressMessages(PBSmapping::convUL(TmpLL))                                                         #$
+        tmpUTM = TmpLL
+        tmpUTM[,c('X','Y')] = as.matrix(Convert_LL_to_UTM_Fn( Lon=TmpLL[,'X'], Lat=TmpLL[,'Y'], zone=zone, flip_around_dateline=ifelse(MappingDetails[[1]]%in%c("world2","world2Hires"),TRUE,FALSE) )[,c('X','Y')])
+        tmpUTM = data.frame(tmpUTM)
         coordinates(tmpUTM) = c("X","Y")
         tmpUTM_rotated <- maptools::elide( tmpUTM, rotate=Rotate)
         plot(tmpUTM_rotated[-c(1:nrow(Tmp1)),], pch="", xlim=range(tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'x']), ylim=range(tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'y']) )
-        Col_Bin = ceiling(f(tmpUTM_rotated@data[-c(1:nrow(Tmp1)),-c(1:2),drop=FALSE],zlim=zlim)[,t]*49) + 1
+        Col_Bin = ceiling( f(tmpUTM_rotated@data[-c(1:nrow(Tmp1)),-c(1:2),drop=FALSE],zlim=zlim)[,t]*49 ) + 1
         if( any(Col_Bin<1 | Col_Bin>50) ) stop("zlim doesn't span the range of the variable")
         points(x=tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'x'], y=tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'y'], col=Col(n=50)[Col_Bin], cex=Cex, pch=pch)
         lev = levels(as.factor(tmpUTM_rotated@data$PID))

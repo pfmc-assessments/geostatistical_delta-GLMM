@@ -30,12 +30,10 @@ function(MappingDetails, Report, Nknots=Inf, PlotDF, MapSizeRatio, Xlim, Ylim, F
     if(plot_num==2){
       # Positive values ("Pos")
       Mat = log(Report$R2_xt)
-      Mat = ifelse(Mat<(-5),-5,Mat)
     }
     if(plot_num==3){
       # Density ("Dens")
       Mat = log(Report$D_xt)
-      Mat = ifelse(Mat<(-5),-5,Mat)
     }
     if(plot_num==4){
       # Positive values rescaled ("Pos_Rescaled")
@@ -61,8 +59,8 @@ function(MappingDetails, Report, Nknots=Inf, PlotDF, MapSizeRatio, Xlim, Ylim, F
       # Linear predictor for positive catch rates
       Mat = Report$P2_xt
     }
-    # Do plot
-    Return = SpatialDeltaGLMM:::PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat[,Years2Include], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[plot_num]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin[plot_num], add=add, pch=pch, ...)
+    # Do plot    # SpatialDeltaGLMM:::
+    Return = PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat[,Years2Include], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[plot_num]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin[plot_num], add=add, pch=pch, ...)
   }          #
   return( invisible(Return) )
 }

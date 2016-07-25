@@ -24,11 +24,11 @@ Imports:
     shape,
     devtools,
     sp,
+    maps,
+    mapdata,
     TMB 
 Depends: 
     R (>= 3.1.0),
-    maps,
-    mapdata,
 Suggests: 
     rgeos,
     INLA,
