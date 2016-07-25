@@ -34,7 +34,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   # Determine region
   Region = switch( Data_Set, "Chatham_rise_hake"="New_Zealand", "Iceland_cod"="Iceland", "WCGBTS_canary"="California_current", "GSL_american_plaice"="Gulf_of_St_Lawrence", "BC_pacific_cod"="British_Columbia", "EBS_pollock"="Eastern_Bering_Sea", "GOA_Pcod"="Gulf_of_Alaska", "GOA_pollock"="Gulf_of_Alaska", "GB_spring_haddock"="Northwest_Atlantic", "GB_fall_haddock"="Northwest_Atlantic", "SAWC_jacopever"="South_Africa", "Aleutian_islands_POP"="Aleutian_Islands", "Sim"="California_current")
 
-
 # Decide on case-specific settings for use when calculating indices
   # Default
   if( Data_Set %in% c("GSL_american_plaice","BC_pacific_cod","EBS_pollock","SAWC_jacopever","Chatham_rise_hake","Aleutian_islands_POP")){
@@ -200,7 +199,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   Obj = TmbList[["Obj"]]
 
   # Run model
-  Opt = TMBhelper::Optimize( obj=Obj, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]], getsd=TRUE, savedir=DateFile )
+  Opt = TMBhelper::Optimize( obj=Obj, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]], getsd=TRUE, savedir=DateFile, bias.correct=TRUE )
   Report = Obj$report()
 
   # Save stuff

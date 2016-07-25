@@ -15,9 +15,10 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
          Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, textmargin="", add=FALSE, pch=20, outermargintext=c("Eastings","Northings"), zlim=NULL, ...){
 
   # avoid attaching maps and mapdata to use worldHires plotting
-  data(worldHiresMapEnv, package="mapdata", envir=as.environment(-1))
-  data(worldMapEnv, package="maps", envir=as.environment(-1))
-  #on.exit( remove(list=c("worldMapEnv","worldHiresMapEnv")) )
+  require(maps)
+  require(mapdata)
+  on.exit( detach("package:mapdata") )
+  on.exit( detach("package:maps"), add=TRUE )
 
   # Transform to grid or other coordinates
   Mat = Mat[PlotDF[,'x2i'],,drop=FALSE]
