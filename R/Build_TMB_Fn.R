@@ -33,7 +33,7 @@ Build_TMB_Fn <-
 function( TmbData, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=TRUE, CovConfig=TRUE,
   RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0),
   ConvergeTol=1, Use_REML=FALSE, loc_x=NULL, Parameters="generate", Random="generate", Map="generate",
-  DiagnosticDir=NULL, TmbDir=system.file("executables",package="SpatialDeltaGLMM"), RunDir=getwd() ){
+  DiagnosticDir=NULL, TmbDir=system.file("executables",package="SpatialDeltaGLMM"), RunDir=getwd(), silent=FALSE ){
 
   # Compile TMB software
   if( !file.exists(paste0(TmbDir,"/",Version,".cpp")) ){
@@ -74,7 +74,7 @@ function( TmbData, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=
 
   # Build object
   dyn.load( paste0(RunDir,"/",TMB::dynlib(Version)) ) # random=Random,
-  Obj <- MakeADFun(data=TmbData, parameters=Parameters, hessian=FALSE, map=Map, random=Random, inner.method="newton", DLL=Version)  #
+  Obj <- MakeADFun(data=TmbData, parameters=Parameters, hessian=FALSE, map=Map, random=Random, DLL=Version, silent=silent)  #
   Obj$control <- list(trace=1, parscale=1, REPORT=1, reltol=1e-12, maxit=100)
 
   # Diagnostic functions (optional)
