@@ -5,7 +5,8 @@ library(TMB)
 # Use "extdata" in "inst" because its loaded with R packages
 example_path <- system.file("extdata", package="SpatialDeltaGLMM")
 
-# setwd(system.file("tests", package="SpatialDeltaGLMM"))
+# Automated testing
+setwd(system.file("tests", package="SpatialDeltaGLMM"))
 testthat::test_check("SpatialDeltaGLMM")
 
 # Local testing
