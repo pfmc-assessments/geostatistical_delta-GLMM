@@ -26,3 +26,15 @@ sum( aleutian_islands_grid[which( aleutian_islands_grid[,'Stratum']!=0 ), "Area_
 
 # By stratum
 tapply( INDEX=aleutian_islands_grid$Stratum, FUN=sum, X=aleutian_islands_grid$Area_km2 )
+
+##############
+# Format example data
+##############
+setwd("C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/")
+
+# Read data
+AI_pacific_ocean_perch = read.csv( file="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/data/aipopcpue9114.csv")
+
+# Convert previous TXT format to new RDA format
+devtools::use_data( AI_pacific_ocean_perch, pkg=getwd())
+

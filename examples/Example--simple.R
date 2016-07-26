@@ -19,7 +19,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
 # Settings
 ###############
 
-  Data_Set = c("Chatham_rise_hake", "Iceland_cod", "WCGBTS_canary", "GSL_american_plaice", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Aleutian_islands_POP", "Sim")[12]
+  Data_Set = c("Chatham_rise_hake", "Iceland_cod", "WCGBTS_canary", "GSL_american_plaice", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Aleutian_islands_POP", "Sim")[8]
   Sim_Settings = list("Species_Set"=1:100, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=-1, "Depth_km2"=-1, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.5, "SigmaE2"=0.5, "SigmaVY1"=0.05, "Sigma_VY2"=0.05, "Range1"=1000, "Range2"=500, "SigmaM"=1)
   Version = "geo_index_v4a"
   Method = c("Grid", "Mesh")[2]
@@ -89,8 +89,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   if( Data_Set %in% c("BC_pacific_cod")){
     data( BC_pacific_cod_example, package="SpatialDeltaGLMM" )
     Data_Geostat = data.frame( "Catch_KG"=BC_pacific_cod_example[,'PCOD_WEIGHT'], "Year"=BC_pacific_cod_example[,'Year'], "Vessel"="missing", "AreaSwept_km2"=BC_pacific_cod_example[,'TOW.LENGTH..KM.']/100, "Lat"=BC_pacific_cod_example[,'LAT'], "Lon"=BC_pacific_cod_example[,'LON'], "Pass"=0)
-    Data_Geostat = na.omit( Data_Geostat )
-    Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if( Data_Set %in% c("GSL_american_plaice")){
     data( GSL_american_plaice, package="SpatialDeltaGLMM" )
@@ -104,21 +102,14 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   if(Data_Set=="GOA_Pcod"){
     data( GOA_pacific_cod , package="SpatialDeltaGLMM")
     Data_Geostat = data.frame( "Catch_KG"=GOA_pacific_cod[,'catch'], "Year"=GOA_pacific_cod[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=GOA_pacific_cod[,'lat'], "Lon"=GOA_pacific_cod[,'lon'], "Pass"=0)
-    # Rename years and keep track of correspondance (for computational speed, given that there's missing years)
-    Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if(Data_Set=="GOA_pollock"){
     data( GOA_walleye_pollock, package="SpatialDeltaGLMM" )
     Data_Geostat = data.frame( "Catch_KG"=GOA_walleye_pollock[,'catch'], "Year"=GOA_walleye_pollock[,'year'], "Vessel"="missing", "AreaSwept_km2"=0.01, "Lat"=GOA_walleye_pollock[,'lat'], "Lon"=GOA_walleye_pollock[,'lon'], "Pass"=0)
-    # Rename years and keep track of correspondance (for computational speed, given that there's missing years)
-    Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if(Data_Set=="Aleutian_islands_POP"){
-    #data( AI_pacific_ocean_perch, package="SpatialDeltaGLMM" )
-    AI_pacific_ocean_perch = read.csv( file="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/data/aipopcpue9114.csv")
+    data( AI_pacific_ocean_perch, package="SpatialDeltaGLMM" )
     Data_Geostat = data.frame( "Catch_KG"=AI_pacific_ocean_perch[,'cpue..kg.km.2.'], "Year"=AI_pacific_ocean_perch[,'year'], "Vessel"="missing", "AreaSwept_km2"=1, "Lat"=AI_pacific_ocean_perch[,'start.latitude'], "Lon"=AI_pacific_ocean_perch[,'start.longitude'], "Pass"=0)
-    # Rename years and keep track of correspondance (for computational speed, given that there's missing years)
-    #Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if( Data_Set=="GB_spring_haddock"){
     data( georges_bank_haddock_spring, package="SpatialDeltaGLMM" )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
@@ -133,7 +124,6 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   if( Data_Set=="SAWC_jacopever"){
     data( south_africa_westcoast_jacopever, package="SpatialDeltaGLMM" )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
     Data_Geostat = data.frame( "Catch_KG"=south_africa_westcoast_jacopever[,'HELDAC'], "Year"=south_africa_westcoast_jacopever[,'Year'], "Vessel"="missing", "AreaSwept_km2"=south_africa_westcoast_jacopever[,'area_swept_nm2']*1.852^2, "Lat"=south_africa_westcoast_jacopever[,'cen_lat'], "Lon"=south_africa_westcoast_jacopever[,'cen_long'])
-    Data_Geostat$Year = as.numeric( factor(Data_Geostat$Year))
   }
   if(Data_Set=="Sim"){
     Sim_DataSet = Geostat_Sim(Sim_Settings=Sim_Settings, Extrapolation_List=Extrapolation_List, MakePlot=TRUE)
@@ -143,12 +133,12 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
     # WARNING:  This data set has not undergone much evaluation for spatio-temporal analysis
     data( iceland_cod, package="SpatialDeltaGLMM" )
     Data_Geostat = data.frame( "Catch_KG"=iceland_cod[,'Catch_b'], "Year"=iceland_cod[,'year'], "Vessel"=1, "AreaSwept_km2"=iceland_cod[,'towlength'], "Lat"=iceland_cod[,'lat1'], "Lon"=iceland_cod[,'lon1'])
-    Data_Geostat = na.omit( Data_Geostat )
   }
   if( Data_Set %in% c("Chatham_rise_hake")){
     data( chatham_rise_hake, package="SpatialDeltaGLMM" )
     Data_Geostat = data.frame( "Catch_KG"=chatham_rise_hake[,'Hake_kg_per_km2'], "Year"=chatham_rise_hake[,'Year'], "Vessel"=1, "AreaSwept_km2"=1, "Lat"=chatham_rise_hake[,'Lat'], "Lon"=chatham_rise_hake[,'Lon'])
   }
+  Data_Geostat = na.omit( Data_Geostat )
 
 # Get extrapolation data
   if( Region == "California_current" ){

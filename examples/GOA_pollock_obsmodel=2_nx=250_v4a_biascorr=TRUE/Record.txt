@@ -50,8 +50,22 @@ $Sim_Settings$SigmaM
 [1] 1
 
 
+$strata.limits
+        STRATA west_border east_border
+1    All_areas        -Inf         Inf
+2 west_of_140W        -Inf        -140
+
+$Region
+[1] "Gulf_of_Alaska"
+
 $Version
-[1] "geo_index_v3i"
+[1] "geo_index_v4a"
+
+$Method
+[1] "Mesh"
+
+$grid_size_km
+[1] 25
 
 $n_x
 [1] 250
@@ -60,13 +74,9 @@ $FieldConfig
   Omega1 Epsilon1   Omega2 Epsilon2 
        1        1        1        1 
 
-$CovConfig
-        SST RandomNoise 
-          0           0 
-
-$Q_Config
-Pass 
-   0 
+$RhoConfig
+   Beta1    Beta2 Epsilon1 Epsilon2 
+       0        0        0        0 
 
 $VesselConfig
     Vessel VesselYear 
