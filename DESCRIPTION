@@ -35,8 +35,6 @@ Suggests:
     testthat
 Additional_repositories: 
     https://www.math.ntnu.no/inla/R/stable
-Remotes: 
-    github::kaskr/TMB_contrib_R/TMBhelper
 License: GPL-2
 LazyData: yes
 BuildVignettes: yes
