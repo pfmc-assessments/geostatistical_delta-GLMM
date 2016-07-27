@@ -21,6 +21,7 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, FileName
     }
 
     # Plot center of gravity
+    Table = NULL
     png( file=FileName_COG, width=6.5, height=3, res=200, units="in")
       par( mfrow=c(1,ncol(mean_Z_tm)), mar=c(3,2,2,0), mgp=c(1.75,0.25,0), tck=-0.02)  # , ...
       for(m in 1:ncol(mean_Z_tm)){
@@ -28,6 +29,7 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, FileName
         Ybounds = (SD_mean_Z_tm[WhichRows,'Estimate']%o%c(1,1) + SD_mean_Z_tm[WhichRows,'Std. Error']%o%c(-1,1))
         Ylim = range(Ybounds,na.rm=TRUE)
         SpatialDeltaGLMM:::Plot_Points_and_Bounds_Fn(x=Year_Set, y=SD_mean_Z_tm[WhichRows,1], ybounds=Ybounds, col_bounds=rgb(1,0,0,0.2), fn=plot, type="l", lwd=2, col="red", bounds_type="shading", ylim=Ylim, xlab="Year", ylab=ifelse(m==1,"Location",""), main=Znames[m])
+        Table = rbind(Table, cbind("m"=m, "Year"=Year_Set, "COG_hat"=SD_mean_Z_tm[WhichRows,'Estimate'], "SE"=SD_mean_Z_tm[WhichRows,'Std. Error']))
       }
     dev.off()
 
@@ -38,7 +40,7 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, FileName
     dev.off()
 
     # Return stuff
-    Return = list("mean_Z_tm"=mean_Z_tm, "SD_mean_Z_tm"=SD_mean_Z_tm, "Year_Set"=Year_Set)
+    Return = list("mean_Z_tm"=mean_Z_tm, "SD_mean_Z_tm"=SD_mean_Z_tm, "Year_Set"=Year_Set, "Table"=Table)
     return( invisible(Return) )
   }else{
     message( "To estimate range-shifts, please re-run with Options['Calculate_Range']=1" )

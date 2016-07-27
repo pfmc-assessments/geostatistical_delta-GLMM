@@ -9,7 +9,6 @@ devtools::install_github("james-thorson/utilities")
 # Load libraries
 library(TMB)               # Can instead load library(TMBdebug)
 library(SpatialDeltaGLMM)
-library(ThorsonUtilities)
 
 # This is where all runs will be located
 DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
@@ -72,7 +71,7 @@ DateFile = paste(getwd(),'/',Sys.Date(),'/',sep='')
   }
 
   # Save options for future records
-  Record = bundlelist( c("Data_Set","Sim_Settings","strata.limits","Region","Version","Method","grid_size_km","n_x","FieldConfig","RhoConfig","VesselConfig","ObsModel","Kmeans_Config") )
+  Record = ThorsonUtilities::bundlelist( c("Data_Set","Sim_Settings","strata.limits","Region","Version","Method","grid_size_km","n_x","FieldConfig","RhoConfig","VesselConfig","ObsModel","Kmeans_Config") )
   save( Record, file=file.path(DateFile,"Record.RData"))
   capture.output( Record, file=paste0(DateFile,"Record.txt"))
 
