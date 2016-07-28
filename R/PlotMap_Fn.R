@@ -28,7 +28,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
   # Plotting functions
   f = function(Num, zlim=NULL){
     if( is.null(zlim)) Return = ((Num)-min((Num),na.rm=TRUE))/diff(range((Num),na.rm=TRUE))
-    if( !is.null(zlim)) Return = ((Num)-zlim[1])/diff(zlim)
+    if( !is.null(zlim)) Return = ((Num)-zlim[1])/max(diff(zlim),0.01)
     return( Return )
   }
   Col = colorRampPalette(colors=c("darkblue","blue","lightblue","lightgreen","yellow","orange","red"))
@@ -51,7 +51,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
          height=Par$mfrow[1]*MapSizeRatio['Height(in)'], res=Res, units='in')
   }
     if( add==FALSE ) par( Par )          # consider changing to Par=list() input, which overloads defaults a la optim() "control" input
-    for(t in 1:length(Year_Set)){
+    for(tI in 1:length(Year_Set)){
       if( is.null(MappingDetails) ){
         plot(1, type="n", ylim=Ylim, xlim=Xlim, main="", xlab="", ylab="")#, main=Year_Set[t])
         points(x=PlotDF[Which,'Lon'], y=PlotDF[Which,'Lat'], col=Col(n=50)[ceiling(f(Mat[Which,],zlim=zlim)[,t]*49)+1], cex=0.01)
@@ -64,12 +64,12 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
         #attr(TmpLL,"zone") = zone
         #tmpUTM = suppressMessages(PBSmapping::convUL(TmpLL))                                                         #$
         tmpUTM = TmpLL
-        tmpUTM[,c('X','Y')] = as.matrix(Convert_LL_to_UTM_Fn( Lon=TmpLL[,'X'], Lat=TmpLL[,'Y'], zone=zone, flip_around_dateline=ifelse(MappingDetails[[1]]%in%c("world2","world2Hires"),TRUE,FALSE) )[,c('X','Y')])
+        tmpUTM[,c('X','Y')] = as.matrix(SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=TmpLL[,'X'], Lat=TmpLL[,'Y'], zone=zone, flip_around_dateline=ifelse(MappingDetails[[1]]%in%c("world2","world2Hires"),TRUE,FALSE) )[,c('X','Y')])
         tmpUTM = data.frame(tmpUTM)
         sp::coordinates(tmpUTM) = c("X","Y")
         tmpUTM_rotated <- maptools::elide( tmpUTM, rotate=Rotate)
         plot( 1, type="n", xlim=range(tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'x']), ylim=range(tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'y']), xaxt="n", yaxt="n" )
-        Col_Bin = ceiling( f(tmpUTM_rotated@data[-c(1:nrow(Tmp1)),-c(1:2),drop=FALSE],zlim=zlim)[,t]*49 ) + 1
+        Col_Bin = ceiling( f(tmpUTM_rotated@data[-c(1:nrow(Tmp1)),-c(1:2),drop=FALSE],zlim=zlim)[,tI]*49 ) + 1
         if( any(Col_Bin<1 | Col_Bin>50) ) stop("zlim doesn't span the range of the variable")
         points(x=tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'x'], y=tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'y'], col=Col(n=50)[Col_Bin], cex=Cex, pch=pch)
         lev = levels(as.factor(tmpUTM_rotated@data$PID))
@@ -82,7 +82,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
           }
         }
       }
-      title( Year_Set[t], line=0.1, cex.main=ifelse(is.null(Par$cex.main), 1.8, Par$cex.main), cex=ifelse(is.null(Par$cex.main), 1.8, Par$cex.main) )
+      title( Year_Set[tI], line=0.1, cex.main=ifelse(is.null(Par$cex.main), 1.8, Par$cex.main), cex=ifelse(is.null(Par$cex.main), 1.8, Par$cex.main) )
       box()
       #if(t==1) compassRose( x=c(0.75,0.25)%*%par()$usr[1:2], y=c(0.25,0.75)%*%par()$usr[3:4], rotate=Rotate)
     }
