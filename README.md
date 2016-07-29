@@ -9,6 +9,7 @@ SpatialDeltaGLMM
 
 Regions available in the [example script](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/Example--simple.R): 
 ![alt text](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/raw/master/examples/global_coverage.png "Global data coverage")
+and see [FishViz.org](http://www.FishViz.org) for visualization of results for regions with a public API for their data.
 
 Background
 * This tool is designed to estimate spatial variation in density using fishery-independent data, with the goal of estimating total abundance for a target species in one or more years.  
