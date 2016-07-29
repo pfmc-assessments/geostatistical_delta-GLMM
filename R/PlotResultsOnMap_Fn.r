@@ -1,11 +1,21 @@
 #' @export
 PlotResultsOnMap_Fn <-
 function(MappingDetails, Report, Nknots=Inf, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set=NULL, Years2Include=NULL, plot_set=1:5,
-         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, add=FALSE, textmargin=NULL, pch=NULL, ...){
+         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, add=FALSE, category_names=NULL, textmargin=NULL, pch=NULL, ...){
 
   # Fill in missing inputs
-  if( is.null(Year_Set) ) Year_Set = 1:ncol(Report$D_xt)
-  if( is.null(Years2Include) ) Years2Include = 1:ncol(Report$D_xt)
+  if( "D_xt" %in% names(Report)){
+    if( is.null(Year_Set) ) Year_Set = 1:ncol(Report$D_xt)
+    if( is.null(Years2Include) ) Years2Include = 1:ncol(Report$D_xt)
+    category_names = "singlespecies"
+    Ncategories = length(category_names)
+  }
+  if( "D_xct" %in% names(Report)){
+    if( is.null(Year_Set) ) Year_Set = 1:dim(Report$D_xct)[3]
+    if( is.null(Years2Include) ) Years2Include = 1:dim(Report$D_xct)[3]
+    if( is.null(Years2Include) ) category_names = 1:dim(Report$D_xct)[2]
+    Ncategories = dim(Report$D_xct)[2]
+  }
 
   # Extract elements
   plot_codes <- c("Pres", "Pos", "Dens", "Pos_Rescaled", "Dens_Rescaled", "Eps_Pres", "Eps_Pos", "LinPred_Pres", "LinPred_Pos")
@@ -22,45 +32,56 @@ function(MappingDetails, Report, Nknots=Inf, PlotDF, MapSizeRatio, Xlim, Ylim, F
   }
 
   # Loop through plots
-  for(plot_num in plot_set){
-    if(plot_num==1){
-      # Presence/absence ("Pres")
-      Mat = Report$R1_xt
-    }
-    if(plot_num==2){
-      # Positive values ("Pos")
-      Mat = log(Report$R2_xt)
-    }
-    if(plot_num==3){
-      # Density ("Dens")
-      Mat = log(Report$D_xt)
-    }
-    if(plot_num==4){
-      # Positive values rescaled ("Pos_Rescaled")
-      Mat = log(Report$R2_xt+quantile(Report$R2_xt,0.25))
-    }
-    if(plot_num==5){
-      # Density rescaled ("Dens_Rescaled")
-      Mat = log(Report$D_xt+quantile(Report$D_xt,0.25))
-    }
-    if(plot_num==6){
-      # Epsilon for presence/absence ("Eps_Pres")
-      Mat = Report$Epsilon1_st
-    }
-    if(plot_num==7){
-      # Epsilon for positive values ("Eps_Pos")
-      Mat = Report$Epsilon2_st
-    }
-    if(plot_num==8){
-      # Linear predictor for probability of encounter
-      Mat = Report$P1_xt
-    }
-    if(plot_num==9){
-      # Linear predictor for positive catch rates
-      Mat = Report$P2_xt
-    }
-    # Do plot    #
-    Return = SpatialDeltaGLMM:::PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat[,Years2Include], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[plot_num]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin[plot_num], add=add, pch=pch, ...)
-  }          #
+  for( cI in 1:Ncategories){
+    for(plot_num in plot_set){
+      if(plot_num==1){
+        # Presence/absence ("Pres")
+        if("D_xt"%in%names(Report)) Mat = Report$R1_xt
+        if("D_xct"%in%names(Report)) Mat = Report$R1_xct[,cI,]
+      }
+      if(plot_num==2){
+        # Positive values ("Pos")
+        if("D_xt"%in%names(Report)) Mat = log(Report$R2_xt)
+        if("D_xct"%in%names(Report)) Mat = log(Report$R2_xct)[,cI,]
+      }
+      if(plot_num==3){
+        # Density ("Dens")
+        if("D_xt"%in%names(Report)) Mat = log(Report$D_xt)
+        if("D_xct"%in%names(Report)) Mat = log(Report$D_xct)[,cI,]
+      }
+      if(plot_num==4){
+        # Positive values rescaled ("Pos_Rescaled")
+        if("D_xt"%in%names(Report)) Mat = log(Report$R2_xt+quantile(Report$R2_xt,0.25))
+        if("D_xct"%in%names(Report)) Mat = log(Report$R2_xct+quantile(Report$R2_xct,0.25))[,cI,]
+      }
+      if(plot_num==5){
+        # Density rescaled ("Dens_Rescaled")
+        if("D_xt"%in%names(Report)) Mat = log(Report$D_xt+quantile(Report$D_xt,0.25))
+        if("D_xct"%in%names(Report)) Mat = log(Report$D_xct+quantile(Report$D_xct,0.25))[,cI,]
+      }
+      if(plot_num==6){
+        # Epsilon for presence/absence ("Eps_Pres")
+        if("D_xt"%in%names(Report)) Mat = Report$Epsilon1_st
+        if("D_xct"%in%names(Report)) Mat = Report$Epsilon1_sct[,cI,]
+      }
+      if(plot_num==7){
+        # Epsilon for positive values ("Eps_Pos")
+        if("D_xt"%in%names(Report)) Mat = Report$Epsilon2_st
+        if("D_xct"%in%names(Report)) Mat = Report$Epsilon2_sct[,cI,]
+      }
+      if(plot_num==8){
+        # Linear predictor for probability of encounter
+        if("D_xt"%in%names(Report)) Mat = Report$P1_xt
+        if("D_xct"%in%names(Report)) Mat = Report$P1_xct[,cI,]
+      }
+      if(plot_num==9){
+        # Linear predictor for positive catch rates
+        if("D_xt"%in%names(Report)) Mat = Report$P2_xt
+        if("D_xct"%in%names(Report)) Mat = Report$P2_xct[,cI,]
+      }
+      # Do plot    #
+      Return = SpatialDeltaGLMM:::PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat[,Years2Include], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[plot_num],ifelse(Ncategories>1,paste0("--",category_names[cI]),"")), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin[plot_num], add=add, pch=pch, ...)
+    }          #
+  }
   return( invisible(Return) )
 }
