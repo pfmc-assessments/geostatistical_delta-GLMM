@@ -2,6 +2,6 @@ name: shiny
 account: james-thorson
 server: shinyapps.io
 appId: 117021
-bundleId: 518387
+bundleId: 519266
 url: https://james-thorson.shinyapps.io/shiny/
-when: 1469736263.69246
+when: 1469813639.79418

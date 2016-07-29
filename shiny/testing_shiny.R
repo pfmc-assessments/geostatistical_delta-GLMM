@@ -1,19 +1,26 @@
 
 
 #Details of how to deploy the package at:
-#http://shiny.rstudio.com/articles/shinyapps.html
+# http://shiny.rstudio.com/articles/shinyapps.html
 
 #Details of other ways to host a Shiny App online:
-#http://shiny.rstudio.com/tutorial/lesson7/
+# http://shiny.rstudio.com/tutorial/lesson7/
 
 #Sign-in for hosting on shinyapps.io:
-#http://www.shinyapps.io/
+# http://www.shinyapps.io/
 
 #Shiny cheat-sheet
-#https://www.rstudio.com/wp-content/uploads/2016/01/shiny-cheatsheet.pdf
+# https://www.rstudio.com/wp-content/uploads/2016/01/shiny-cheatsheet.pdf
 
 # Shiny examples
-#https://github.com/rstudio/shiny-examples/tree/master/063-superzip-example
+# https://github.com/rstudio/shiny-examples/tree/master/063-superzip-example
+
+#renderUI examples
+# https://www.youtube.com/watch?v=JUop-YfRAuw
+# https://github.com/aagarw30/R-Shinyapp-Tutorial/blob/master/renderUI%20Example1/server.R
+
+#Tutorial
+# http://rstudio.github.io/shiny/tutorial/
 
 # REAL VERSION -- DO NOT USE FOR TESTING
 setwd( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/shiny" )

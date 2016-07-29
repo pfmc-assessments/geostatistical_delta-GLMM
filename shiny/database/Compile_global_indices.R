@@ -14,13 +14,10 @@
 ## This is where all runs will be located
 #DateFile = paste0(tempdir(),'\\')
 #
-#Region = "Eastern_Bering_Sea"
-#Database = FishData::scrape_data( species_set=10 )
-#species_set = unique( Database[,'Sci'] )
-#
 ################
 ## Settings
 ################
+#RegionSet = c("Eastern_Bering_Sea", "Gulf_of_Alaska", "Aleutian_Islands")
 #Version = "geo_index_v4a"
 #Method = c("Grid", "Mesh")[2]
 #grid_size_km = 25
@@ -36,42 +33,53 @@
 #strata.limits <- data.frame('STRATA'="All_areas")
 #
 ## Save options for future records
-#Record = ThorsonUtilities::bundlelist( c("strata.limits","Region","Version","Method","grid_size_km","n_x","FieldConfig","RhoConfig","VesselConfig","ObsModel","Kmeans_Config","Options") )
+#Record = ThorsonUtilities::bundlelist( c("strata.limits","RegionSet","Version","Method","grid_size_km","n_x","FieldConfig","RhoConfig","VesselConfig","ObsModel","Kmeans_Config","Options") )
 #save( Record, file=file.path(DateFile,"Record.RData"))
 #
-## Loop through species
-#for( sI in 2:length(species_set)){
-#  # Read or simulate trawl data
-#  Data_Geostat = Database[ which(Database[,'Sci']==species_set[sI]), ]
-#  Data_Geostat = ThorsonUtilities::rename_columns( Data_Geostat[,c('Wt','Year','Long','Lat')], newname=c('Catch_KG','Year','Lon','Lat') )
-#  Data_Geostat = cbind( Data_Geostat, 'AreaSwept_km2'=0.01, 'Vessel'=1 )
+################
+## Run model
+################
 #
-#  # Get extrapolation data
-#  Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits )
+#for(rI in 1:length(RegionSet)){
+#  ##### Loop through regions
+#  Region = RegionSet[rI]
+#  Database = FishData::scrape_data( region=Region, species_set=10, error_tol=0.01 )
+#  species_set = unique( Database[,'Sci'] )
 #
-#  # Calculate spatial information for SPDE mesh, strata areas, and AR1 process
-#  Spatial_List = Spatial_Information_Fn( grid_size_km=grid_size_km, n_x=n_x, Method=Method, Lon=Data_Geostat[,'Lon'], Lat=Data_Geostat[,'Lat'], Extrapolation_List=Extrapolation_List, randomseed=Kmeans_Config[["randomseed"]], nstart=Kmeans_Config[["nstart"]], iter.max=Kmeans_Config[["iter.max"]], DirPath=DateFile )
-#  Data_Geostat = cbind( Data_Geostat, Spatial_List$loc_UTM, "knot_i"=Spatial_List$knot_i )
+#  ##### Loop through species
+#  for( sI in 2:length(species_set)){
+#    # Read or simulate trawl data
+#    Data_Geostat = Database[ which(Database[,'Sci']==species_set[sI]), ]
+#    Data_Geostat = ThorsonUtilities::rename_columns( Data_Geostat[,c('Wt','Year','Long','Lat')], newname=c('Catch_KG','Year','Lon','Lat') )
+#    Data_Geostat = cbind( Data_Geostat, 'AreaSwept_km2'=0.01, 'Vessel'=1 )
 #
-#  # Make TMB data list
-#  TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "RhoConfig"=RhoConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year'], "a_xl"=Spatial_List$a_xl, "MeshList"=Spatial_List$MeshList, "GridList"=Spatial_List$GridList, "Method"=Spatial_List$Method, "Options"=Options )
+#    # Get extrapolation data
+#    Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits )
 #
-#  # Make TMB object
-#  TmbList = Build_TMB_Fn("TmbData"=TmbData, "RunDir"=DateFile, "Version"=Version, "RhoConfig"=RhoConfig, "VesselConfig"=VesselConfig, "loc_x"=Spatial_List$loc_x)
-#  Obj = TmbList[["Obj"]]
+#    # Calculate spatial information for SPDE mesh, strata areas, and AR1 process
+#    Spatial_List = Spatial_Information_Fn( grid_size_km=grid_size_km, n_x=n_x, Method=Method, Lon=Data_Geostat[,'Lon'], Lat=Data_Geostat[,'Lat'], Extrapolation_List=Extrapolation_List, randomseed=Kmeans_Config[["randomseed"]], nstart=Kmeans_Config[["nstart"]], iter.max=Kmeans_Config[["iter.max"]], DirPath=DateFile )
+#    Data_Geostat = cbind( Data_Geostat, Spatial_List$loc_UTM, "knot_i"=Spatial_List$knot_i )
 #
-#  # Run model
-#  Opt = TMBhelper::Optimize( obj=Obj, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]], getsd=TRUE, savedir=DateFile, bias.correct=FALSE )
-#  Report = Obj$report()
-#  Year_Set = min(Data_Geostat[,'Year']):max(Data_Geostat[,'Year'])
+#    # Make TMB data list
+#    TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "RhoConfig"=RhoConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year'], "a_xl"=Spatial_List$a_xl, "MeshList"=Spatial_List$MeshList, "GridList"=Spatial_List$GridList, "Method"=Spatial_List$Method, "Options"=Options )
 #
-#  # Plot index
-#  Index = PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Opt[["SD"]], Year_Set=Year_Set, strata_names=strata.limits[,1], use_biascorr=TRUE )
+#    # Make TMB object
+#    TmbList = Build_TMB_Fn("TmbData"=TmbData, "RunDir"=DateFile, "Version"=Version, "RhoConfig"=RhoConfig, "VesselConfig"=VesselConfig, "loc_x"=Spatial_List$loc_x)
+#    Obj = TmbList[["Obj"]]
 #
-#  # Plot center of gravity
-#  COG = Plot_range_shifts(Report=Report, TmbData=TmbData, Sdreport=Opt[["SD"]], Year_Set=Year_Set, Znames=colnames(TmbData$Z_xm), FileName_COG=paste0(DateFile,"center_of_gravity.png"))
+#    # Run model
+#    Opt = TMBhelper::Optimize( obj=Obj, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]], getsd=TRUE, savedir=DateFile, bias.correct=FALSE )
+#    Report = Obj$report()
+#    Year_Set = min(Data_Geostat[,'Year']):max(Data_Geostat[,'Year'])
 #
-#  # save
-#  Save = list("Index"=Index$Table, "COG"=COG$Table)
-#  save( Save, file=paste0("C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/inst/extdata/",Region,"-",species_set[sI],".RData") )
+#    # Plot index
+#    Index = PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Opt[["SD"]], Year_Set=Year_Set, strata_names=strata.limits[,1], use_biascorr=TRUE )
+#
+#    # Plot center of gravity
+#    COG = Plot_range_shifts(Report=Report, TmbData=TmbData, Sdreport=Opt[["SD"]], Year_Set=Year_Set, Znames=colnames(TmbData$Z_xm), FileName_COG=paste0(DateFile,"center_of_gravity.png"))
+#
+#    # save
+#    Save = list("Index"=Index$Table[Index$Table[,'Year']%in%Data_Geostat$Year,], "COG"=COG$Table[COG$Table[,'Year']%in%Data_Geostat$Year,])
+#    save( Save, file=paste0("C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/shiny/database/",Region,"-",species_set[sI],".RData") )
+#  }
 #}
