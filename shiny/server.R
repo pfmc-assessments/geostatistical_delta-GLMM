@@ -20,11 +20,6 @@ interval_width = 1
 # Function containing things to display
 function(input, output){
 
-  # Disply species
-  #output$debug_text <- renderPrint({
-  #  species_s[region_s==input$region]
-  #})
-
   #### Dynamic user inputs
   # The following reactive function would return the column variable names corresponding to the dataset selected by the user.
   species_subset <- reactive({
@@ -69,4 +64,14 @@ function(input, output){
      }
     })
   })
+
+  # Disply species
+  #output$debug_text <- renderPrint({
+  #  paste0("database/Image-",input$species2animate,"/",input$sliderYear,".png")
+  #})
+
+  # Plot animation images
+  output$image1 <- renderImage({
+    list(src=paste0("database/Image-",input$species2animate,"/",input$sliderYear,".png"), contentType="image/png", alt="This is alternate text", width=1000, height=1000)
+  }, deleteFile=FALSE)
 }

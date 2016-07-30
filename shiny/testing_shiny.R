@@ -22,6 +22,9 @@
 #Tutorial
 # http://rstudio.github.io/shiny/tutorial/
 
+#sliderInput animation example
+# http://shiny.rstudio.com/gallery/image-output.html
+
 # REAL VERSION -- DO NOT USE FOR TESTING
 setwd( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/shiny" )
 

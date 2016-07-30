@@ -23,20 +23,31 @@ fluidPage(
     h4("For details of computation, please see ", a("www.FishStats.org", href="http://www.FishStats.org")),
     br(),
 
+    # Time series plots
+    h1("Time series plot settings"),
     # Choose region
     selectInput(inputId="region", label="Region to show", choices=region_set, multiple=FALSE, selected="Eastern_Bering_Sea"),
-
     # Based on region, select species
-    #checkboxGroupInput(inputId="species", label="Species to show", choices=species_s, selected=species_s),
     uiOutput("speciesSelex"),
-
     # Only update plot when clicked (to decrease server load)
-    actionButton("activate", "Click to plot or refresh selection")
+    actionButton("activate", "Click to plot or refresh selection"),
+    br(),
+    br(),
+
+    # Plot animated maps
+    h1("Maps settings"),
+    selectInput(inputId="species2animate", label="Species to animate", choices=paste(region_s,"-",species_s,sep=""), selected="Eastern_Bering_Sea-Gadus chalcogrammus", multiple=FALSE),
+    sliderInput(inputId="sliderYear", label="Year of animation", min=1982, max=2015, value=1982, step=1, animate=animationOptions(interval=500, loop=FALSE, playButton="PLAY", pauseButton=NULL))
   ),
 
   mainPanel(
+    tabsetPanel(
+      tabPanel("Time series", plotOutput('plot1'), plotOutput('plot2')),
+      tabPanel("Maps", plotOutput('image1'))
+    )
     #textOutput('debug_text'),
-    plotOutput('plot1'),
-    plotOutput('plot2')
+    #plotOutput('plot1'),
+    #plotOutput('plot2'),
+    #plotOutput('image1')       #
   )
 )
