@@ -24,7 +24,7 @@ fluidPage(
     br(),
 
     # Time series plots
-    h1("Time series plot settings"),
+    h1("Plot settings"),
     # Choose region
     selectInput(inputId="region", label="Region to show", choices=region_set, multiple=FALSE, selected="Eastern_Bering_Sea"),
     # Based on region, select species
@@ -35,17 +35,26 @@ fluidPage(
     br(),
 
     # Plot animated maps
-    h1("Maps settings"),
-    selectInput(inputId="species2animate", label="Species to animate", choices=paste(region_s,"-",species_s,sep=""), selected="Eastern_Bering_Sea-Gadus chalcogrammus", multiple=FALSE),
-    sliderInput(inputId="sliderYear", label="Year of animation", min=1982, max=2015, value=1982, step=1, animate=animationOptions(interval=500, loop=FALSE, playButton="PLAY", pauseButton=NULL))
+    uiOutput("speciesMapSelex"),
+    uiOutput("sliderSelex")
   ),
 
   mainPanel(
     tabsetPanel(
-      tabPanel("Time series", plotOutput('plot1'), plotOutput('plot2')),
-      tabPanel("Maps", plotOutput('image1'))
+      # Time series tab
+      tabPanel("Time series: Index",
+        #textOutput('debug_text'),
+        plotOutput('plot1', height="600px")    #
+      ),
+      tabPanel("Time series: Distribution",
+        plotOutput('plot2'),
+        plotOutput('plot3')
+      ),
+      # Mapping tab
+      tabPanel("Maps",
+        plotOutput('image1')
+      )
     )
-    #textOutput('debug_text'),
     #plotOutput('plot1'),
     #plotOutput('plot2'),
     #plotOutput('image1')       #
