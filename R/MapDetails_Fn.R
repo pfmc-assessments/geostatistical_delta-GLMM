@@ -79,6 +79,15 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List ){
     Rotate = 0
     Cex = 1.0
   }
+  if( Region == "New_Zealand" ){
+    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Area_km2_x"]]>0))
+    MappingDetails = list("worldHires", NULL )
+    Xlim=c(172,187)
+    Ylim=c(-46,-41)
+    MapSizeRatio = c("Height(in)"=2,"Width(in)"=5)
+    Rotate = 0     # Degrees counter-clockwise
+    Cex = 0.01
+  }
   if( is.null(PlotDF) ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=(Extrapolation_List[["Area_km2_x"]]>0))
     MappingDetails = list("world", NULL )

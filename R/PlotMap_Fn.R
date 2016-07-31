@@ -27,7 +27,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
   
   # Plotting functions
   f = function(Num, zlim=NULL){
-    if( is.null(zlim)) Return = ((Num)-min((Num),na.rm=TRUE))/diff(range((Num),na.rm=TRUE))
+    if( is.null(zlim)) Return = ((Num)-min(Num,na.rm=TRUE))/max(diff(range(Num,na.rm=TRUE)),0.01)
     if( !is.null(zlim)) Return = ((Num)-zlim[1])/max(diff(zlim),0.01)
     return( Return )
   }
