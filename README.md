@@ -91,4 +91,6 @@ Description of individual features
 * Helser, T.E., Punt, A.E., Methot, R.D., 2004. A generalized linear mixed model analysis of a multi-vessel fishery resource survey. Fish. Res. 70, 251–264. doi:10.1016/j.fishres.2004.08.007
 * Thorson, J.T., Ward, E.J., 2014. Accounting for vessel effects when standardizing catch rates from cooperative surveys. Fish. Res. 155, 168–176. doi:10.1016/j.fishres.2014.02.036
 
+### Bias-correction of estimated indices of abundance
+* Thorson, J.T., and Kristensen, K. 2016. Implementing a generic method for bias correction in statistical models using random effects, with spatial and population dynamics examples. Fish. Res. 175: 66–74. doi:10.1016/j.fishres.2015.11.016.
 
