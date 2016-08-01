@@ -1,21 +1,15 @@
 library(shiny)
-library(ggplot2)
 
-file_set = list.files("database")[grep("RData",list.files("database"))]
+# Load stuff
+load( file="database/Results-speciesDF.RData" )
+region_set = unique( speciesDF[,'Region'] )
 
-DF1 = DF2 = NULL
-species_s = region_s = rep(NA, length(file_set))
-for(sI in 1:length(file_set)){
-  Char = strsplit( file_set[sI], split="-", fixed=TRUE)[[1]]
-  species_s[sI] = strsplit( Char[2], split=".", fixed=TRUE)[[1]][1]
-  region_s[sI] = Char[1]
-}
-region_set = unique(region_s)
-
+# Page for user interface
 fluidPage(
 
   titlePanel("Visualize fish populations"),
 
+  # Panel for settings
   sidebarPanel(
     # Display useful info
     h1("Background"),
@@ -30,15 +24,20 @@ fluidPage(
     # Based on region, select species
     uiOutput("speciesSelex"),
     # Only update plot when clicked (to decrease server load)
-    actionButton("activate", "Click to plot or refresh selection"),
+      #actionButton("activate", "Click to plot or refresh selection"),
     br(),
-    br(),
+    #br(),
 
     # Plot animated maps
     uiOutput("speciesMapSelex"),
-    uiOutput("sliderSelex")
+    uiOutput("sliderSelex"),
+
+    h1("Disclaimer"),
+    h4("These results do not reflect all available information for assessing the status of these stocks, and anyone interested should consult stock assessments for a more-complete picture of indivudal stocks"),
+    br()
   ),
 
+  # Configuration of plotting tabs
   mainPanel(
     tabsetPanel(
       # Time series tab
@@ -55,8 +54,5 @@ fluidPage(
         plotOutput('image1')
       )
     )
-    #plotOutput('plot1'),
-    #plotOutput('plot2'),
-    #plotOutput('image1')       #
   )
 )
