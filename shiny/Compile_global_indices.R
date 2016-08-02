@@ -40,19 +40,18 @@
 ################
 #
 ###### Loop through regions
-##for(rI in 1:length(RegionSet)){
-#for(rI in 5:length(RegionSet)){
+#for(rI in 1:length(RegionSet)){
 #  # Which region
 #  Region = RegionSet[rI]
 #
 #  # This is where all runs will be located
-#  RegionDir = paste0(ResultsDir,'Region=',Region,'\\')
+#  RegionDir = paste0(LocalDir,'Region=',Region,'\\')
 #    dir.create(RegionDir)
 #
 #  # Regions with a public API  #
 #    # scrape_data( region="California_current", ...) is identical to previous except 10,000 times smaller
 #  if( Region %in% c("Eastern_Bering_Sea", "Gulf_of_Alaska", "Aleutian_Islands", "California_current")){
-#    Database = FishData::scrape_data( region=Region, species_set=10, error_tol=0.01, localdir=LocalDir )
+#    Database = FishData::scrape_data( region=Region, species_set=25, error_tol=0.01, localdir=LocalDir )
 #    species_set = unique( Database[,'Sci'] )
 #    Database = ThorsonUtilities::rename_columns( Database[,c('Sci','Wt','Year','Long','Lat')], newname=c('Sci','Catch_KG','Year','Lon','Lat') )
 #    Database = cbind( Database, 'AreaSwept_km2'=0.01 )
@@ -91,73 +90,85 @@
 #  }
 #  Database = na.omit( Database )
 #
+#  # Kick out species with all or no encounters in any year
+#  EncProb = tapply( Database[,'Catch_KG'], INDEX=list(Database[,'Sci'],Database[,'Year']), FUN=function(vec){mean(vec>0)})
+#  species_set = species_set[ which(apply(EncProb,MARGIN=1,FUN=function(vec){all(vec!=1&vec!=0)})) ]
+#
+#  # Kick out high-level taxa
+#  species_set = species_set[ which(sapply(as.character(species_set),FUN=function(Char){length(strsplit(Char,split=" ")[[1]])==2})) ]
+#
+#  # Kick out "sp."
+#  if( length(grep("sp.",species_set))>0 ) species_set = species_set[-grep("sp.",species_set)]
+#
 #  ##### Loop through species
 #  for( sI in 1:length(species_set)){
-#    # Read or simulate trawl data
-#    if( 'Sci' %in% names(Database)){
-#      Data_Geostat = Database[ which(Database[,'Sci']==species_set[sI]), ]
-#    }else{
-#      Data_Geostat = Database
-#    }
-#
-#    # Get extrapolation data
-#    if( Region %in% c("British_Columbia","South_Africa","Iceland","Northwest_Atlantic") ){
-#      if( Region == "British_Columbia" ){
-#        Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, strata_to_use=c("HS","QCS") )
+#    if( !file.exists(paste0(ResultsDir,Region,"-",species_set[sI],".RData")) ){
+#      # Read or simulate trawl data
+#      if( 'Sci' %in% names(Database)){
+#        Data_Geostat = Database[ which(Database[,'Sci']==species_set[sI]), ]
+#      }else{
+#        Data_Geostat = Database
 #      }
-#      if( Region == "South_Africa" ){
-#        Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, region="west_coast" )
+#
+#      # Get extrapolation data
+#      if( Region %in% c("British_Columbia","South_Africa","Iceland","Northwest_Atlantic") ){
+#        if( Region == "British_Columbia" ){
+#          Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, strata_to_use=c("HS","QCS") )
+#        }
+#        if( Region == "South_Africa" ){
+#          Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, region="west_coast" )
+#        }
+#        if( Region == "Iceland" ){
+#          Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, observations_LL=Data_Geostat[,c('Lat','Lon')], maximum_distance_from_sample=15 )
+#        }
+#        if( Region == "Northwest_Atlantic" ){
+#          Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=list('Georges_Bank'=c(1130,1140,1150,1160,1170,1180,1190,1200,1210,1220,1230,1240,1250,1290,1300)) )
+#        }
+#      }else{
+#        Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits )
 #      }
-#      if( Region == "Iceland" ){
-#        Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, observations_LL=Data_Geostat[,c('Lat','Lon')], maximum_distance_from_sample=15 )
-#      }
-#      if( Region == "Northwest_Atlantic" ){
-#        Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=list('Georges_Bank'=c(1130,1140,1150,1160,1170,1180,1190,1200,1210,1220,1230,1240,1250,1290,1300)) )
-#      }
-#    }else{
-#      Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits )
-#    }
 #
-#    # Calculate spatial information for SPDE mesh, strata areas, and AR1 process
-#    file.remove( paste0(RegionDir,"/","Kmeans-",n_x,".RData") )    # To avoid re-using the mesh, delete the file
-#    Spatial_List = Spatial_Information_Fn( grid_size_km=grid_size_km, n_x=n_x, Method=Method, Lon=Data_Geostat[,'Lon'], Lat=Data_Geostat[,'Lat'], Extrapolation_List=Extrapolation_List, randomseed=Kmeans_Config[["randomseed"]], nstart=Kmeans_Config[["nstart"]], iter.max=Kmeans_Config[["iter.max"]], DirPath=RegionDir )
-#    Data_Geostat = cbind( Data_Geostat, Spatial_List$loc_UTM, "knot_i"=Spatial_List$knot_i )
+#      # Calculate spatial information for SPDE mesh, strata areas, and AR1 process
+#      file.remove( paste0(RegionDir,"/","Kmeans-",n_x,".RData") )    # To avoid re-using the mesh, delete the file
+#      Spatial_List = Spatial_Information_Fn( grid_size_km=grid_size_km, n_x=n_x, Method=Method, Lon=Data_Geostat[,'Lon'], Lat=Data_Geostat[,'Lat'], Extrapolation_List=Extrapolation_List, randomseed=Kmeans_Config[["randomseed"]], nstart=Kmeans_Config[["nstart"]], iter.max=Kmeans_Config[["iter.max"]], DirPath=RegionDir )
+#      Data_Geostat = cbind( Data_Geostat, Spatial_List$loc_UTM, "knot_i"=Spatial_List$knot_i )
 #
-#    # Make TMB data list
-#    TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "RhoConfig"=RhoConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year'], "a_xl"=Spatial_List$a_xl, "MeshList"=Spatial_List$MeshList, "GridList"=Spatial_List$GridList, "Method"=Spatial_List$Method, "Options"=Options )
+#      # Make TMB data list
+#      TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "RhoConfig"=RhoConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year'], "a_xl"=Spatial_List$a_xl, "MeshList"=Spatial_List$MeshList, "GridList"=Spatial_List$GridList, "Method"=Spatial_List$Method, "Options"=Options )
 #
-#    # Make TMB object
-#    TmbList = Build_TMB_Fn("TmbData"=TmbData, "RunDir"=RegionDir, "Version"=Version, "RhoConfig"=RhoConfig, "VesselConfig"=VesselConfig, "loc_x"=Spatial_List$loc_x)
-#    Obj = TmbList[["Obj"]]
+#      # Make TMB object
+#      TmbList = Build_TMB_Fn("TmbData"=TmbData, "RunDir"=RegionDir, "Version"=Version, "RhoConfig"=RhoConfig, "VesselConfig"=VesselConfig, "loc_x"=Spatial_List$loc_x)
+#      Obj = TmbList[["Obj"]]
 #
-#    # Run model
-#    Opt = TMBhelper::Optimize( obj=Obj, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]], getsd=TRUE, savedir=NULL, bias.correct=FALSE )
-#    Report = Obj$report()
-#    Year_Set = min(Data_Geostat[,'Year']):max(Data_Geostat[,'Year'])
-#    dyn.unload(paste0(RegionDir,"/",TMB::dynlib(Version)))
+#      # Run model
+#      Opt = TMBhelper::Optimize( obj=Obj, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]], getsd=TRUE, savedir=NULL, bias.correct=FALSE )
+#      Report = Obj$report()
+#      Year_Set = min(Data_Geostat[,'Year']):max(Data_Geostat[,'Year'])
+#      dyn.unload(paste0(RegionDir,"/",TMB::dynlib(Version)))
 #
-#    # Plot index
-#    Index = PlotIndex_Fn( DirName=RegionDir, TmbData=TmbData, Sdreport=Opt[["SD"]], Year_Set=Year_Set, strata_names=strata.limits[,1], use_biascorr=TRUE )
+#      # Plot index
+#      Index = PlotIndex_Fn( DirName=RegionDir, TmbData=TmbData, Sdreport=Opt[["SD"]], Year_Set=Year_Set, strata_names=strata.limits[,1], use_biascorr=TRUE )
 #
-#    # Plot center of gravity
-#    COG = Plot_range_shifts(Report=Report, TmbData=TmbData, Sdreport=Opt[["SD"]], Year_Set=Year_Set, Znames=colnames(TmbData$Z_xm), FileName_COG=paste0(RegionDir,"center_of_gravity.png"))
+#      # Plot center of gravity
+#      COG = Plot_range_shifts(Report=Report, TmbData=TmbData, Sdreport=Opt[["SD"]], Year_Set=Year_Set, Znames=colnames(TmbData$Z_xm), FileName_COG=paste0(RegionDir,"center_of_gravity.png"))
 #
-#    # save
-#    Save = list("Index"=Index$Table[Index$Table[,'Year']%in%Data_Geostat$Year,], "COG"=COG$Table[COG$Table[,'Year']%in%Data_Geostat$Year,])
-#    save( Save, file=paste0(ResultsDir,Region,"-",species_set[sI],".RData") )
+#      # save
+#      Save = list("Index"=Index$Table[Index$Table[,'Year']%in%Data_Geostat$Year,], "COG"=COG$Table[COG$Table[,'Year']%in%Data_Geostat$Year,])
+#      save( Save, file=paste0(ResultsDir,Region,"-",species_set[sI],".RData") )
 #
-#    # Plot maps for animation   #
-#    MapDetails_List = SpatialDeltaGLMM::MapDetails_Fn( "Region"=Region, "NN_Extrap"=Spatial_List$PolygonList$NN_Extrap, "Extrapolation_List"=Extrapolation_List )
-#    Dir = paste0(ResultsDir,"Image-",Region,"-",species_set[sI],"/")
-#    dir.create( Dir )
-#    for(tI in 1:TmbData$n_t){
-#      if( any((TmbData$t_i+1)==tI) ){
-#        ThorsonUtilities::save_fig( filename=paste0(Dir,Year_Set[tI]), width=MapDetails_List$MapSizeRatio['Width(in)'], height=MapDetails_List$MapSizeRatio['Height(in)'], res=200 )
-#          Zlim = range( log(Report$D_xt) )
-#          # MappingDetails=MapDetails_List$MappingDetails; Mat=log(Report$D_xt[,tI,drop=FALSE]); zlim=Zlim; PlotDF=MapDetails_List[["PlotDF"]]; MapSizeRatio=MapDetails_List[["MapSizeRatio"]]; Xlim=MapDetails_List[["Xlim"]]; Ylim=MapDetails_List[["Ylim"]]; FileName=NA; Format=""; Year_Set=Year_Set[tI]; outermargintext=c("",""); mar=c(0,0,2,0); Cex=0.5
-#          SpatialDeltaGLMM:::PlotMap_Fn(MappingDetails=MapDetails_List$MappingDetails, Mat=log(Report$D_xt[,tI,drop=FALSE]), zlim=Zlim, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=NA, Format="", Year_Set=Year_Set[tI], outermargintext=c("",""), mar=c(2,2,2,0), Cex=switch(Region, "Northwest_Atlantic"=2, "Gulf_of_St_Lawrence"=1, 0.5))
-#          axis(1); axis(2)
-#        dev.off()
+#      # Plot maps for animation   #
+#      MapDetails_List = SpatialDeltaGLMM::MapDetails_Fn( "Region"=Region, "NN_Extrap"=Spatial_List$PolygonList$NN_Extrap, "Extrapolation_List"=Extrapolation_List )
+#      Dir = paste0(ResultsDir,"Image-",Region,"-",species_set[sI],"/")
+#      dir.create( Dir )
+#      for(tI in 1:TmbData$n_t){
+#        if( any((TmbData$t_i+1)==tI) ){
+#          ThorsonUtilities::save_fig( filename=paste0(Dir,Year_Set[tI]), width=MapDetails_List$MapSizeRatio['Width(in)'], height=MapDetails_List$MapSizeRatio['Height(in)'], res=200 )
+#            Zlim = range( log(Report$D_xt) )
+#            # MappingDetails=MapDetails_List$MappingDetails; Mat=log(Report$D_xt[,tI,drop=FALSE]); zlim=Zlim; PlotDF=MapDetails_List[["PlotDF"]]; MapSizeRatio=MapDetails_List[["MapSizeRatio"]]; Xlim=MapDetails_List[["Xlim"]]; Ylim=MapDetails_List[["Ylim"]]; FileName=NA; Format=""; Year_Set=Year_Set[tI]; outermargintext=c("",""); mar=c(0,0,2,0); Cex=0.5
+#            SpatialDeltaGLMM:::PlotMap_Fn(MappingDetails=MapDetails_List$MappingDetails, Mat=log(Report$D_xt[,tI,drop=FALSE]), zlim=Zlim, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=NA, Format="", Year_Set=Year_Set[tI], outermargintext=c("",""), mar=c(2,2,2,0), Cex=switch(Region, "Northwest_Atlantic"=2, "Gulf_of_St_Lawrence"=1, 0.5))
+#            axis(1); axis(2)
+#          dev.off()
+#        }
 #      }
 #    }
 #  }

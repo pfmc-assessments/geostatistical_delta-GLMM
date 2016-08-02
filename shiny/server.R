@@ -47,7 +47,8 @@ function(input, output){
       species2plot = sapply( input$species2plot, FUN=function(Char){strsplit(Char,'  ')[[1]][1]})
       for( sI in 1:length(species2plot)){
         Tmp = indexDF[ which(indexDF[,'Species']==species2plot[sI] & indexDF[,'Region']==input$region), ]
-        Plot_Points_and_Bounds_Fn( y=Tmp[,'Index'], x=Tmp[,'Year'], ybounds=(Tmp[,'Index']%o%c(1,1))*exp(Tmp[,'SD..log.']%o%c(-interval_width,interval_width)), type="b", col=rainbow(length(species2plot))[sI], col_bounds=rainbow(length(species2plot),alpha=0.2)[sI], bounds_type="shading")
+        if(input$plotCI==FALSE) lines( y=Tmp[,'Index'], x=Tmp[,'Year'], type="b", col=rainbow(length(species2plot))[sI] )
+        if(input$plotCI==TRUE) Plot_Points_and_Bounds_Fn( y=Tmp[,'Index'], x=Tmp[,'Year'], ybounds=(Tmp[,'Index']%o%c(1,1))*exp(Tmp[,'SD..log.']%o%c(-interval_width,interval_width)), type="b", col=rainbow(length(species2plot))[sI], col_bounds=rainbow(length(species2plot),alpha=0.2)[sI], bounds_type="shading")
       }
       if(length(species2plot)>0) legend( "top", legend=species2plot, fill=rainbow(length(species2plot)), bty="n", ncol=5 )
     #})
@@ -62,7 +63,8 @@ function(input, output){
       species2plot = sapply( input$species2plot, FUN=function(Char){strsplit(Char,"  ")[[1]][1]})
       for( sI in 1:length(species2plot)){
         Tmp = cogDF[ which(cogDF[,'Species']==species2plot[sI] & cogDF[,'Region']==input$region), ]
-        Plot_Points_and_Bounds_Fn( y=Tmp[,'North.COG_hat'], x=Tmp[,'Year'], ybounds=(Tmp[,'North.COG_hat']%o%c(1,1))+(Tmp[,'North.SE']%o%c(-interval_width,interval_width)), type="b", col=rainbow(length(species2plot))[sI], col_bounds=rainbow(length(species2plot),alpha=0.2)[sI], bounds_type="shading")
+        if(input$plotCI==FALSE) lines( y=Tmp[,'North.COG_hat'], x=Tmp[,'Year'], type="b", col=rainbow(length(species2plot))[sI])
+        if(input$plotCI==TRUE) Plot_Points_and_Bounds_Fn( y=Tmp[,'North.COG_hat'], x=Tmp[,'Year'], ybounds=(Tmp[,'North.COG_hat']%o%c(1,1))+(Tmp[,'North.SE']%o%c(-interval_width,interval_width)), type="b", col=rainbow(length(species2plot))[sI], col_bounds=rainbow(length(species2plot),alpha=0.2)[sI], bounds_type="shading")
      }
     #})
   })
@@ -76,7 +78,8 @@ function(input, output){
       species2plot = sapply( input$species2plot, FUN=function(Char){strsplit(Char,'  ')[[1]][1]})
       for( sI in 1:length(species2plot)){
         Tmp = cogDF[ which(cogDF[,'Species']==species2plot[sI] & cogDF[,'Region']==input$region), ]
-        Plot_Points_and_Bounds_Fn( y=Tmp[,'East.COG_hat'], x=Tmp[,'Year'], ybounds=(Tmp[,'East.COG_hat']%o%c(1,1))+(Tmp[,'East.SE']%o%c(-interval_width,interval_width)), type="b", col=rainbow(length(species2plot))[sI], col_bounds=rainbow(length(species2plot),alpha=0.2)[sI], bounds_type="shading")
+        if(input$plotCI==FALSE) lines( y=Tmp[,'East.COG_hat'], x=Tmp[,'Year'], type="b", col=rainbow(length(species2plot))[sI])
+        if(input$plotCI==TRUE) Plot_Points_and_Bounds_Fn( y=Tmp[,'East.COG_hat'], x=Tmp[,'Year'], ybounds=(Tmp[,'East.COG_hat']%o%c(1,1))+(Tmp[,'East.SE']%o%c(-interval_width,interval_width)), type="b", col=rainbow(length(species2plot))[sI], col_bounds=rainbow(length(species2plot),alpha=0.2)[sI], bounds_type="shading")
      }
     #})
   })

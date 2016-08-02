@@ -19,6 +19,8 @@ fluidPage(
 
     # Time series plots
     h1("Plot settings"),
+    h4("Graphical settings"),
+    checkboxInput( inputId="plotCI", label="Plot confidence intervals?", value=FALSE),
     # Choose region
     selectInput(inputId="region", label="Region to show", choices=region_set, multiple=FALSE, selected="Eastern_Bering_Sea"),
     # Based on region, select species

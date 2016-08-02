@@ -12,7 +12,8 @@
 
 PlotMap_Fn <-
 function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set,
-         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, textmargin="", add=FALSE, pch=20, outermargintext=c("Eastings","Northings"), zlim=NULL, ...){
+         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, textmargin="", add=FALSE, pch=20, outermargintext=c("Eastings","Northings"), zlim=NULL,
+         Legend=list("use"=FALSE, "x"=c(10,30), "y"=c(10,30)), ...){
 
   # avoid attaching maps and mapdata to use worldHires plotting
   require(maps)
@@ -84,8 +85,12 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
       }
       title( Year_Set[tI], line=0.1, cex.main=ifelse(is.null(Par$cex.main), 1.8, Par$cex.main), cex=ifelse(is.null(Par$cex.main), 1.8, Par$cex.main) )
       box()
-      #if(t==1) compassRose( x=c(0.75,0.25)%*%par()$usr[1:2], y=c(0.25,0.75)%*%par()$usr[3:4], rotate=Rotate)
     }
+    # Include legend
+    if( Legend$use==TRUE ){
+      SpatialDeltaGLMM:::smallPlot( SpatialDeltaGLMM:::Heatmap_Legend(colvec=Col(50), heatrange=range(Mat[Which,]), dopar=FALSE), x=Legend$x, y=Legend$y, mar=c(0,0,0,0), mgp=c(2,0.5,0), tck=-0.2, font=2 )  #
+    }
+    # Margin text
     mtext(side=1, outer=TRUE, outermargintext[1], cex=1.75, line=par()$oma[1]/2)
     mtext(side=2, outer=TRUE, outermargintext[2], cex=1.75, line=par()$oma[2]/2)
   if(Format %in% c("png","jpg","tif","tiff")) dev.off()
