@@ -7,10 +7,6 @@ SpatialDeltaGLMM
 * Is intended to improve analysis speed, replicability, peer-review, and interpretation of index standardization methods
 * Will eventually be improved to incorporate informative help files accessible via standard R commands.
 
-Regions available in the [example script](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/Example--simple.R): 
-![alt text](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/raw/master/examples/global_coverage.png "Global data coverage")
-and see [FishViz.org](http://www.FishViz.org) for visualization of results for regions with a public API for their data.
-
 Background
 * This tool is designed to estimate spatial variation in density using fishery-independent data, with the goal of estimating total abundance for a target species in one or more years.  
 * The model builds upon delta-generalized linear mixed modelling techniques (Thorson and Ward 2013,2014), which separately models the proportion of tows that catch at least one individual ("encounter probability") and catch rates for tows with at least one individual ("positive catch rates").  
@@ -18,6 +14,17 @@ Background
 * Each submodel can also estimate spatial variation (variation that is constant among years), and spatiotemporal variation (variation over space which differs among years).  
 * Spatial and spatiotemporal variation are approximated as Gaussian Markov random fields (Thorson Skaug et al. In press), which imply that correlations in spatial variation decay as a function of distance.  
 * The tool incorporates geometric anisotropy, i.e., differences and rotation of the direction of correlation, where correlations may decline faster inshore-offshore than alongshore (Thorson Shelton et al. In press). 
+
+Development notes
+* `SpatialDeltaGLMM` now has unit-testing to ensure that results are consistent across software updates
+* Package `VAST` ([link here](https://github.com/james-thorson/VAST)) has been developed as a multispecies extension to `SpatialDeltaGLMM`, and unit testing confirms that it gives identical results when using data for a single species.  I recommend that new users use `VAST` to ease the transition to multispecies or age/size-structured index models.
+ 
+Description
+=============
+
+Regions available in the [example script](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/Example--simple.R): 
+![alt text](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/raw/master/examples/global_coverage.png "Global data coverage")
+and see [FishViz.org](http://www.FishViz.org) for visualization of results for regions with a public API for their data.
 
 Installation Instructions
 =============
