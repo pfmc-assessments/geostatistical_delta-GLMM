@@ -19,7 +19,7 @@ Development notes
 * `SpatialDeltaGLMM` now has unit-testing to ensure that results are consistent across software updates
 * Package `VAST` ([link here](https://github.com/james-thorson/VAST)) has been developed as a multispecies extension to `SpatialDeltaGLMM`, and unit testing confirms that it gives identical results when using data for a single species.  I recommend that new users use `VAST` to ease the transition to multispecies or age/size-structured index models.
  
-Description
+Database
 =============
 
 Regions available in the [example script](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/Example--simple.R): 
