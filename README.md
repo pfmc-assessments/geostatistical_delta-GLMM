@@ -24,44 +24,48 @@ Database
 
 Regions available in the [example script](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/Example--simple.R): 
 ![alt text](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/raw/master/examples/global_coverage.png "Global data coverage")
-and see [FishViz.org](http://www.FishViz.org) for visualization of results for regions with a public API for their data.
+and see [FishViz.org](http://www.FishViz.org) for visualization of results for regions with a public API for their data, using package `FishData` ([link here](https://github.com/james-thorson/FishData)).
 
 Installation Instructions
 =============
 This function depends on R version >=3.1.1 and a variety of other tools.
 
-First, install the "devtools" package from CRAN
+First, install the package `devtools` package from CRAN
 
-    # Install and load devtools package
-    install.packages("devtools")
-    library("devtools")
+```R
+# Install and load devtools package
+install.packages("devtools")
+library("devtools")
+```
 
 Second, please install the following:
 * TMB (Template Model Builder): https://github.com/kaskr/adcomp
 * INLA (integrated nested Laplace approximations): http://www.r-inla.org/download
 
-Note: at the moment, TMB and INLA can be installed using the commands 
+Note: at the moment, packages `TMB` and `INLA` can be installed using the commands 
 
-    # devtools command to get TMB from GitHub
-    install_github("kaskr/adcomp/TMB") 
-    # source script to get INLA from the web
-    source("http://www.math.ntnu.no/inla/givemeINLA.R")  
-    
-Next, please install the geostatistical_delta-GLMM package from this GitHub repository using a function in the "devtools" package:
+```R
+# devtools command to get TMB from GitHub
+install_github("kaskr/adcomp/TMB") 
+# source script to get INLA from the web
+source("http://www.math.ntnu.no/inla/givemeINLA.R")  
+```
 
-    # Install package
-    install_github("nwfsc-assess/geostatistical_delta-GLMM", ref="3.3.0") 
-    # Load package
-    library(SpatialDeltaGLMM)
+Next, please install package `SpatialDeltaGLMM` from this GitHub repository using a function in the `devtools` package:
+
+```R
+# Install package
+install_github("nwfsc-assess/geostatistical_delta-GLMM", ref="3.3.0") 
+# Load package
+library(SpatialDeltaGLMM)
+```
 
 Or you can always use the development version
 
-    # Install package
-    install_github("nwfsc-assess/geostatistical_delta-GLMM") 
-
-Known installation/usage issues
-=============
-none
+```R
+# Install package
+install_github("nwfsc-assess/geostatistical_delta-GLMM") 
+```
 
 Example code
 =============
