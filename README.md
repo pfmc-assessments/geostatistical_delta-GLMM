@@ -7,10 +7,6 @@ SpatialDeltaGLMM
 * Is intended to improve analysis speed, replicability, peer-review, and interpretation of index standardization methods
 * Will eventually be improved to incorporate informative help files accessible via standard R commands.
 
-Regions available in the [example script](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/Example--simple.R): 
-![alt text](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/raw/master/examples/global_coverage.png "Global data coverage")
-and see [FishViz.org](http://www.FishViz.org) for visualization of results for regions with a public API for their data.
-
 Background
 * This tool is designed to estimate spatial variation in density using fishery-independent data, with the goal of estimating total abundance for a target species in one or more years.  
 * The model builds upon delta-generalized linear mixed modelling techniques (Thorson and Ward 2013,2014), which separately models the proportion of tows that catch at least one individual ("encounter probability") and catch rates for tows with at least one individual ("positive catch rates").  
@@ -19,42 +15,57 @@ Background
 * Spatial and spatiotemporal variation are approximated as Gaussian Markov random fields (Thorson Skaug et al. In press), which imply that correlations in spatial variation decay as a function of distance.  
 * The tool incorporates geometric anisotropy, i.e., differences and rotation of the direction of correlation, where correlations may decline faster inshore-offshore than alongshore (Thorson Shelton et al. In press). 
 
+Development notes
+* `SpatialDeltaGLMM` now has unit-testing to ensure that results are consistent across software updates
+* Package `VAST` ([link here](https://github.com/james-thorson/VAST)) has been developed as a multispecies extension to `SpatialDeltaGLMM`, and unit testing confirms that it gives identical results when using data for a single species.  I recommend that new users use `VAST` to ease the transition to multispecies or age/size-structured index models.
+ 
+Database
+=============
+
+Regions available in the [example script](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/Example--simple.R): 
+![alt text](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/raw/master/examples/global_coverage.png "Global data coverage")
+and see [FishViz.org](http://www.FishViz.org) for visualization of results for regions with a public API for their data, using package `FishData` ([link here](https://github.com/james-thorson/FishData)).
+
 Installation Instructions
 =============
 This function depends on R version >=3.1.1 and a variety of other tools.
 
-First, install the "devtools" package from CRAN
+First, install the package `devtools` package from CRAN
 
-    # Install and load devtools package
-    install.packages("devtools")
-    library("devtools")
+```R
+# Install and load devtools package
+install.packages("devtools")
+library("devtools")
+```
 
 Second, please install the following:
 * TMB (Template Model Builder): https://github.com/kaskr/adcomp
 * INLA (integrated nested Laplace approximations): http://www.r-inla.org/download
 
-Note: at the moment, TMB and INLA can be installed using the commands 
+Note: at the moment, packages `TMB` and `INLA` can be installed using the commands 
 
-    # devtools command to get TMB from GitHub
-    install_github("kaskr/adcomp/TMB") 
-    # source script to get INLA from the web
-    source("http://www.math.ntnu.no/inla/givemeINLA.R")  
-    
-Next, please install the geostatistical_delta-GLMM package from this GitHub repository using a function in the "devtools" package:
+```R
+# devtools command to get TMB from GitHub
+install_github("kaskr/adcomp/TMB") 
+# source script to get INLA from the web
+source("http://www.math.ntnu.no/inla/givemeINLA.R")  
+```
 
-    # Install package
-    install_github("nwfsc-assess/geostatistical_delta-GLMM", ref="3.3.0") 
-    # Load package
-    library(SpatialDeltaGLMM)
+Next, please install package `SpatialDeltaGLMM` from this GitHub repository using a function in the `devtools` package:
+
+```R
+# Install package
+install_github("nwfsc-assess/geostatistical_delta-GLMM", ref="3.3.0") 
+# Load package
+library(SpatialDeltaGLMM)
+```
 
 Or you can always use the development version
 
-    # Install package
-    install_github("nwfsc-assess/geostatistical_delta-GLMM") 
-
-Known installation/usage issues
-=============
-none
+```R
+# Install package
+install_github("nwfsc-assess/geostatistical_delta-GLMM") 
+```
 
 Example code
 =============
