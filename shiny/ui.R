@@ -13,20 +13,23 @@ fluidPage(
   sidebarPanel(
     # Display useful info
     h1("Background"),
-    h4("This page shows indices of abundance and distribution for 10 species from several regions"),
+    h4("This page shows indices of abundance and distribution for marine fishes in several regions"),
     h4("For details of computation, please see ", a("www.FishStats.org", href="http://www.FishStats.org")),
     br(),
 
     # Time series plots
     h1("Plot settings"),
-    h4("Graphical settings"),
-    checkboxInput( inputId="plotCI", label="Plot confidence intervals?", value=FALSE),
     # Choose region
     selectInput(inputId="region", label="Region to show", choices=region_set, multiple=FALSE, selected="Eastern_Bering_Sea"),
+    h4("General settings"),
+    # Generate settings
+    checkboxInput( inputId="plotCI", label="Plot confidence intervals?", value=FALSE),
+    textInput(inputId="species_match", label="Search species", value = ""),
+    actionButton(inputId="unselect_all", label="Unselect all species"),
     # Based on region, select species
     uiOutput("speciesSelex"),
     # Only update plot when clicked (to decrease server load)
-      #actionButton("activate", "Click to plot or refresh selection"),
+      #actionButton(inputId="activate", label="Click to plot or refresh selection"),
     br(),
     #br(),
 
@@ -44,7 +47,9 @@ fluidPage(
     tabsetPanel(
       # Time series tab
       tabPanel("Time series: Index",
-        #textOutput('debug_text'),
+        textOutput('debug_text1'),
+        textOutput('debug_text2'),
+        textOutput('debug_text3'),
         plotOutput('plot1', height="600px")    #
       ),
       tabPanel("Time series: Distribution",
@@ -54,6 +59,12 @@ fluidPage(
       # Mapping tab
       tabPanel("Maps",
         plotOutput('image1')
+      ),
+      tabPanel("Global coverage",
+        plotOutput('image2')
+      ),
+      tabPanel("Acknowledgements",
+        tableOutput('table1')
       )
     )
   )

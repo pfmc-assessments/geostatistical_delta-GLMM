@@ -2,3 +2,5 @@
 *.dll
 *.so
 shiny/database/
+shiny/testing/
+shiny/global_coverage.png

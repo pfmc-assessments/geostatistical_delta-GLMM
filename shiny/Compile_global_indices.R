@@ -51,7 +51,7 @@
 #  # Regions with a public API  #
 #    # scrape_data( region="California_current", ...) is identical to previous except 10,000 times smaller
 #  if( Region %in% c("Eastern_Bering_Sea", "Gulf_of_Alaska", "Aleutian_Islands", "California_current")){
-#    Database = FishData::scrape_data( region=Region, species_set=25, error_tol=0.01, localdir=LocalDir )
+#    Database = FishData::scrape_data( region=Region, species_set=100, error_tol=0.01, localdir=LocalDir )
 #    species_set = unique( Database[,'Sci'] )
 #    Database = ThorsonUtilities::rename_columns( Database[,c('Sci','Wt','Year','Long','Lat')], newname=c('Sci','Catch_KG','Year','Lon','Lat') )
 #    Database = cbind( Database, 'AreaSwept_km2'=0.01 )
@@ -184,7 +184,7 @@
 #
 ## Things to save
 #indexDF = cogDF = NULL
-#speciesDF = data.frame( matrix(NA, nrow=length(file_set), ncol=3, dimnames=list(NULL,c("Region","Sci","Common"))) )
+#speciesDF = data.frame( matrix(NA, nrow=length(file_set), ncol=6, dimnames=list(NULL,c("Region","Sci","Common","Class","Family","Order"))) )
 #
 ## Loop through species
 #for(sI in 1:nrow(speciesDF)){
@@ -205,6 +205,30 @@
 #  }else{
 #    speciesDF[sI,'Common'] = "-"
 #  }
+#
+#  # Get taxonomic info
+#  # NCBI is weird, but doesn't fail
+#  if(FALSE){
+#    NCBI = taxize::classification(speciesDF[sI,'Sci'], db='ncbi')
+#    if("rank"%in%names(NCBI[[1]]) && "superclass"%in%NCBI[[1]][,'rank']) speciesDF[sI,'Class'] = NCBI[[1]][which(NCBI[[1]][,'rank']=="superclass"),'name']
+#    if("rank"%in%names(NCBI[[1]]) && "order"%in%NCBI[[1]][,'rank']) speciesDF[sI,'Order'] = NCBI[[1]][which(NCBI[[1]][,'rank']=="order"),'name']
+#    if("rank"%in%names(NCBI[[1]]) && "family"%in%NCBI[[1]][,'rank']) speciesDF[sI,'Family'] = NCBI[[1]][which(NCBI[[1]][,'rank']=="family"),'name']
+#  }
+#  # Itis fails a lot
+#  if(FALSE){
+#    Itis = taxize::classification(speciesDF[sI,'Sci'], db='itis')
+#    if("rank"%in%names(Itis[[1]]) && "Class"%in%Itis[[1]][,'rank']) speciesDF[sI,'Class'] = Itis[[1]][which(Itis[[1]][,'rank']=="Class"),'name']
+#    if("rank"%in%names(Itis[[1]]) && "Order"%in%Itis[[1]][,'rank']) speciesDF[sI,'Order'] = Itis[[1]][which(Itis[[1]][,'rank']=="Order"),'name']
+#    if("rank"%in%names(Itis[[1]]) && "Family"%in%Itis[[1]][,'rank']) speciesDF[sI,'Family'] = Itis[[1]][which(Itis[[1]][,'rank']=="Family"),'name']
+#  }
+#  if(TRUE){
+#    COL = taxize::classification(speciesDF[sI,'Sci'], db='gbif', row=1)
+#    if("rank"%in%names(COL[[1]]) && "class"%in%COL[[1]][,'rank']) speciesDF[sI,'Class'] = as.character(COL[[1]][which(COL[[1]][,'rank']=="class"),'name'])
+#    if("rank"%in%names(COL[[1]]) && "order"%in%COL[[1]][,'rank']) speciesDF[sI,'Order'] = as.character(COL[[1]][which(COL[[1]][,'rank']=="order"),'name'])
+#    if("rank"%in%names(COL[[1]]) && "family"%in%COL[[1]][,'rank']) speciesDF[sI,'Family'] = as.character(COL[[1]][which(COL[[1]][,'rank']=="family"),'name'])
+#  }
+#  #GBIF = taxize::classification(speciesDF[sI,'Sci'], db='gbif')
+#  #EOL = taxize::classification(speciesDF[sI,'Sci'], db='eol')
 #}
 #
 ## Save compiled results

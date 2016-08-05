@@ -25,11 +25,22 @@
 #sliderInput animation example
 # http://shiny.rstudio.com/gallery/image-output.html
 
+#Button to turn off all check-boxes
+# http://stackoverflow.com/questions/35043641/selecting-all-the-check-boxes-at-once-in-shiny
+
+#Action buttons side-by-side
+# http://stackoverflow.com/questions/20637248/shiny-4-small-textinput-boxes-side-by-side
+
 # REAL VERSION -- DO NOT USE FOR TESTING
 setwd( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/shiny" )
 
 # DEVELOPMENT VERSION -- USE FOR TESTING
 setwd( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/shiny/testing" )
+
+# Copy files
+if(FALSE){
+  file.copy( from="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/examples/global_coverage.png", to="global_coverage.png")
+}
 
 ##############
 # Test locally
