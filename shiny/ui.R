@@ -22,9 +22,10 @@ fluidPage(
     # Choose region
     selectInput(inputId="region", label="Region to show", choices=region_set, multiple=FALSE, selected="Eastern_Bering_Sea"),
     h4("General settings"),
-    # Generate settings
-    checkboxInput( inputId="plotCI", label="Plot confidence intervals?", value=FALSE),
-    textInput(inputId="species_match", label="Search species", value = ""),
+    # General settings
+    checkboxInput( inputId="plotCI", label="Plot confidence intervals?", value=TRUE),
+    radioButtons( inputId="species_category", label="Which group of species?", choices=list("Top 10 fishes"="top10fish", "All fishes in database"="fish", "All species in database"="all"), selected="top10fish"),
+    textInput(inputId="species_match", label="Search group of species", value = ""),
     actionButton(inputId="unselect_all", label="Unselect all species"),
     # Based on region, select species
     uiOutput("speciesSelex"),

@@ -15,19 +15,25 @@ function(input, output, session){
   #### Dynamic user inputs
   # The following reactive function would return the column variable names corresponding to the dataset selected by the user.
   species_subset <- reactive({
-    speciesDF[speciesDF[,'Region']==input$region,'Sci']
+    rows_subset <- which(speciesDF[,'Region']==input$region)
+    if( input$species_category=="fish" ) rows_subset <- rows_subset[which(tolower(speciesDF[rows_subset,'Phylum'])=="chordata")]
+    if( input$species_category=="top10fish" ){
+      rows_subset <- rows_subset[which(tolower(speciesDF[rows_subset,'Phylum'])=="chordata")]
+      rows_subset <- rows_subset[order(speciesDF[rows_subset,'average_density'],decreasing=TRUE)][1:min(length(rows_subset),10)]
+    }
+    speciesDF[rows_subset,'Sci']
   })
-  # Select species
+  # Checkbox -- select species from group
   output$speciesSelex <- renderUI({
     Names = paste0(species_subset(), "  (", speciesDF[match(species_subset(),speciesDF[,'Sci']), 'Common'], ")")
     checkboxGroupInput(inputId="species2plot", label=NULL, choices=Names, selected=Names)
   })
-  # Unselect all species
+  # Action button -- unselect all species
   observeEvent( eventExpr=input$unselect_all, handlerExpr={          # "Species to show"
     Names = paste0(species_subset(), "  (", speciesDF[match(species_subset(),speciesDF[,'Sci']), 'Common'], ")")
     updateCheckboxGroupInput( session, inputId="species2plot", label=NULL, choices=Names, selected=NULL )
   })
-  # Search for species
+  # Textbox -- search for species from group
   observeEvent( eventExpr=input$species_match, handlerExpr={
     Full_Names = apply( speciesDF[match(species_subset(),speciesDF[,'Sci']),c("Class","Order","Family","Sci","Common")], FUN=paste, collapse=" ", MARGIN=1)
     Names = paste0(species_subset(), "  (", speciesDF[match(species_subset(),speciesDF[,'Sci']), 'Common'], ")")
@@ -55,8 +61,10 @@ function(input, output, session){
     input$activate
     #isolate({
       par( xaxs="i", yaxs="i" )
-      plot( 1, type="n", xlim=range(indexDF[which(indexDF[,'Region']==input$region),'Year']), ylim=c(0,max(indexDF[which(indexDF[,'Region']==input$region),'Index'])*1.2), xlab="Year", ylab="Population biomass (relative to average in the survey)", main="Indices of population abundance")
       species2plot = sapply( input$species2plot, FUN=function(Char){strsplit(Char,'  ')[[1]][1]})
+      # Ylim = c(0, max(indexDF[which(indexDF[,'Region']==input$region),'Index'])*1.2)
+      Ylim = c(0, max(indexDF[which(indexDF[,'Species']%in%species2plot & indexDF[,'Region']==input$region),'Index'])*1.2)
+      plot( 1, type="n", xlim=range(indexDF[which(indexDF[,'Region']==input$region),'Year']), ylim=ifelse(abs(Ylim)==Inf,1,Ylim), xlab="Year", ylab="Population biomass (relative to average in the survey)", main="Indices of population abundance")
       for( sI in 1:length(species2plot)){
         Tmp = indexDF[ which(indexDF[,'Species']==species2plot[sI] & indexDF[,'Region']==input$region), ]
         if(input$plotCI==FALSE) lines( y=Tmp[,'Index'], x=Tmp[,'Year'], type="b", col=rainbow(length(species2plot))[sI] )
@@ -72,8 +80,8 @@ function(input, output, session){
     #isolate({
       par( xaxs="i" )
       Range = function(vec, buffer=0.2){ range(vec) + c(0,0.2)*diff(range(vec)) }
-      plot( 1, type="n", xlim=range(cogDF[which(cogDF[,'Region']==input$region),'Year']), ylim=Range(cogDF[which(cogDF[,'Region']==input$region),'North.COG_hat']%o%c(1,1)+(cogDF[which(cogDF[,'Region']==input$region),'North.SE']%o%c(-interval_width,interval_width))), xlab="Year", ylab="kilometers north of equator", main="Northward center-of-gravity")
       species2plot = sapply( input$species2plot, FUN=function(Char){strsplit(Char,"  ")[[1]][1]})
+      plot( 1, type="n", xlim=range(cogDF[which(cogDF[,'Region']==input$region),'Year']), ylim=Range(cogDF[which(cogDF[,'Region']==input$region),'North.COG_hat']%o%c(1,1)+(cogDF[which(cogDF[,'Region']==input$region),'North.SE']%o%c(-interval_width,interval_width))), xlab="Year", ylab="kilometers north of equator", main="Northward center-of-gravity")
       for( sI in 1:length(species2plot)){
         Tmp = cogDF[ which(cogDF[,'Species']==species2plot[sI] & cogDF[,'Region']==input$region), ]
         if(input$plotCI==FALSE) lines( y=Tmp[,'North.COG_hat'], x=Tmp[,'Year'], type="b", col=rainbow(length(species2plot))[sI])
@@ -88,8 +96,8 @@ function(input, output, session){
     input$activate
     #isolate({
       par( xaxs="i" )
-      plot( 1, type="n", xlim=range(cogDF[which(cogDF[,'Region']==input$region),'Year']), ylim=range(cogDF[which(cogDF[,'Region']==input$region),'East.COG_hat']%o%c(1,1)+(cogDF[which(cogDF[,'Region']==input$region),'East.SE']%o%c(-interval_width,interval_width))), xlab="Year", ylab="kilometers east of regional reference", main="Eastward center-of-gravity")
       species2plot = sapply( input$species2plot, FUN=function(Char){strsplit(Char,'  ')[[1]][1]})
+      plot( 1, type="n", xlim=range(cogDF[which(cogDF[,'Region']==input$region),'Year']), ylim=range(cogDF[which(cogDF[,'Region']==input$region),'East.COG_hat']%o%c(1,1)+(cogDF[which(cogDF[,'Region']==input$region),'East.SE']%o%c(-interval_width,interval_width))), xlab="Year", ylab="kilometers east of regional reference", main="Eastward center-of-gravity")
       for( sI in 1:length(species2plot)){
         Tmp = cogDF[ which(cogDF[,'Species']==species2plot[sI] & cogDF[,'Region']==input$region), ]
         if(input$plotCI==FALSE) lines( y=Tmp[,'East.COG_hat'], x=Tmp[,'Year'], type="b", col=rainbow(length(species2plot))[sI])
@@ -116,5 +124,8 @@ function(input, output, session){
   }, deleteFile=FALSE)
 
   # Table of credits
-  output$table1 <- renderTable( read.csv("Acknowledgements_for_regional_inputs.csv"),  include.rownames=FALSE )
+  output$table1 <- renderTable({
+    Sys.setlocale('LC_ALL','C')
+    read.csv("Acknowledgements_for_regional_inputs.csv")
+  },  include.rownames=FALSE )
 }
