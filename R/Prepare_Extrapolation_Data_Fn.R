@@ -24,6 +24,9 @@ Prepare_Extrapolation_Data_Fn = function( Region, strata.limits, observations_LL
   if( Region == "California_current" ){
     Extrapolation_List = SpatialDeltaGLMM:::Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
+  if( Region %in% c("WCGHL","WCGHL_domain") ){
+    Extrapolation_List = SpatialDeltaGLMM:::Prepare_WCGHL_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+  }                      #
   if( Region == "British_Columbia" ){
     Extrapolation_List = SpatialDeltaGLMM:::Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
