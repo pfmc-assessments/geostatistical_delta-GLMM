@@ -6,6 +6,7 @@ library(TMB)
 example_path <- system.file("extdata", package="SpatialDeltaGLMM")
 
 # Automated testing
+#setwd(system.file("tests", package="SpatialDeltaGLMM"))
 testthat::test_check("SpatialDeltaGLMM")
 
 # Local testing
