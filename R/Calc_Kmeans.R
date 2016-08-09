@@ -46,7 +46,7 @@ function( n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=NUL
       # Multiple runs to find optimal knots
       Kmeans = list( "tot.withinss"=Inf )
       for(i in 1:nstart){
-        Tmp = kmeans( x=loc_orig, centers=n_x, iter.max=iter.max, nstart=1, trace=0)
+        Tmp = stats::kmeans( x=loc_orig, centers=n_x, iter.max=iter.max, nstart=1, trace=0)
         message( 'Num=',i,' Current_Best=',round(Kmeans$tot.withinss,1),' New=',round(Tmp$tot.withinss,1) )#,' Time=',round(Time,4)) )
         if( Tmp$tot.withinss < Kmeans$tot.withinss ){
           Kmeans = Tmp

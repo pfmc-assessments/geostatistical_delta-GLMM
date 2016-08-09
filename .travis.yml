@@ -28,6 +28,7 @@ cache: packages
 
 r_packages:
   - utils
+  - stats
   - testthat
   - mapproj
   - maptools
