@@ -9,10 +9,10 @@
     message("Installing INLA...")
     install.packages("INLA", repos="https://www.math.ntnu.no/inla/R/stable")  
   }
-  if( !"TMB" %in% installed.packages()[,1] ){
-    message("Installing TMB...")
-    devtools::install_github("kaskr/adcomp/TMB")
-  }
+  #if( !"TMB" %in% installed.packages()[,1] ){
+  #  message("Installing TMB...")
+  #  devtools::install_github("kaskr/adcomp/TMB")
+  #}
   if( !"TMBhelper" %in% installed.packages()[,1] ){
     print("Installing package: TMBhelper...")
     devtools::install_github("kaskr/TMB_contrib_R/TMBhelper")

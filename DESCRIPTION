@@ -25,7 +25,8 @@ Imports:
     devtools,
     sp,
     maps,
-    mapdata 
+    mapdata,
+    TMB  
 Depends: 
     R (>= 3.1.0),
 Suggests: 
