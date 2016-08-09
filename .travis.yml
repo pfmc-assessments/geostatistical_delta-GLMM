@@ -27,6 +27,7 @@ language: r
 cache: packages
 
 r_packages:
+  - utils
   - testthat
   - mapproj
   - maptools
