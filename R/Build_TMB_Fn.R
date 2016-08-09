@@ -16,6 +16,7 @@
 #' @param DiagnosticDir OPTIONAL, a directory where diagonstic runtime information should be stored
 #' @param TmbDir OPTIONAL, a directory where the CPP file for the VAST model can be found locally
 #' @param RunDir OPTIONAL, a directory where the CPP file is copied, copiled, and run (must have write privileges or else the function will crash)
+#' @param silent Boolean, whether TMB should run silently
 #' @inheritParams Data_Fn
 
 #' @return Tagged list containing objects for running a VAST model

@@ -7,7 +7,8 @@
 PlotMap_Fn(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName,
   Year_Set, Rescale = FALSE, Rotate = 0, Format = "png", Res = 200,
   zone = NA, Cex = 0.01, textmargin = "", add = FALSE, pch = 20,
-  outermargintext = c("Eastings", "Northings"), zlim = NULL, ...)
+  outermargintext = c("Eastings", "Northings"), zlim = NULL,
+  Legend = list(use = FALSE, x = c(10, 30), y = c(10, 30)), ...)
 }
 \description{
 \code{PlotMap_Fn} is a hidden function to plot a map and fill in regions with colors to represent intensity in an areal-interpretion of model results

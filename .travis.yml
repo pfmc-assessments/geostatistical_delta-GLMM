@@ -39,6 +39,7 @@ r_packages:
   - RandomFields
   - shape
   - devtools
+  - mixtools
   - sp
   - maps
   - mapdata
