@@ -28,20 +28,23 @@ cache: packages
 
 r_packages:
   - testthat
-  - mapproj,
-  - maptools,
-  - deldir,
-  - PBSmapping,
-  - RANN,
-  - stats,
-  - colorspace,
-  - RandomFields,
-  - shape,
-  - devtools,
-  - sp,
-  - maps,
-  - mapdata,
+  - mapproj
+  - maptools
+  - deldir
+  - PBSmapping
+  - RANN
+  - stats
+  - colorspace
+  - RandomFields
+  - shape
+  - devtools
+  - sp
+  - maps
+  - mapdata
   - TMB
+
+r_github_packages:
+  - kaskr/TMB_contrib_R/TMBhelper
 
 warnings_are_errors: false
 
