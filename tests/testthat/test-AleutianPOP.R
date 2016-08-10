@@ -6,7 +6,7 @@ context("Testing examples")
 # Aleutian Islands
 # Test default + Random-walk on spatio-temporal variation
 test_that("Aleutian Islands groundfish bottom trawl survey, POP is working ", {
-  #skip_on_travis()
+  skip_on_travis()
   # Prepping
   test_path = file.path(example_path,"AI_POP")
   load( file.path(test_path,"opt.RData") )

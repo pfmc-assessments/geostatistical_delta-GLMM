@@ -6,7 +6,7 @@ context("Testing examples")
 # California Current
 # Test default + including vessel-year effects
 test_that("West Coast groundfish bottom trawl survey, canary rockfish is working ", {
-  skip_on_travis()
+  #skip_on_travis()
   # Prepping
   test_path = file.path(example_path,"WCGBTS_canary")
   load( file.path(test_path,"opt.RData") )
