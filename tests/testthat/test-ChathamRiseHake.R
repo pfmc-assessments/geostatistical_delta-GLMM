@@ -6,7 +6,7 @@ context("Testing examples")
 # Chatham rise
 # Test default + using a grid
 test_that("Chatham Rise hake is working ", {
-  skip_on_travis()
+  #skip_on_travis()
   # Prepping
   test_path = file.path(example_path,"chatham_rise_hake")
   load( file.path(test_path,"opt.RData") )

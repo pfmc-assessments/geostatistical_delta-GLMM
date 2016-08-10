@@ -6,7 +6,7 @@ context("Testing examples")
 # Eastern Bering Sea pollcok
 # Test default settings (mesh, spatio-temporal variation, gamma distribution
 test_that("Eastern Bering Sea pollock is working ", {
-  skip_on_travis()
+  #skip_on_travis()
   # Prepping
   test_path = file.path(example_path,"EBS_pollock")
   load( file.path(test_path,"opt.RData") )

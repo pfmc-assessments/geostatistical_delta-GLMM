@@ -35,7 +35,6 @@ r_packages:
   - deldir
   - PBSmapping
   - RANN
-  - stats
   - colorspace
   - RandomFields
   - shape
