@@ -16,9 +16,18 @@ function( strata.limits=NULL, zone=NA ){
   
   # Augment with strata for each extrapolation cell
   Tmp = cbind("BEST_DEPTH_M"=0, "BEST_LAT_DD"=Data_Extrap[,'Lat'], "BEST_LON_DD"=Data_Extrap[,'Lon'])
-  a_el = as.data.frame(matrix(NA, nrow=nrow(Data_Extrap), ncol=length(strata.limits), dimnames=list(NULL,names(strata.limits))))
-  for(l in 1:ncol(a_el)){
-    a_el[,l] = ifelse( Data_Extrap[,'stratum_number'] %in% strata.limits[[l]], Area_km2_x, 0 )
+  if( length(strata.limits)==1 && strata.limits[1]=="EPU" ){
+    # Specify strata by 'stratum_number'
+    a_el = matrix(NA, nrow=nrow(Data_Extrap), ncol=length(unique(northwest_atlantic_grid[,'EPU'])), dimnames=list(NULL,unique(northwest_atlantic_grid[,'EPU'])) )
+    for(l in 1:ncol(a_el)){
+      a_el[,l] = ifelse( Data_Extrap[,'EPU']==unique(northwest_atlantic_grid[,'EPU'])[l], Area_km2_x, 0 )
+    }
+  }else{
+    # Specify strata by 'stratum_number'
+    a_el = as.data.frame(matrix(NA, nrow=nrow(Data_Extrap), ncol=length(strata.limits), dimnames=list(NULL,names(strata.limits))))
+    for(l in 1:ncol(a_el)){
+      a_el[,l] = ifelse( Data_Extrap[,'stratum_number'] %in% strata.limits[[l]], Area_km2_x, 0 )
+    }
   }
 
   # Convert extrapolation-data to an Eastings-Northings coordinate system
