@@ -40,3 +40,20 @@ data( northwest_atlantic_grid )
 Areas = read.csv( paste0(getwd(),"/examples/archive of data inputs for creation of grid files/strata_area_NWA_region.csv") )
 Which = which( Areas$STRATUM %in% c(1130, 1140, 1150, 1160, 1170, 1180, 1190, 1200, 1210, 1220, 1230, 1240, 1250, 1290, 1300))
 sum( Areas$STRATUM_AREA[Which] ) * 100 * 4 * 1.852^2 # Convert square-nautical-mile to square-km
+
+########################
+# Added EPU (ecological production unit
+########################
+
+load( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/data/northwest_atlantic_grid_EPU.RData" )
+
+grid.data[,'EPU'] = ifelse( is.na(grid.data[,'EPU']), "Other", as.character(grid.data[,'EPU']) )
+grid.data[,'EPU'] = sapply( as.character(grid.data[,'EPU']), FUN=switch, "GB"="Georges_Bank", "GOM"="Gulf_of_Maine", "MAB"="Mid_Atlantic_Bight", "SS"="Scotian_Shelf", "Other"="Other" )
+grid.data[,'EPU'] = factor( grid.data[,'EPU'] )
+
+load( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/data/northwest_atlantic_grid.Rda" )
+range( abs(northwest_atlantic_grid-grid.data[,1:4]) )
+
+northwest_atlantic_grid <- grid.data
+devtools::use_data( northwest_atlantic_grid, pkg="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM" )
+

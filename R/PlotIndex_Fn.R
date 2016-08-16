@@ -5,8 +5,14 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
   if( "ln_Index_tl" %in% rownames(summary(Sdreport)) ){
     ParName = "Index_tl"
     TmbData[['n_c']] = 1
-  }else{
+  }
+  if( "ln_Index_ctl" %in% rownames(summary(Sdreport)) ){
     ParName = "Index_ctl"
+  }
+  if( "Index_tp" %in% rownames(summary(Sdreport)) ){
+    ParName = "Index_tp"
+    TmbData[["n_l"]] = 1
+    TmbData[["n_c"]] = TmbData[["n_p"]]
   }
 
   # Fill in missing
@@ -16,14 +22,37 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
   if( is.null(category_names) ) category_names = 1:TmbData$n_c
 
   # Extract index
-  if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
-    log_Index = array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)==paste0("ln_",ParName))],summary(Sdreport)[which(rownames(summary(Sdreport))==paste0("ln_",ParName)),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
-    Index = array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)==ParName)],summary(Sdreport)[which(rownames(summary(Sdreport))==ParName),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
-  }else{
-    log_Index = array( summary(Sdreport)[which(rownames(summary(Sdreport))==paste0("ln_",ParName)),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
-    Index = array( summary(Sdreport)[which(rownames(summary(Sdreport))==ParName),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+  if( ParName %in% c("Index_tl","Index_ctl")){
+    if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
+      log_Index_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)==paste0("ln_",ParName))],summary(Sdreport)[which(rownames(summary(Sdreport))==paste0("ln_",ParName)),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      Index_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)==ParName)],summary(Sdreport)[which(rownames(summary(Sdreport))==ParName),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+    }else{
+      log_Index_ctl = array( summary(Sdreport)[which(rownames(summary(Sdreport))==paste0("ln_",ParName)),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      Index_ctl = array( summary(Sdreport)[which(rownames(summary(Sdreport))==ParName),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+    }
   }
-  
+  if( ParName %in% c("Index_tp")){
+    if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
+      Index_ctl = aperm( array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)==ParName)],summary(Sdreport)[which(rownames(summary(Sdreport))==ParName),'Std. Error']), dim=c(unlist(TmbData[c('n_t','n_c','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) ), perm=c(2,1,3))
+      if( "ln_Index_tp" %in% rownames(summary(Sdreport))){
+        log_Index_ctl = aperm( array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)==paste0("ln_",ParName))],summary(Sdreport)[which(rownames(summary(Sdreport))==paste0("ln_",ParName)),'Std. Error']), dim=c(unlist(TmbData[c('n_t','n_c','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) ), perm=c(2,1,3))
+      }else{
+        log_Index_ctl = log( Index_ctl )
+        log_Index_ctl[,,,'Std. Error'] = log_Index_ctl[,,,'Std. Error'] / log_Index_ctl[,,,'Estimate']
+        warning( "Using kludge for log-standard errors of index, to be replaced in later versions of 'SpatialVAM'" )
+      }
+    }else{
+      Index_ctl = aperm( array( summary(Sdreport)[which(rownames(summary(Sdreport))==ParName),], dim=c(unlist(TmbData[c('n_t','n_c','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) ), perm=c(2,1,3,4))
+      if( "ln_Index_tp" %in% rownames(summary(Sdreport))){
+       log_Index_ctl = aperm( array( summary(Sdreport)[which(rownames(summary(Sdreport))==paste0("ln_",ParName)),], dim=c(unlist(TmbData[c('n_t','n_c','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) ), perm=c(2,1,3,4))
+      }else{
+        log_Index_ctl = log( Index_ctl )
+        log_Index_ctl[,,,'Std. Error'] = log_Index_ctl[,,,'Std. Error'] / log_Index_ctl[,,,'Estimate']
+        warning( "Using kludge for log-standard errors of index, to be replaced in later versions of 'SpatialVAM'" )
+      }
+    }
+  }
+
   # Calculate design-based
   if( !is.null(total_area_km2) & TmbData$n_c==1 ){
     message( "Calculating naive design-based index -- do not use this, its intended only for comparison purposes" )
@@ -41,14 +70,14 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
     par( Par )
     for( cI in 1:TmbData$n_c ){
       # Calculate y-axis limits
-      Ylim = c(0, max(Index[cI,Years2Include,,'Estimate']%o%c(1,1) * exp(log_Index[cI,Years2Include,,'Std. Error']%o%c(-interval_width,interval_width))) )
-      if( plot_log==TRUE ) Ylim[1] = min(Index[cI,Years2Include,,'Estimate']%o%c(1,1) * exp(log_Index[cI,Years2Include,,'Std. Error']%o%c(-interval_width,interval_width)))
+      Ylim = c(0, max(Index_ctl[cI,Years2Include,,'Estimate']%o%c(1,1) * exp(log_Index_ctl[cI,Years2Include,,'Std. Error']%o%c(-interval_width,interval_width))) )
+      if( plot_log==TRUE ) Ylim[1] = min(Index_ctl[cI,Years2Include,,'Estimate']%o%c(1,1) * exp(log_Index_ctl[cI,Years2Include,,'Std. Error']%o%c(-interval_width,interval_width)))
       if( Calc_design==TRUE ) Ylim[2] = max(Ylim[2], (Design_t[,'Estimate']%o%c(1,1))+Design_t[,'Std. Error']%o%c(-interval_width,interval_width))
       if( Calc_design==TRUE & plot_log==TRUE ) Ylim[2] = min(Ylim[2], (Design_t[,'Estimate']%o%c(1,1))+Design_t[,'Std. Error']%o%c(-interval_width,interval_width))
       # Plot stuff
       plot(1, type="n", xlim=range(Year_Set), ylim=ifelse(plot_legend==TRUE,1.25,1.05)*Ylim, xlab="", ylab="", main=ifelse(TmbData$n_c>1,category_names[cI],""), log=ifelse(plot_log==TRUE,"y","") )
       for(l in 1:TmbData$n_l){
-        SpatialDeltaGLMM:::Plot_Points_and_Bounds_Fn( y=Index[cI,Years2Include,l,'Estimate'], x=Year_Set[Years2Include]+seq(-0.1,0.1,length=TmbData$n_l)[l], ybounds=(Index[cI,Years2Include,l,'Estimate']%o%c(1,1))*exp(log_Index[cI,Years2Include,l,'Std. Error']%o%c(-interval_width,interval_width)), type="b", col=rainbow(TmbData[['n_l']])[l], col_bounds=rainbow(TmbData[['n_l']])[l], ylim=Ylim)
+        SpatialDeltaGLMM:::Plot_Points_and_Bounds_Fn( y=Index_ctl[cI,Years2Include,l,'Estimate'], x=Year_Set[Years2Include]+seq(-0.1,0.1,length=TmbData$n_l)[l], ybounds=(Index_ctl[cI,Years2Include,l,'Estimate']%o%c(1,1))*exp(log_Index_ctl[cI,Years2Include,l,'Std. Error']%o%c(-interval_width,interval_width)), type="b", col=rainbow(TmbData[['n_l']])[l], col_bounds=rainbow(TmbData[['n_l']])[l], ylim=Ylim)
         if(Calc_design==TRUE) SpatialDeltaGLMM:::Plot_Points_and_Bounds_Fn( y=Design_t[,'Estimate'], x=Year_Set[Years2Include]+seq(-0.1,0.1,length=TmbData$n_l)[l], ybounds=(Design_t[,'Estimate']%o%c(1,1))+Design_t[,'Std. Error']%o%c(-interval_width,interval_width), type="b", col="black", col_bounds="black")
       }
       if(plot_legend==TRUE) legend( "top", bty="n", fill=c(na.omit(ifelse(Calc_design==TRUE,"black",NA)),rainbow(TmbData[['n_l']])), legend=c(na.omit(ifelse(Calc_design==TRUE,"Design-based",NA)),as.character(strata_names)), ncol=2 )
@@ -59,7 +88,7 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
   # Write to file
   Table = NULL
   for( cI in 1:TmbData$n_c ){
-    Tmp = data.frame( "Year"=Year_Set, "Unit"=1, "Fleet"=rep(strata_names,each=TmbData$n_t), "Estimate (metric tonnes)"=as.vector(Index[cI,,,'Estimate']), "SD (log)"=as.vector(log_Index[cI,,,'Std. Error']), "SD (natural)"=as.vector(Index[cI,,,'Std. Error']) )
+    Tmp = data.frame( "Year"=Year_Set, "Unit"=1, "Fleet"=rep(strata_names,each=TmbData$n_t), "Estimate (metric tonnes)"=as.vector(Index_ctl[cI,,,'Estimate']), "SD (log)"=as.vector(log_Index_ctl[cI,,,'Std. Error']), "SD (natural)"=as.vector(Index_ctl[cI,,,'Std. Error']) )
     if( TmbData$n_c>1 ) Tmp = cbind( "Category"=category_names[cI], Tmp)
     Table = rbind( Table, Tmp )
   }
@@ -67,6 +96,6 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
   write.csv( Table, file=paste0(DirName,"/Table_for_SS3.csv"), row.names=FALSE)
 
   # Return stuff
-  Return = list( "Table"=Table, "log_Index"=log_Index, "Index"=Index, "Ylim"=Ylim)
+  Return = list( "Table"=Table, "log_Index_ctl"=log_Index_ctl, "Index_ctl"=Index_ctl, "Ylim"=Ylim)
   return( invisible(Return) )
 }
