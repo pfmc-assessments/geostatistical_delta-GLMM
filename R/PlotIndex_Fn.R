@@ -1,6 +1,6 @@
 #' @export
 PlotIndex_Fn <-
-function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, interval_width=1, strata_names=NULL, category_names=NULL, use_biascorr=FALSE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, ... ){
+function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, interval_width=1, strata_names=NULL, category_names=NULL, use_biascorr=FALSE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4, ... ){
   # Which parameters
   if( "ln_Index_tl" %in% rownames(summary(Sdreport)) ){
     ParName = "Index_tl"
@@ -66,7 +66,7 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
   
   # Plot
   Par = list( mar=c(2,2,1,0), mgp=c(2,0.5,0), tck=-0.02, yaxs="i", oma=c(1,1,0,0), mfrow=c(ceiling(sqrt(TmbData$n_c)),ceiling(TmbData$n_c/ceiling(sqrt(TmbData$n_c)))), ... )
-  png( file=paste0(DirName,"/",PlotName), width=4, height=4, res=200, units="in")
+  png( file=paste0(DirName,"/",PlotName), width=width, height=height, res=200, units="in")
     par( Par )
     for( cI in 1:TmbData$n_c ){
       # Calculate y-axis limits

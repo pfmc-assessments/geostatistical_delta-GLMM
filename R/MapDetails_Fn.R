@@ -10,6 +10,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=1.55)
     Rotate = 20     # Degrees counter-clockwise
     Cex = 0.01
+    Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
   }
   if( Region == "British_Columbia" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -19,6 +20,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=2,"Width(in)"=2)
     Rotate = 0
     Cex = 0.1
+    Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
   }
   if( Region == "Eastern_Bering_Sea" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -29,6 +31,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=5)
     Rotate = 0
     Cex = 0.01
+    Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
   }
   if( Region == "Aleutian_Islands" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -39,8 +42,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=2,"Width(in)"=5)
     Rotate = 0
     Cex = 0.01
-    #map(MappingDetails[[1]], MappingDetails[[2]], xlim=Xlim, ylim=Ylim)
-    #points( x=PlotDF[,'Lon'], y=PlotDF[,'Lat'] )
+    Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
   }
   if( Region == "Gulf_of_Alaska" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -50,6 +52,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=2.5,"Width(in)"=6)
     Rotate = 0
     Cex = 0.01
+    Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
   }
   if( Region == "Northwest_Atlantic" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -60,6 +63,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=3)
     Rotate = 0
     Cex = 1
+    Legend = list(use=TRUE,x=c(50,70),y=c(5,35)
   }
   if( Region == "South_Africa" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -69,6 +73,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=3)
     Rotate = 0
     Cex = 0.1
+    Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
   }
   if( Region == "Gulf_of_St_Lawrence" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -78,6 +83,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=4)
     Rotate = 0
     Cex = 1.0
+    Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
   }
   if( Region == "New_Zealand" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -87,6 +93,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=2,"Width(in)"=5)
     Rotate = 0     # Degrees counter-clockwise
     Cex = 0.01
+    Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
   }
   if( is.null(PlotDF) ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -96,8 +103,9 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=4)
     Rotate = 0
     Cex = 1.0
+    Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
   }
   # bundle and return
-  mapdetails_list = list("PlotDF"=PlotDF, "MappingDetails"=MappingDetails, "Xlim"=Xlim, "Ylim"=Ylim, "MapSizeRatio"=MapSizeRatio, "Rotate"=Rotate, "Cex"=Cex )
+  mapdetails_list = list("PlotDF"=PlotDF, "MappingDetails"=MappingDetails, "Xlim"=Xlim, "Ylim"=Ylim, "MapSizeRatio"=MapSizeRatio, "Rotate"=Rotate, "Cex"=Cex, "Legend"=Legend )
   return( mapdetails_list )
 }
