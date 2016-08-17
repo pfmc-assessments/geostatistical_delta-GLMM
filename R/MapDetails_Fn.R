@@ -63,7 +63,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=3)
     Rotate = 0
     Cex = 1
-    Legend = list(use=TRUE,x=c(50,70),y=c(5,35)
+    Legend = list(use=TRUE,x=c(50,70),y=c(5,35))
   }
   if( Region == "South_Africa" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
