@@ -8,8 +8,7 @@ function( strata.limits=NULL, zone=NA ){
   message("Using strata ", strata.limits)
 
   # Read extrapolation data
-  #load( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/data/WCGHL_grid.rda" )
-  data( WCGHL_grid, package="SpatialDeltaGLMM" )
+  utils::data( WCGHL_grid, package="SpatialDeltaGLMM" )
   Data_Extrap <- WCGHL_grid
 
   # Survey areas

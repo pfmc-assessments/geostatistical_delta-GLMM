@@ -8,7 +8,7 @@ function( strata.limits=NULL, surveyname='propInWCGBTS', zone=NA ){
   message("Using strata ", strata.limits)
 
   # Read extrapolation data
-  data( california_current_grid, package="SpatialDeltaGLMM" )
+  utils::data( california_current_grid, package="SpatialDeltaGLMM" )
   Data_Extrap <- california_current_grid
 
   # Survey areas

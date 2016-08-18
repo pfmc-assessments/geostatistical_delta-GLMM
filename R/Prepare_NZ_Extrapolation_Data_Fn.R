@@ -9,7 +9,7 @@ function( strata.limits=NULL, zone=NA, survey="Chatham_rise", Data=NULL ){
 
   # Read extrapolation data
   if( is.null(Data) ){
-    data( chatham_rise_grid, package="SpatialDeltaGLMM" )
+    utils::data( chatham_rise_grid, package="SpatialDeltaGLMM" )
     Data_Extrap <- chatham_rise_grid
   }else{
     #stop( "Survey doesn't match New Zealand grid options" )

@@ -8,7 +8,7 @@ function( strata.limits=NULL, strata_to_use=c('SOG','WCVI','QCS','HS','WCHG'), z
   message("Using strata ", strata.limits)
 
   # Read extrapolation data
-  data( bc_coast_grid, package="SpatialDeltaGLMM" )
+  utils::data( bc_coast_grid, package="SpatialDeltaGLMM" )
   bc_coast_grid <- cbind( bc_coast_grid, "ALL"=13.74)
   Data_Extrap <- bc_coast_grid
 

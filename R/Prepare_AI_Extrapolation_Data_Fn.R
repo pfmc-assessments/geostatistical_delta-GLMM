@@ -8,7 +8,7 @@ function( strata.limits=NULL, zone=NA ){
   message("Using strata ", strata.limits)
 
   # Read extrapolation data
-  data( aleutian_islands_grid, package="SpatialDeltaGLMM" )
+  utils::data( aleutian_islands_grid, package="SpatialDeltaGLMM" )
   Data_Extrap <- aleutian_islands_grid
 
   # Survey areas

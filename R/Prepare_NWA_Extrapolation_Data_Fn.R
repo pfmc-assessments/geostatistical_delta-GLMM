@@ -8,7 +8,7 @@ function( strata.limits=NULL, zone=NA ){
   message("Using strata ", strata.limits)
 
   # Read extrapolation data
-  data( northwest_atlantic_grid, package="SpatialDeltaGLMM" )
+  utils::data( northwest_atlantic_grid, package="SpatialDeltaGLMM" )
   Data_Extrap <- northwest_atlantic_grid
 
   # Survey areas
