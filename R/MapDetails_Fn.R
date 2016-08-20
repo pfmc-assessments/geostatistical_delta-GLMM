@@ -95,6 +95,17 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Cex = 0.01
     Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
   }
+  if( Region == "HabCam" ){
+    PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include)
+    #MappingDetails = list("state", c("alabama","arizona","arkansas","california","colorado","connecticut","delaware","district of columbia","florida","georgia","idaho","illinois","indiana","iowa","kansas","kentucky","louisiana","maine","maryland","massachusetts:martha's vineyard","massachusetts:main","massachusetts:nantucket","michigan:north","michigan:south","minnesota","mississippi","missouri","montana","nebraska","nevada","new hampshire","new jersey","new mexico","new york:manhattan","new york:main","new york:statenisland","new york:longisland","north carolina:knotts","north carolina:main","north carolina:spit","north dakota","ohio","oklahoma","oregon","pennsylvania","rhode island","south carolina","south dakota","tennessee","texas","utah","vermont","virginia:chesapeake","virginia:chincoteague","virginia:main","washington:san juan island","washington:lopez island","washington:orcas island","washington:whidbey island","washington:main","west virginia","wisconsin","wyoming"))
+    MappingDetails = list("worldHires", NULL )
+    Xlim = range(Extrapolation_List[["Data_Extrap"]][which(Extrapolation_List[["Area_km2_x"]]>0),'Lon'])
+    Ylim = range(Extrapolation_List[["Data_Extrap"]][which(Extrapolation_List[["Area_km2_x"]]>0),'Lat'])
+    MapSizeRatio = c("Height(in)"=4,"Width(in)"=3)
+    Rotate = 20     # Degrees counter-clockwise
+    Cex = 0.01
+    Legend = list(use=TRUE,x=c(70,90),y=c(5,35))
+  }
   if( is.null(PlotDF) ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
     MappingDetails = list("world", NULL )
