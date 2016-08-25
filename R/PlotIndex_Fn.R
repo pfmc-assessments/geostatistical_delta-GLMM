@@ -24,8 +24,8 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
   # Extract index
   if( ParName %in% c("Index_tl","Index_ctl")){
     if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
-      log_Index_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)==paste0("ln_",ParName))],summary(Sdreport)[which(rownames(summary(Sdreport))==paste0("ln_",ParName)),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
-      Index_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)==ParName)],summary(Sdreport)[which(rownames(summary(Sdreport))==ParName),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      log_Index_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==paste0("ln_",ParName))],summary(Sdreport)[which(rownames(summary(Sdreport))==paste0("ln_",ParName)),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      Index_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==ParName)],summary(Sdreport)[which(rownames(summary(Sdreport))==ParName),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
     }else{
       log_Index_ctl = array( summary(Sdreport)[which(rownames(summary(Sdreport))==paste0("ln_",ParName)),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
       Index_ctl = array( summary(Sdreport)[which(rownames(summary(Sdreport))==ParName),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
@@ -33,9 +33,9 @@ function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years
   }
   if( ParName %in% c("Index_tp")){
     if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
-      Index_ctl = aperm( array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)==ParName)],summary(Sdreport)[which(rownames(summary(Sdreport))==ParName),'Std. Error']), dim=c(unlist(TmbData[c('n_t','n_c','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) ), perm=c(2,1,3))
+      Index_ctl = aperm( array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==ParName)],summary(Sdreport)[which(rownames(summary(Sdreport))==ParName),'Std. Error']), dim=c(unlist(TmbData[c('n_t','n_c','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) ), perm=c(2,1,3))
       if( "ln_Index_tp" %in% rownames(summary(Sdreport))){
-        log_Index_ctl = aperm( array( c(Sdreport$unbiased$value[which(names(Sdreport$unbiased$value)==paste0("ln_",ParName))],summary(Sdreport)[which(rownames(summary(Sdreport))==paste0("ln_",ParName)),'Std. Error']), dim=c(unlist(TmbData[c('n_t','n_c','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) ), perm=c(2,1,3))
+        log_Index_ctl = aperm( array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==paste0("ln_",ParName))],summary(Sdreport)[which(rownames(summary(Sdreport))==paste0("ln_",ParName)),'Std. Error']), dim=c(unlist(TmbData[c('n_t','n_c','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) ), perm=c(2,1,3))
       }else{
         log_Index_ctl = log( Index_ctl )
         log_Index_ctl[,,,'Std. Error'] = log_Index_ctl[,,,'Std. Error'] / log_Index_ctl[,,,'Estimate']
