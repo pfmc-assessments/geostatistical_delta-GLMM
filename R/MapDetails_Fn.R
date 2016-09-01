@@ -10,7 +10,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=1.55)
     Rotate = 20     # Degrees counter-clockwise
     Cex = 0.01
-    Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
+    Legend = list(use=TRUE, x=c(65,75), y=c(35,65))
   }
   if( Region == "British_Columbia" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -31,7 +31,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=5)
     Rotate = 0
     Cex = 0.01
-    Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
+    Legend = list(use=TRUE,x=c(76,86),y=c(48,83))
   }
   if( Region == "Aleutian_Islands" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -63,7 +63,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=4,"Width(in)"=3)
     Rotate = 0
     Cex = 1
-    Legend = list(use=TRUE,x=c(50,70),y=c(5,35))
+    Legend = list(use=TRUE,x=c(70,80),y=c(5,35))
   }
   if( Region == "South_Africa" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
