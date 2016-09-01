@@ -51,7 +51,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
          width=Par$mfrow[2]*MapSizeRatio['Width(in)'],
          height=Par$mfrow[1]*MapSizeRatio['Height(in)'], res=Res, units='in')
   }
-    if( add==FALSE ) par( Par )          # consider changing to Par=list() input, which overloads defaults a la optim() "control" input
+    if(add==FALSE) par( Par )          # consider changing to Par=list() input, which overloads defaults a la optim() "control" input
     for(tI in 1:length(Year_Set)){
       if( is.null(MappingDetails) ){
         plot(1, type="n", ylim=Ylim, xlim=Xlim, main="", xlab="", ylab="")#, main=Year_Set[t])
@@ -91,8 +91,8 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_S
       SpatialDeltaGLMM:::smallPlot( SpatialDeltaGLMM:::Heatmap_Legend(colvec=Col(50), heatrange=range(Mat[Which,]), dopar=FALSE), x=Legend$x, y=Legend$y, mar=c(0,0,0,0), mgp=c(2,0.5,0), tck=-0.2, font=2 )  #
     }
     # Margin text
-    mtext(side=1, outer=TRUE, outermargintext[1], cex=1.75, line=par()$oma[1]/2)
-    mtext(side=2, outer=TRUE, outermargintext[2], cex=1.75, line=par()$oma[2]/2)
+    if(add==FALSE) mtext(side=1, outer=TRUE, outermargintext[1], cex=1.75, line=par()$oma[1]/2)
+    if(add==FALSE) mtext(side=2, outer=TRUE, outermargintext[2], cex=1.75, line=par()$oma[2]/2)
   if(Format %in% c("png","jpg","tif","tiff")) dev.off()
   # Legend
   if(Format=="png"){
