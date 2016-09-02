@@ -31,7 +31,6 @@
 
 #' @importFrom grDevices colorRampPalette dev.off jpeg png rainbow rgb tiff
 #' @importFrom graphics abline arrows axis box hist legend lines matplot mtext par plot plot.new points polygon rect title
-#' @importFrom methods as
 #' @importFrom stats cor dist na.omit plogis pnorm qlogis quantile rbinom rgamma rlnorm rnorm runif sd var
 #' @importFrom utils capture.output write.csv write.table
 
