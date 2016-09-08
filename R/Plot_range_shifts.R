@@ -7,7 +7,7 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, FileName
   # Only run if necessary outputs are available
   if( "mean_Z_tm" %in% names(Report) ){
     # Extract estimates
-    SD = summary(Sdreport)
+    SD = TMB:::summary.sdreport(Sdreport)
     mean_Z_tm = Report$mean_Z_tm
     SD_mean_Z_tm = SD[which(rownames(SD)=="mean_Z_tm"),]
     SD_mean_relative_Z_tm = SD[which(rownames(SD)=="mean_relative_Z_tm"),]
