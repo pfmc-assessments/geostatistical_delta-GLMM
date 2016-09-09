@@ -19,4 +19,7 @@ Tagged list of useful output
 \description{
 \code{Summary} is intended to help document results, by providing explanation for outputs from \code{obj$report()}
 }
+\details{
+Please post on the GitHub issue tracker if you'd like for another specific output to be added and documented here
+}
 

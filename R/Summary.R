@@ -10,6 +10,9 @@
 #'   \item{parhat}{a list of fixed-effect estimates, with same format as starting values}
 #'   \item{D_xt}{a matrix (rows: modeled knots; column: modeled year) of predicted density (doesn't include bias-correction)}
 #' }
+#'
+#' @details
+#' Please post on the GitHub issue tracker if you'd like for another specific output to be added and documented here
 
 #' @export
 Summary = function( obj ){
