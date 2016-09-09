@@ -1,6 +1,6 @@
 #' @export
 PlotResultsOnMap_Fn <-
-function(MappingDetails, Report, Nknots=Inf, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set=NULL, Years2Include=NULL, plot_set=1:5,
+function(MappingDetails, Report, Sdreport=NULL, Nknots=Inf, PlotDF, MapSizeRatio, Xlim, Ylim, FileName, Year_Set=NULL, Years2Include=NULL, plot_set=1:5,
          Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, add=FALSE, category_names=NULL, textmargin=NULL, pch=NULL,
          Legend=list("use"=FALSE, "x"=c(10,30), "y"=c(10,30)), ...){
 
@@ -25,9 +25,9 @@ function(MappingDetails, Report, Nknots=Inf, PlotDF, MapSizeRatio, Xlim, Ylim, F
   }
 
   # Extract elements
-  plot_codes <- c("Pres", "Pos", "Dens", "Pos_Rescaled", "Dens_Rescaled", "Eps_Pres", "Eps_Pos", "LinPred_Pres", "LinPred_Pos")
+  plot_codes <- c("Pres", "Pos", "Dens", "Pos_Rescaled", "Dens_Rescaled", "Eps_Pres", "Eps_Pos", "LinPred_Pres", "LinPred_Pos", "Dens_CV")
   if( is.null(textmargin)){
-    textmargin <- c("Probability of encounter", "Density, ln(kg. per square km.)", "Density, ln(kg. per square km.)", "", "", "", "", "", "")
+    textmargin <- c("Probability of encounter", "Density, ln(kg. per square km.)", "Density, ln(kg. per square km.)", "", "", "", "", "", "", "CV of density (dimensionless)")
   }
 
   # Select locations to plot
@@ -94,6 +94,16 @@ function(MappingDetails, Report, Nknots=Inf, PlotDF, MapSizeRatio, Xlim, Ylim, F
         if("D_xt"%in%names(Report)) Mat = Report$P2_xt
         if("D_xct"%in%names(Report)) Mat = Report$P2_xct[,cI,]
         if("dhat_ktp"%in%names(Report)) stop("Not implemented for SpatialVAM")
+      }
+      if(plot_num==10){
+        # Density ("Dens") CV             # Index_xtl
+        if( is.null(Sdreport) ) stop("Must supply 'Sdreport' if 'plot_num=10'")
+        if( !("log(Index_xtl)" %in% rownames(TMB::summary.sdreport(Sdreport))) ) stop("Please re-run with Options('SD_site_logdensity'=1,...) to use 'plot_num=10'")
+        if("D_xt"%in%names(Report)) Mat = array( TMB:::summary.sdreport(Sdreport)[which(rownames(TMB:::summary.sdreport(Sdreport))=="log(Index_xtl)"),], dim=c(dim(Report$D_xt),ncol(Report$Index_tl),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )[,,1,'Std. Error']
+        if("D_xct"%in%names(Report)) stop("'plot_num=10' not implemented for 'VAST'")
+        if("dhat_ktp"%in%names(Report)) stop("'plot_num=10' not implemented for 'SpatialVAM'")
+        # Convert to CV
+        Mat = sqrt( exp(Mat^2) - 1 )
       }
       # Do plot    #
       if(add==FALSE) par( mfrow=Dim )
