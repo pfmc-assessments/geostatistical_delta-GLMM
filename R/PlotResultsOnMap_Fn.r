@@ -138,9 +138,14 @@ function(plot_set=1:5, MappingDetails, Report, Sdreport=NULL, Nknots=Inf, PlotDF
       if(plot_num==10){
         # Density ("Dens") CV             # Index_xtl
         if( is.null(Sdreport) ) stop("Must supply 'Sdreport' if 'plot_num=10'")
-        if( !("log(Index_xtl)" %in% rownames(TMB::summary.sdreport(Sdreport))) ) stop("Please re-run with Options('SD_site_logdensity'=1,...) to use 'plot_num=10'")
-        if("D_xt"%in%names(Report)) Mat_xt = array( TMB:::summary.sdreport(Sdreport)[which(rownames(TMB:::summary.sdreport(Sdreport))=="log(Index_xtl)"),], dim=c(dim(Report$D_xt),ncol(Report$Index_tl),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )[,,1,'Std. Error']
-        if("D_xct"%in%names(Report)) stop("'plot_num=10' not implemented for 'VAST'")
+        if("D_xt"%in%names(Report)){
+          if( !("log(Index_xtl)" %in% rownames(TMB::summary.sdreport(Sdreport))) ) stop("Please re-run with Options('SD_site_logdensity'=1,...) to use 'plot_num=10' in 'SpatialDeltaGLMM'")
+          Mat_xt = array( TMB:::summary.sdreport(Sdreport)[which(rownames(TMB:::summary.sdreport(Sdreport))=="log(Index_xtl)"),], dim=c(dim(Report$D_xt),ncol(Report$Index_tl),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )[,,1,'Std. Error']
+        }
+        if("D_xct"%in%names(Report)){
+          if( !("log(Index_xctl)" %in% rownames(TMB::summary.sdreport(Sdreport))) ) stop("Please re-run with Options('SD_site_logdensity'=1,...) to use 'plot_num=10' in 'VAST'")
+          Mat_xt = array( TMB:::summary.sdreport(Sdreport)[which(rownames(TMB:::summary.sdreport(Sdreport))=="log(Index_xctl)"),], dim=c(dim(Report$D_xct),dim(Report$Index_ctl)[3],2), dimnames=list(NULL,NULL,NULL,NULL,c('Estimate','Std. Error')) )[,cI,,1,'Std. Error']
+        }
         if("dhat_ktp"%in%names(Report)) stop("'plot_num=10' not implemented for 'SpatialVAM'")
         # Convert to CV
         Mat_xt = sqrt( exp(Mat_xt^2) - 1 )

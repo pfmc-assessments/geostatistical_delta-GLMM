@@ -52,7 +52,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MapSizeRatio = c("Height(in)"=2.5,"Width(in)"=6)
     Rotate = 0
     Cex = 0.01
-    Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
+    Legend = list(use=TRUE,x=c(5,10),y=c(30,65))
   }
   if( Region == "Northwest_Atlantic" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
