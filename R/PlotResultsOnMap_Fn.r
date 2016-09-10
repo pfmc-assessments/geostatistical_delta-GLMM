@@ -143,12 +143,12 @@ function(plot_set=1:5, MappingDetails, Report, Sdreport=NULL, Nknots=Inf, PlotDF
         if("D_xct"%in%names(Report)) stop("'plot_num=10' not implemented for 'VAST'")
         if("dhat_ktp"%in%names(Report)) stop("'plot_num=10' not implemented for 'SpatialVAM'")
         # Convert to CV
-        Mat_xt = sqrt( exp(Mat^2) - 1 )
+        Mat_xt = sqrt( exp(Mat_xt^2) - 1 )
       }
       # Do plot    #
       if(add==FALSE) par( mfrow=Dim )
-      Return = SpatialDeltaGLMM:::PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat[,Years2Include], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[plot_num],ifelse(Ncategories>1,paste0("--",category_names[cI]),"")), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin[plot_num], add=add, pch=pch, Legend=Legend, ...)
+      Return = SpatialDeltaGLMM:::PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat_xt[,Years2Include], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[plot_num],ifelse(Ncategories>1,paste0("--",category_names[cI]),"")), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin[plot_num], add=add, pch=pch, Legend=Legend, ...)
     }          #
   }
-  return( invisible(Mat) )
+  return( invisible(Mat_xt) )
 }
