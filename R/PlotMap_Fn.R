@@ -15,7 +15,7 @@
 PlotMap_Fn <-
 function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=4), Xlim, Ylim, FileName=paste0(getwd(),"/"), Year_Set,
          Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, textmargin="", add=FALSE, pch=20, outermargintext=c("Eastings","Northings"), zlim=NULL,
-         Legend=list("use"=FALSE, "x"=c(10,30), "y"=c(10,30)), ...){
+         Legend=list("use"=FALSE, "x"=c(10,30), "y"=c(10,30)), mfrow=c(1,1), ...){
 
   # avoid attaching maps and mapdata to use worldHires plotting
   require(maps)
@@ -37,7 +37,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=
   Col = colorRampPalette(colors=c("darkblue","blue","lightblue","lightgreen","yellow","orange","red"))
   
   # Plot
-  Par = list(...)
+  Par = list( mfrow=mfrow, ...)
   if(Format=="png"){
     png(file=paste0(FileName, ".png"),
         width=Par$mfrow[2]*MapSizeRatio['Width(in)'],
