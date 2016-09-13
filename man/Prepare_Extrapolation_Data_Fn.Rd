@@ -12,7 +12,7 @@ Prepare_Extrapolation_Data_Fn(Region, strata.limits, observations_LL = NULL,
 
 \item{strata.limits}{an input for determining stratification of indices (see example script)}
 
-\item{observations_LL}{a matrix with two columns giving latitude and longitude for each observation (only used when Region doesn't match known entries)}
+\item{observations_LL}{a matrix with two columns (labeled 'Lat' and 'Lon') giving latitude and longitude for each observation (only used when Region doesn't match known entries)}
 
 \item{...}{other objects passed for individual regions (see example script)}
 }

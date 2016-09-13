@@ -5,7 +5,7 @@
 #'
 #' @param Region a character entry that is matched against potential values to determine the region for the extrapolation grid.
 #' @param strata.limits an input for determining stratification of indices (see example script)
-#' @param observations_LL a matrix with two columns giving latitude and longitude for each observation (only used when Region doesn't match known entries)
+#' @param observations_LL a matrix with two columns (labeled 'Lat' and 'Lon') giving latitude and longitude for each observation (only used when Region doesn't match known entries)
 #' @param ... other objects passed for individual regions (see example script)
 
 #' @return Tagged list used in other functions

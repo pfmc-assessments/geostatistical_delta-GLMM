@@ -10,7 +10,7 @@ PlotResultsOnMap_Fn(plot_set = 1:5, MappingDetails, Report, Sdreport = NULL,
   Years2Include = NULL, Rescale = FALSE, Rotate = 0, Format = "png",
   Res = 200, zone = NA, Cex = 0.01, add = FALSE,
   category_names = NULL, textmargin = NULL, pch = NULL,
-  Legend = list(use = FALSE, x = c(10, 30), y = c(10, 30)), ...)
+  Legend = list(use = FALSE, x = c(10, 30), y = c(10, 30)), Dim = NULL, ...)
 }
 \arguments{
 \item{plot_set}{integer-vector defining plots to create
