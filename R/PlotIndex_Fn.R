@@ -1,6 +1,32 @@
+
+#' @title
+#' Plot index of abundance
+#'
+#' @description
+#' \code{PlotIndex_Fn} plots an index proportion to population abundance
+#'
+#' @param TmbData Formatted data inputs, from `SpatialDeltaGLMM::Data_Fn(...)`
+#' @param DirName Directory for saving plot and table
+#' @param PlotName Name for plot
+#' @param interval_width width for confidence intervals
+#' @param strata_names names for spatial strata
+#' @param category_names names for categories (if using package `VAST`)
+#' @param use_biascorr Boolean, whether to use bias-corrected estimates if available
+#' @param plot_legend Add legend for labelling colors
+#' @param total_area_km2 Total area for calculating a design-based estimator using one design-stratum (only recommended for model exploration)
+#' @param plot_log Boolean, whether to plot y-axis in log-scale
+#' @param width plot width in inches
+#' @param height plot height in inches
+#' @param ... Other inputs to `par()`
+#' @inheritParams PlotResultsOnMap_Fn
+#'
+#' @return Return Tagged list of output
+#'
+
 #' @export
 PlotIndex_Fn <-
-function( PlotName="Index.png", DirName, TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, interval_width=1, strata_names=NULL, category_names=NULL, use_biascorr=FALSE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4, ... ){
+function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(getwd(),"/"), PlotName="Index.png", interval_width=1,
+  strata_names=NULL, category_names=NULL, use_biascorr=FALSE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4, ... ){
   # Which parameters
   if( "ln_Index_tl" %in% rownames(TMB:::summary.sdreport(Sdreport)) ){
     ParName = "Index_tl"
