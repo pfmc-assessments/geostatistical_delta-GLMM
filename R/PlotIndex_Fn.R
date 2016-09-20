@@ -21,12 +21,16 @@
 #' @inheritParams PlotResultsOnMap_Fn
 #'
 #' @return Return Tagged list of output
+#' \describe{
+#'   \item{Table}{table of index estimates by stratum and year, e.g., for including in an assessment model}
+#' }
 #'
 
 #' @export
 PlotIndex_Fn <-
 function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(getwd(),"/"), PlotName="Index.png", interval_width=1,
   strata_names=NULL, category_names=NULL, use_biascorr=FALSE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4, ... ){
+
   # Which parameters
   if( "ln_Index_tl" %in% rownames(TMB:::summary.sdreport(Sdreport)) ){
     ParName = "Index_tl"

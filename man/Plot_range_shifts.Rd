@@ -8,7 +8,8 @@ Plot_range_shifts(Sdreport, Report, TmbData, Year_Set = NULL,
   PlotDir = paste0(getwd(), "/"), FileName_COG = paste0(PlotDir,
   "/center_of_gravity.png"), FileName_Area = paste0(PlotDir, "/Area.png"),
   FileName_EffArea = paste0(PlotDir, "/Effective_Area.png"),
-  Znames = rep("", ncol(Report$mean_Z_tm)), use_biascorr = TRUE, ...)
+  Znames = rep("", ncol(Report$mean_Z_tm)), use_biascorr = TRUE,
+  category_names = NULL, interval_width = 1, ...)
 }
 \arguments{
 \item{Sdreport}{TMB output from `TMB::sdreport(Obj)`}
@@ -31,10 +32,19 @@ Plot_range_shifts(Sdreport, Report, TmbData, Year_Set = NULL,
 
 \item{use_biascorr}{Boolean, whether to use bias-corrected estimates if available}
 
+\item{category_names}{names for categories (if using package `VAST`)}
+
+\item{interval_width}{width for confidence intervals}
+
 \item{...}{Other inputs to `par()`}
 }
 \value{
 Return Tagged list of output
+\describe{
+  \item{COG_Table}{table of center-of-gravity ("COG") estimates by year}
+  \item{KernelArea_Table}{table of kernel-area approximation to area occupied, estimated by year}
+  \item{EffectiveArea_Table}{table of effective-area approximation to area occupied, estimated by year, recommended over \code{KernelArea_Table}}
+}
 }
 \description{
 \code{Plot_range_shifts} plots center-of-gravity, kernel-area occupied, and effective-area occupied

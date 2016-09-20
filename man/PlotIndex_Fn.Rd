@@ -45,6 +45,9 @@ PlotIndex_Fn(TmbData, Sdreport, Year_Set = NULL, Years2Include = NULL,
 }
 \value{
 Return Tagged list of output
+\describe{
+  \item{Table}{table of index estimates by stratum and year, e.g., for including in an assessment model}
+}
 }
 \description{
 \code{PlotIndex_Fn} plots an index proportion to population abundance
