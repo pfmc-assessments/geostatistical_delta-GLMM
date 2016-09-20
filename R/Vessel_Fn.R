@@ -16,6 +16,7 @@
 Vessel_Fn <-
 function( TmbData, Sdreport, FileName_VYplot=NULL ){
   Summary = TMB:::summary.sdreport(Sdreport)
+  Return = NULL
 
   if( !any(c("nu1_vt","nu2_vt") %in% rownames(Summary)) ){
     message( "Not plotting vessel effects because none are present" )
@@ -29,6 +30,7 @@ function( TmbData, Sdreport, FileName_VYplot=NULL ){
       nu_vt[vI,tI,2,] = Summary[which(rownames(Summary)=="nu2_vt")[Num],]
     }}
 
+    # Make plot
     if( !is.null(FileName_VYplot) ) jpeg(FileName_VYplot, width=1.5*TmbData$n_t,height=5,res=200,units="in")
       par(mfrow=c(2,TmbData$n_t), mar=c(2,2,2,0), mgp=c(1.25,0.25,0), tck=-0.02, oma=c(0,3,0,0))
       for(eI in 1:2){
@@ -41,9 +43,11 @@ function( TmbData, Sdreport, FileName_VYplot=NULL ){
         }
       }}
     if( !is.null(FileName_VYplot) ) dev.off()
+
+    # Add stuff
+    Return = c(Return, list("nu_vt"=nu_vt) )
   }
 
   # Return stuff
-  Return = list("nu_vt"=nu_vt)
   return( Return )
 }

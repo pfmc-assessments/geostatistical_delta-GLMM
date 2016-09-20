@@ -29,11 +29,6 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
   FileName_Area=paste0(PlotDir,"/Area.png"), FileName_EffArea=paste0(PlotDir,"/Effective_Area.png"), Znames=rep("",ncol(Report$mean_Z_tm)), use_biascorr=TRUE,
   category_names=NULL, interval_width=1, ...){
 
-  # Default inputs
-  if( is.null(Year_Set)) Year_Set = 1:TmbData$n_t
-  if( is.null(category_names) ) category_names = 1:TmbData$n_c
-  Return = list( "Year_Set"=Year_Set )
-
   # Which parameters
   if( "ln_Index_tl" %in% rownames(TMB:::summary.sdreport(Sdreport)) ){
     CogName = "mean_Z_tm"
@@ -44,6 +39,11 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
     CogName = "mean_Z_ctm"
     EffectiveName = "effective_area_ctl"
   }
+
+  # Default inputs
+  if( is.null(Year_Set)) Year_Set = 1:TmbData$n_t
+  if( is.null(category_names) ) category_names = 1:TmbData$n_c
+  Return = list( "Year_Set"=Year_Set )
 
   # Plot distribution shift and kernal-area approximation to area occupied if necessary outputs are available
   if( !any(c("mean_Z_tm","mean_Z_ctm") %in% names(Report)) ){
@@ -63,14 +63,15 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
     #SD_log_area_Z_tmm = array(SD[which(rownames(SD)=="log_area_Z_tmm"),], dim=c(dim(Report$area_Z_tmm),2))
 
     # Plot center of gravity
-    png( file=FileName_COG, width=6.5, height=3, res=200, units="in")
-      par( mar=c(3,2,2,0), mgp=c(1.75,0.25,0), tck=-0.02, oma=c(1,1,0,0), mfrow=c(TmbData$n_c,dim(SD_mean_Z_ctm)[[3]]) )  # , ...
+    png( file=FileName_COG, width=6.5, height=TmbData$n_c*2, res=200, units="in")
+      par( mar=c(2,2,1,0), mgp=c(1.75,0.25,0.25), tck=-0.02, oma=c(1,1,0,1.5), mfrow=c(TmbData$n_c,dim(SD_mean_Z_ctm)[[3]]) )  # , ...
       for( cI in 1:TmbData$n_c ){
       for( mI in 1:dim(SD_mean_Z_ctm)[[3]]){
         Ybounds = (SD_mean_Z_ctm[cI,,mI,'Estimate']%o%rep(interval_width,2) + SD_mean_Z_ctm[cI,,mI,'Std. Error']%o%c(-interval_width,interval_width))
         Ylim = range(Ybounds,na.rm=TRUE)
         SpatialDeltaGLMM:::Plot_Points_and_Bounds_Fn(x=Year_Set, y=SD_mean_Z_ctm[cI,,mI,'Estimate'], ybounds=Ybounds, col_bounds=rgb(1,0,0,0.2), fn=plot, type="l", lwd=2, col="red", bounds_type="shading", ylim=Ylim, xlab="", ylab="", main="")
         if( cI==1 ) mtext(side=3, text=Znames[mI], outer=FALSE )
+        if( mI==dim(SD_mean_Z_ctm)[[3]]) mtext(side=4, text=category_names[cI], outer=FALSE, line=0.5)
       }}
       mtext( side=1:2, text=c("Year","Location"), outer=TRUE, line=c(0,0) )
     dev.off()
@@ -114,11 +115,11 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
     }
 
     # Plot area
-    png( file=FileName_EffArea, width=4, height=4, res=200, units="in")
-      par( mfrow=c(1,1), mar=c(3,3,2,0), mgp=c(1.75,0.25,0), tck=-0.02, oma=c(1,1,1,0), mfrow=c(ceiling(sqrt(TmbData$n_c)),ceiling(TmbData$n_c/ceiling(sqrt(TmbData$n_c)))))
+    png( file=FileName_EffArea, width=ceiling(TmbData$n_c/ceiling(sqrt(TmbData$n_c)))*2.5, height=ceiling(sqrt(TmbData$n_c))*2.5, res=200, units="in")
+      par( mfrow=c(1,1), mar=c(2,2,1,0), mgp=c(1.75,0.25,0), tck=-0.02, oma=c(1,1,1,0), mfrow=c(ceiling(sqrt(TmbData$n_c)),ceiling(TmbData$n_c/ceiling(sqrt(TmbData$n_c)))))
       for( cI in 1:TmbData$n_c ){
         Ybounds = SD_log_effective_area_ctl[cI,,1,1]%o%rep(interval_width,2) + SD_log_effective_area_ctl[cI,,1,2]%o%c(-interval_width,interval_width)
-        SpatialDeltaGLMM:::Plot_Points_and_Bounds_Fn( x=Year_Set, y=SD_log_effective_area_ctl[cI,,1,1], ybounds=Ybounds, fn=plot, bounds_type="shading", col_bounds=rgb(1,0,0,0.2), col="red", lwd=2, xlab="", ylab="", type="l", main="")
+        SpatialDeltaGLMM:::Plot_Points_and_Bounds_Fn( x=Year_Set, y=SD_log_effective_area_ctl[cI,,1,1], ybounds=Ybounds, fn=plot, bounds_type="shading", col_bounds=rgb(1,0,0,0.2), col="red", lwd=2, xlab="", ylab="", type="l", main=category_names[cI])
       }
       mtext( side=1:3, text=c("Year","ln(km^2)","Effective area occupied"), outer=TRUE, line=c(0,0,0) )
     dev.off()
