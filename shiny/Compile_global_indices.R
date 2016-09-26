@@ -43,7 +43,7 @@
 ################
 #
 ###### Loop through regions
-#for(rI in 5:8){
+#for(rI in 6:8){
 ##for(rI in 1:length(RegionSet)){
 #  # Which region
 #  Region = RegionSet[rI]
@@ -188,7 +188,7 @@
 #          png( filename=paste0(Dir,Year_Set[tI],".png"), width=MapDetails_List$MapSizeRatio['Width(in)'], height=MapDetails_List$MapSizeRatio['Height(in)'], res=200, units="in" )
 #            Zlim = range( log(Report$D_xt) )
 #            # MappingDetails=MapDetails_List$MappingDetails; Mat=log(Report$D_xt[,tI,drop=FALSE]); zlim=Zlim; PlotDF=MapDetails_List[["PlotDF"]]; MapSizeRatio=MapDetails_List[["MapSizeRatio"]]; Xlim=MapDetails_List[["Xlim"]]; Ylim=MapDetails_List[["Ylim"]]; FileName=NA; Format=""; Year_Set=Year_Set[tI]; outermargintext=c("",""); mar=c(0,0,2,0); Cex=0.5
-#            SpatialDeltaGLMM:::PlotMap_Fn(MappingDetails=MapDetails_List$MappingDetails, Mat=log(Report$D_xt[,tI,drop=FALSE]), zlim=Zlim, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=NA, Format="", Year_Set=Year_Set[tI], outermargintext=c("",""), mar=c(2,2,2,1), Cex=switch(Region, "Northwest_Atlantic"=2, "Gulf_of_St_Lawrence"=1, "NS-IBTS"=1, "BITS"=1.25, "SWC-IBTS"=1.2, 0.5), zone=MapDetails_List[["Zone"]])
+#            SpatialDeltaGLMM:::PlotMap_Fn(MappingDetails=MapDetails_List$MappingDetails, Mat=log(Report$D_xt[,tI,drop=FALSE]), zlim=Zlim, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=NA, Format="", Year_Set=Year_Set[tI], outermargintext=c("",""), mar=c(2,2,2,1), Cex=switch(Region, "Northwest_Atlantic"=2, "Gulf_of_St_Lawrence"=1, "NS-IBTS"=0.5, "BITS"=1.25, "SWC-IBTS"=1.2, "EVHOE"=0.65, 0.5), zone=MapDetails_List[["Zone"]], pch=15)
 #            axis(1); axis(2)
 #          dev.off()
 #        }
