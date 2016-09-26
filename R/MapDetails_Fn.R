@@ -128,7 +128,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Rotate = 0
     Cex = 1.0
     Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
-    Zone = NA
+    Zone = Extrapolation_List[["zone"]]
   }
 
   # bundle and return
