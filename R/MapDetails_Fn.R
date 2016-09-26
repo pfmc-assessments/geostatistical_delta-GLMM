@@ -123,7 +123,8 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     MappingDetails = list("worldHires", NULL )
     Xlim = range(Extrapolation_List[["Data_Extrap"]][which(Extrapolation_List[["Area_km2_x"]]>0),'Lon'])
     Ylim = range(Extrapolation_List[["Data_Extrap"]][which(Extrapolation_List[["Area_km2_x"]]>0),'Lat'])
-    MapSizeRatio = c("Height(in)"=4,"Width(in)"=4)
+    MapSizeRatio = c("Height(in)"=diff(range(Extrapolation_List$Data_Extrap[,'N_km'])) , "Width(in)"=diff(range(Extrapolation_List$Data_Extrap[,'E_km'])) )
+    MapSizeRatio = MapSizeRatio / sqrt(prod(MapSizeRatio)) * 4  # 14 square-inches
     Rotate = 0
     Cex = 1.0
     Legend = list(use=FALSE,x=c(10,30),y=c(10,30))

@@ -11,8 +11,8 @@
 ## Database directory
 #LocalDir = "C:/Users/James.Thorson/Desktop/UW Hideaway/Website/FishViz/"
 ##LocalDir = "C:/Users/Jim/Desktop/UW Hideaway/Website/FishViz/"
-##ResultsDir = paste0(LocalDir,"database_nx=1000/")
-#ResultsDir = paste0(LocalDir,"database_nx=500/")
+#ResultsDir = paste0(LocalDir,"database_nx=1000/")
+##ResultsDir = paste0(LocalDir,"database_nx=500/")
 #  dir.create(ResultsDir)
 #
 ## Load libraries
@@ -43,7 +43,8 @@
 ################
 #
 ###### Loop through regions
-#for(rI in 1:length(RegionSet)){
+#for(rI in 5:8){
+##for(rI in 1:length(RegionSet)){
 #  # Which region
 #  Region = RegionSet[rI]
 #
@@ -55,15 +56,17 @@
 #    # scrape_data( region="California_current", ...) is identical to previous except 10,000 times smaller
 #  if( Region %in% c("Eastern_Bering_Sea", "Gulf_of_Alaska", "Aleutian_Islands", "California_current")){
 #    Database = scrape_data( region=Region, species_set=nspecies, error_tol=0.01, localdir=LocalDir )
-#    species_set = unique( Database[,'Sci'] )
 #    Database = ThorsonUtilities::rename_columns( Database[,c('Sci','Wt','Year','Long','Lat')], newname=c('Sci','Catch_KG','Year','Lon','Lat') )
+#    species_set = unique( Database[,'Sci'] )
 #    Database = cbind( Database, 'AreaSwept_km2'=0.01 )
 #    if( !("Vessel" %in% names(Database)) ) Database = cbind( Database, 'Vessel'=1 )
+#    Database = na.omit( Database )
 #  }
 #  if( Region %in% c("NS-IBTS", "BITS", "SWC-IBTS", "EVHOE")){
-#    Database = FishData:::download_datras( species_set=nspecies, survey=Survey, years=1991:2015, quarters=switch(Survey,"NS-IBTS"=1,"BITS"=1,"SWC-IBTS"=1,"EVHOE"=4), localdir=DownloadDir )
+#    Datras = FishData:::download_datras( species_set=nspecies, survey=Region, years=1991:2015, quarters=switch(Region,"NS-IBTS"=1,"BITS"=1,"SWC-IBTS"=1,"EVHOE"=4), localdir=LocalDir )
+#    Database = ThorsonUtilities::rename_columns( Datras$DF[,c('species','expanded_weight','Year','ShootLong','ShootLat')], newname=c('Sci','Catch_KG','Year','Lon','Lat') )
+#    Database = na.omit( Database )
 #    species_set = unique( Database[,'Sci'] )
-#    Database = ThorsonUtilities::rename_columns( Database$DF[,c('species','expanded_weight','Year','ShootLong','ShootLat')], newname=c('Sci','Catch_KG','Year','Lon','Lat') )
 #    Database = cbind( Database, 'AreaSwept_km2'=0.01 )
 #    if( !("Vessel" %in% names(Database)) ) Database = cbind( Database, 'Vessel'=1 )
 #  }
@@ -98,16 +101,16 @@
 #      Database = data.frame( "Catch_KG"=chatham_rise_hake[,'Hake_kg_per_km2'], "Year"=chatham_rise_hake[,'Year'], "Vessel"=1, "AreaSwept_km2"=1, "Lat"=chatham_rise_hake[,'Lat'], "Lon"=chatham_rise_hake[,'Lon'])
 #      species_set = "Merluccius australis"
 #    }
+#    Database = na.omit( Database )
 #  }
-#  Database = na.omit( Database )
 #
 #  # Read or simulate trawl data
-#  if( !('Sci' %in% names(Database)) ){
+#  if( !('Sci' %in% names(Database)) & length(species_set)==1 ){
 #    Database = cbind(Database, 'Sci'=species_set)
 #  }
 #
 #  # Kick out species with all or no encounters in any year
-#  EncProb = tapply( Database[,'Catch_KG'], INDEX=list(Database[,'Sci'],Database[,'Year']), FUN=function(vec){mean(vec>0)})
+#  EncProb = tapply( Database[,'Catch_KG'], INDEX=list(factor(Database[,'Sci'],levels=species_set),Database[,'Year']), FUN=function(vec){mean(vec>0)})
 #  species_set = species_set[ which(apply(EncProb,MARGIN=1,FUN=function(vec){all(vec!=1&vec!=0)})) ]
 #
 #  # Kick out high-level taxa
@@ -117,8 +120,7 @@
 #  if( length(grep("sp.",species_set))>0 ) species_set = species_set[-grep(" sp.",species_set)]
 #
 #  ##### Loop through species
-#  #for( sI in 1:length(species_set)){
-#  for( sI in 162:length(species_set)){
+#  for( sI in 1:length(species_set)){
 #
 #    # Run model
 #    if( !file.exists(paste0(ResultsDir,Region,"-",species_set[sI],".RData")) ){
@@ -127,7 +129,7 @@
 #      Data_Geostat = Database[ which(Database[,'Sci']==species_set[sI]), ]
 #
 #      # Get extrapolation data
-#      if( Region %in% c("British_Columbia","South_Africa","Iceland","Northwest_Atlantic") ){
+#      if( Region %in% c("British_Columbia","South_Africa","Iceland","Northwest_Atlantic","NS-IBTS","BITS","SWC-IBTS","EVHOE") ){
 #        if( Region == "British_Columbia" ){
 #          Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, strata_to_use=c("HS","QCS") )
 #        }
@@ -139,6 +141,9 @@
 #        }
 #        if( Region == "Northwest_Atlantic" ){
 #          Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=list('Georges_Bank'=c(1130,1140,1150,1160,1170,1180,1190,1200,1210,1220,1230,1240,1250,1290,1300)) )
+#        }
+#        if( Region %in% c("NS-IBTS", "BITS", "SWC-IBTS", "EVHOE")){
+#          Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, observations_LL=Data_Geostat[,c('Lat','Lon')], maximum_distance_from_sample=25, grid_dim_km=c(10,10) )
 #        }
 #      }else{
 #        Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, observations_LL=Data_Geostat[,c('Lat','Lon')] )
@@ -166,7 +171,7 @@
 #      Index = PlotIndex_Fn( DirName=RegionDir, TmbData=TmbData, Sdreport=Opt[["SD"]], Year_Set=Year_Set, strata_names=strata.limits[,1], use_biascorr=TRUE )
 #
 #      # Plot center of gravity
-#      COG = Plot_range_shifts(Report=Report, TmbData=TmbData, Sdreport=Opt[["SD"]], Year_Set=Year_Set, Znames=colnames(TmbData$Z_xm), FileName_COG=paste0(RegionDir,"center_of_gravity.png"))
+#      COG = Plot_range_shifts(Report=Report, TmbData=TmbData, Sdreport=Opt[["SD"]], Year_Set=Year_Set, Znames=colnames(TmbData$Z_xm), PlotDir=RegionDir)
 #
 #      # save
 #      Save = list("Index"=Index$Table[Index$Table[,'Year']%in%Data_Geostat$Year,], "COG"=COG$COG_Table[COG$COG_Table[,'Year']%in%Data_Geostat$Year,], "EffectiveArea"=COG$EffectiveArea_Table[COG$EffectiveArea_Table[,'Year']%in%Data_Geostat$Year,])
@@ -174,8 +179,8 @@
 #      Save[["Summary"]] = c( "average_occurence"=mean(Data_Geostat[,'Catch_KG']>0), "average_density"=mean(Data_Geostat[,'Catch_KG']/Data_Geostat[,'AreaSwept_km2']) )
 #      save( Save, file=paste0(ResultsDir,Region,"-",species_set[sI],".RData") )
 #
-#      # Plot maps for animation   #
-#      MapDetails_List = SpatialDeltaGLMM::MapDetails_Fn( "Region"=Region, "NN_Extrap"=Spatial_List$PolygonList$NN_Extrap, "Extrapolation_List"=Extrapolation_List )
+#      # Plot maps for animation   # SpatialDeltaGLMM::
+#      MapDetails_List = MapDetails_Fn( "Region"=Region, "NN_Extrap"=Spatial_List$PolygonList$NN_Extrap, "Extrapolation_List"=Extrapolation_List )
 #      Dir = paste0(ResultsDir,"Image-",Region,"-",species_set[sI],"/")
 #      dir.create( Dir )
 #      for(tI in 1:TmbData$n_t){
@@ -183,7 +188,7 @@
 #          png( filename=paste0(Dir,Year_Set[tI],".png"), width=MapDetails_List$MapSizeRatio['Width(in)'], height=MapDetails_List$MapSizeRatio['Height(in)'], res=200, units="in" )
 #            Zlim = range( log(Report$D_xt) )
 #            # MappingDetails=MapDetails_List$MappingDetails; Mat=log(Report$D_xt[,tI,drop=FALSE]); zlim=Zlim; PlotDF=MapDetails_List[["PlotDF"]]; MapSizeRatio=MapDetails_List[["MapSizeRatio"]]; Xlim=MapDetails_List[["Xlim"]]; Ylim=MapDetails_List[["Ylim"]]; FileName=NA; Format=""; Year_Set=Year_Set[tI]; outermargintext=c("",""); mar=c(0,0,2,0); Cex=0.5
-#            SpatialDeltaGLMM:::PlotMap_Fn(MappingDetails=MapDetails_List$MappingDetails, Mat=log(Report$D_xt[,tI,drop=FALSE]), zlim=Zlim, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=NA, Format="", Year_Set=Year_Set[tI], outermargintext=c("",""), mar=c(2,2,2,0), Cex=switch(Region, "Northwest_Atlantic"=2, "Gulf_of_St_Lawrence"=1, 0.5), zone=MapDetails_List[["Zone"]])
+#            SpatialDeltaGLMM:::PlotMap_Fn(MappingDetails=MapDetails_List$MappingDetails, Mat=log(Report$D_xt[,tI,drop=FALSE]), zlim=Zlim, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=NA, Format="", Year_Set=Year_Set[tI], outermargintext=c("",""), mar=c(2,2,2,1), Cex=switch(Region, "Northwest_Atlantic"=2, "Gulf_of_St_Lawrence"=1, "NS-IBTS"=1, "BITS"=1.25, "SWC-IBTS"=1.2, 0.5), zone=MapDetails_List[["Zone"]])
 #            axis(1); axis(2)
 #          dev.off()
 #        }
