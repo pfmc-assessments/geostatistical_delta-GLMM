@@ -42,6 +42,6 @@ png( file="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/
     # Plot
     Which = which( Extrapolation_List$a_el>0 )     # 1:nrow(Extrapolation_List$a_el)
     set.seed(1)
-    points( Extrapolation_List$Data_Extrap[Which,c('Lon','Lat')], pch=20, cex=0.01, col=rainbow(15)[i])
+    points( Extrapolation_List$Data_Extrap[Which,c('Lon','Lat')], pch=20, cex=0.01, col=sample(rainbow(15))[i])
   }
 dev.off()

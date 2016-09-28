@@ -24,6 +24,7 @@ fluidPage(
     h4("General settings"),
     # General settings
     checkboxInput( inputId="plotCI", label="Plot confidence intervals?", value=TRUE),
+    checkboxInput( inputId="plotLog", label="Plot log-abundance?", value=TRUE),
     radioButtons( inputId="species_category", label="Which group of species?", choices=list("Top 10 fishes"="top10fish", "All fishes in database"="fish", "All species in database"="all"), selected="top10fish"),
     textInput(inputId="species_match", label="Search group of species", value = ""),
     actionButton(inputId="unselect_all", label="Unselect all species"),

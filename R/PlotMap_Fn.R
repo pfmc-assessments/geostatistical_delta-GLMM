@@ -5,6 +5,7 @@
 #' \code{PlotMap_Fn} is a hidden function to plot a map and fill in regions with colors to represent intensity in an areal-interpretion of model results
 #'
 #' @inheritParams PlotResultsOnMap_Fn
+#' @param plot_legend_fig Boolean, whether to plot a separate figure for the heatmap legend or not
 #'
 #' @details
 #' This function was necessary to buiild because \code{mapproj::mapproject} as used in \code{maps::map} has difficulties with both rotations (for most projections) and
@@ -15,7 +16,7 @@
 PlotMap_Fn <-
 function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=4), Xlim, Ylim, FileName=paste0(getwd(),"/"), Year_Set,
          Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, textmargin="", add=FALSE, pch=20, outermargintext=c("Eastings","Northings"), zlim=NULL,
-         Legend=list("use"=FALSE, "x"=c(10,30), "y"=c(10,30)), mfrow=c(1,1), ...){
+         Legend=list("use"=FALSE, "x"=c(10,30), "y"=c(10,30)), mfrow=c(1,1), plot_legend_fig=TRUE, ...){
 
   # avoid attaching maps and mapdata to use worldHires plotting
   require(maps)
@@ -97,21 +98,23 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=
     if(add==FALSE) mtext(side=2, outer=TRUE, outermargintext[2], cex=1.75, line=par()$oma[2]/2)
   if(Format %in% c("png","jpg","tif","tiff")) dev.off()
   # Legend
-  if(Format=="png"){
-    png(file=paste0(FileName, "_Legend.png",sep=""),
-        width=1, height=2*MapSizeRatio['Height(in)'], res=Res, units='in')
-  }
-  if(Format=="jpg"){
-    jpeg(file=paste0(FileName, "_Legend.jpg",sep=""),
-         width=1, height=2*MapSizeRatio['Height(in)'], res=Res, units='in')
-  }
-  if(Format%in%c("tif","tiff")){
-    tiff(file=paste0(FileName, "_Legend.tif",sep=""),
-         width=1, height=2*MapSizeRatio['Height(in)'], res=Res, units='in')
-  }
-  if(Format %in% c("png","jpg","tif","tiff")){
-    SpatialDeltaGLMM:::Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), textmargin=textmargin )
-    dev.off()
+  if( plot_legend_fig==TRUE ){
+    if(Format=="png"){
+      png(file=paste0(FileName, "_Legend.png",sep=""),
+          width=1, height=2*MapSizeRatio['Height(in)'], res=Res, units='in')
+    }
+    if(Format=="jpg"){
+      jpeg(file=paste0(FileName, "_Legend.jpg",sep=""),
+           width=1, height=2*MapSizeRatio['Height(in)'], res=Res, units='in')
+    }
+    if(Format%in%c("tif","tiff")){
+      tiff(file=paste0(FileName, "_Legend.tif",sep=""),
+           width=1, height=2*MapSizeRatio['Height(in)'], res=Res, units='in')
+    }
+    if(Format %in% c("png","jpg","tif","tiff")){
+      SpatialDeltaGLMM:::Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), textmargin=textmargin )
+      dev.off()
+    }
   }
   return( invisible(list("Par"=Par, "par"=par())) )
 }

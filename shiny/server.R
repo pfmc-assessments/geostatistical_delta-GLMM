@@ -52,7 +52,7 @@ function(input, output, session){
     length( list.files(dir) )
   })
   output$sliderSelex <- renderUI({
-    sliderInput(inputId="sliderNum", label="Year of animation", min=1, max=Num_years(), value=1, step=1, animate=animationOptions(interval=500, loop=FALSE, playButton="PLAY", pauseButton="PAUSE"))
+    sliderInput(inputId="sliderNum", label="Year of animation", min=1, max=Num_years(), value=1, step=1, animate=animationOptions(interval=500, loop=TRUE, playButton="PLAY", pauseButton="PAUSE"))
   })
 
   #### Plots
@@ -62,9 +62,9 @@ function(input, output, session){
     #isolate({
       par( xaxs="i", yaxs="i" )
       species2plot = sapply( input$species2plot, FUN=function(Char){strsplit(Char,'  ')[[1]][1]})
-      # Ylim = c(0, max(indexDF[which(indexDF[,'Region']==input$region),'Index'])*1.2)
-      Ylim = c(0, max(indexDF[which(indexDF[,'Species']%in%species2plot & indexDF[,'Region']==input$region),'Index'])*1.2)
-      plot( 1, type="n", xlim=range(indexDF[which(indexDF[,'Region']==input$region),'Year']), ylim=ifelse(abs(Ylim)==Inf,1,Ylim), xlab="Year", ylab="Population biomass (relative to average in the survey)", main="Indices of population abundance")
+      #Ylim = c(0, max(indexDF[which(indexDF[,'Species']%in%species2plot & indexDF[,'Region']==input$region),'Index'])
+      Ylim = c(0.9,1.5) * range(indexDF[which(indexDF[,'Species']%in%species2plot & indexDF[,'Region']==input$region),'Index']%o%c(1,1)*exp(indexDF[which(indexDF[,'Species']%in%species2plot & indexDF[,'Region']==input$region),'SD..log.']%o%c(-interval_width,interval_width)))
+      plot( 1, type="n", xlim=range(indexDF[which(indexDF[,'Region']==input$region),'Year']), ylim=ifelse(abs(Ylim)==Inf,1,Ylim), log=ifelse(input$plotLog==TRUE,"y",""), xlab="Year", ylab="Population biomass (relative to average in the survey)", main="Indices of population abundance")
       for( sI in 1:length(species2plot)){
         Tmp = indexDF[ which(indexDF[,'Species']==species2plot[sI] & indexDF[,'Region']==input$region), ]
         if(input$plotCI==FALSE) lines( y=Tmp[,'Index'], x=Tmp[,'Year'], type="b", col=rainbow(length(species2plot))[sI] )

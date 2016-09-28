@@ -43,7 +43,7 @@
 ################
 #
 ###### Loop through regions
-#for(rI in 6:8){
+#for(rI in 7:8){
 ##for(rI in 1:length(RegionSet)){
 #  # Which region
 #  Region = RegionSet[rI]
@@ -64,10 +64,11 @@
 #  }
 #  if( Region %in% c("NS-IBTS", "BITS", "SWC-IBTS", "EVHOE")){
 #    Datras = FishData:::download_datras( species_set=nspecies, survey=Region, years=1991:2015, quarters=switch(Region,"NS-IBTS"=1,"BITS"=1,"SWC-IBTS"=1,"EVHOE"=4), localdir=LocalDir )
-#    Database = ThorsonUtilities::rename_columns( Datras$DF[,c('species','expanded_weight','Year','ShootLong','ShootLat')], newname=c('Sci','Catch_KG','Year','Lon','Lat') )
+#    Database = ThorsonUtilities::rename_columns( Datras$DF[,c('species','expanded_weight','Year','ShootLong','ShootLat','HaulDur')], newname=c('Sci','Catch_KG','Year','Lon','Lat','Duration_minutes') )
 #    Database = na.omit( Database )
 #    species_set = unique( Database[,'Sci'] )
-#    Database = cbind( Database, 'AreaSwept_km2'=0.01 )
+#    Database[,'Duration_minutes'] = ifelse( Database[,'Duration_minutes']==0, median(Database[,'Duration_minutes']), Database[,'Duration_minutes'])
+#    Database = cbind( Database, 'AreaSwept_km2'=0.01*Database[,'Duration_minutes']/60 )
 #    if( !("Vessel" %in% names(Database)) ) Database = cbind( Database, 'Vessel'=1 )
 #  }
 #  if( Region %in% c("New_Zealand", "Gulf_of_St_Lawrence", "British_Columbia", "Northwest_Atlantic", "South_Africa")){
@@ -223,11 +224,11 @@
 #speciesDF = data.frame( matrix(NA, nrow=length(file_set), ncol=9, dimnames=list(NULL,c("Region","Sci","Common","Family","Order","Class","Phylum","average_occurence","average_density"))) )
 #
 ## Loop through species
-#for(sI in 1:nrow(speciesDF)){
+#for(sI in which(is.na(speciesDF[,'Region'])) ){
 #  # Get Genus-Species
 #  Char = strsplit( file_set[sI], split="-", fixed=TRUE)[[1]]
-#  speciesDF[sI,'Sci'] = strsplit( Char[2], split=".", fixed=TRUE)[[1]][1]
-#  speciesDF[sI,'Region'] = Char[1]
+#  speciesDF[sI,'Sci'] = strsplit( Char[length(Char)], split=".", fixed=TRUE)[[1]][1]
+#  speciesDF[sI,'Region'] = paste(Char[-length(Char)], collapse="-")
 #
 #  # Load results
 #  load( file=paste0(ResultsDir,file_set[sI]) )
@@ -272,6 +273,12 @@
 #  #GBIF = taxize::classification(speciesDF[sI,'Sci'], db='gbif')
 #  #EOL = taxize::classification(speciesDF[sI,'Sci'], db='eol')
 #}
+#
+## Exclude wrong class
+##if( any(speciesDF[,'Phylum']!="Chordata") ){
+##  Which = which(speciesDF[,'Phylum']!="Chordata")
+##  speciesDF[,c("Common","Family","Order","Class","Phylum")] = NA
+##}
 #
 ## Save compiled results
 #save( speciesDF, file=paste0(ResultsDir,"Results-speciesDF.RData"))
