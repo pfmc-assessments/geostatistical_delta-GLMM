@@ -38,9 +38,8 @@ setwd( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/shi
 setwd( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/shiny/testing" )
 
 # Copy files
-if(FALSE){
-  file.copy( from="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/examples/global_coverage.png", to="global_coverage.png")
-}
+  # file.copy( from="C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/examples/global_coverage.png", to="global_coverage.png", overwrite=TRUE )
+
 
 ##############
 # Test locally

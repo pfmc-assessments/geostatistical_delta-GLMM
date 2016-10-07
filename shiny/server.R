@@ -5,6 +5,7 @@ source( "Plot_Points_and_Bounds_Fn.R" )
 load( file="database/Results-speciesDF.RData" )
 load( file="database/Results-indexDF.RData" )
 load( file="database/Results-cogDF.RData" )
+load( file="database/Results-areaDF.RData" )
 
 # Global settings
 interval_width = 1
@@ -103,6 +104,23 @@ function(input, output, session){
         if(input$plotCI==FALSE) lines( y=Tmp[,'East.COG_hat'], x=Tmp[,'Year'], type="b", col=rainbow(length(species2plot))[sI])
         if(input$plotCI==TRUE) Plot_Points_and_Bounds_Fn( y=Tmp[,'East.COG_hat'], x=Tmp[,'Year'], ybounds=(Tmp[,'East.COG_hat']%o%c(1,1))+(Tmp[,'East.SE']%o%c(-interval_width,interval_width)), type="b", col=rainbow(length(species2plot))[sI], col_bounds=rainbow(length(species2plot),alpha=0.2)[sI], bounds_type="shading")
       }
+    #})
+  })
+
+  # Plot abundance index
+  output$plot4 <- renderPlot({
+    input$activate
+    #isolate({
+      par( xaxs="i", yaxs="i" )
+      species2plot = sapply( input$species2plot, FUN=function(Char){strsplit(Char,'  ')[[1]][1]})
+      Ylim = c(-0.1,0.5) + range(areaDF[which(areaDF[,'Species']%in%species2plot & areaDF[,'Region']==input$region),'EffectiveArea']%o%c(1,1) + (areaDF[which(areaDF[,'Species']%in%species2plot & areaDF[,'Region']==input$region),'SE']%o%c(-interval_width,interval_width)))
+      plot( 1, type="n", xlim=range(areaDF[which(areaDF[,'Region']==input$region),'Year']), ylim=ifelse(abs(Ylim)==Inf,1,Ylim), xlab="Year", ylab="ln-effective area occupied", main="Indices of log-effective area occupied")
+      for( sI in 1:length(species2plot)){
+        Tmp = areaDF[ which(areaDF[,'Species']==species2plot[sI] & areaDF[,'Region']==input$region), ]
+        if(input$plotCI==FALSE) lines( y=Tmp[,'EffectiveArea'], x=Tmp[,'Year'], type="b", col=rainbow(length(species2plot))[sI] )
+        if(input$plotCI==TRUE) Plot_Points_and_Bounds_Fn( y=Tmp[,'EffectiveArea'], x=Tmp[,'Year'], ybounds=(Tmp[,'EffectiveArea']%o%c(1,1))+(Tmp[,'SE']%o%c(-interval_width,interval_width)), type="b", col=rainbow(length(species2plot))[sI], col_bounds=rainbow(length(species2plot),alpha=0.2)[sI], bounds_type="shading")
+      }
+      if(length(species2plot)>0 & length(species2plot)<50) legend( "top", legend=species2plot, fill=rainbow(length(species2plot)), bty="n", ncol=min(4,ceiling(sqrt(length(species2plot)))) )
     #})
   })
 

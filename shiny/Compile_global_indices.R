@@ -11,7 +11,7 @@
 ## Database directory
 #LocalDir = "C:/Users/James.Thorson/Desktop/UW Hideaway/Website/FishViz/"
 ##LocalDir = "C:/Users/Jim/Desktop/UW Hideaway/Website/FishViz/"
-#ResultsDir = paste0(LocalDir,"database_nx=1000/")
+#ResultsDir = paste0(LocalDir,"database_nx=1000_V2/")
 ##ResultsDir = paste0(LocalDir,"database_nx=500/")
 #  dir.create(ResultsDir)
 #
@@ -22,7 +22,7 @@
 ################
 ## Settings
 ################
-#RegionSet = c("Eastern_Bering_Sea", "Gulf_of_Alaska", "Aleutian_Islands", "California_current", "NS-IBTS", "BITS", "SWC-IBTS", "EVHOE", "New_Zealand", "Gulf_of_St_Lawrence", "British_Columbia", "Northwest_Atlantic", "South_Africa")
+#RegionSet = c("Eastern_Bering_Sea", "Gulf_of_Alaska", "Aleutian_Islands", "WCGBTS", "NS-IBTS", "BITS", "SWC-IBTS", "EVHOE", "New_Zealand", "Gulf_of_St_Lawrence", "British_Columbia", "Northwest_Atlantic", "South_Africa")
 #Version = "geo_index_v4a"
 #Method = c("Grid", "Mesh")[2]
 #grid_size_km = 25
@@ -33,7 +33,7 @@
 #ObsModel = 2  # 0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture
 #Kmeans_Config = list( "randomseed"=1, "nstart"=100, "iter.max"=1e3 )     # Samples: Do K-means on trawl locs; Domain: Do K-means on extrapolation grid
 #Options = c(SD_site_density=0, SD_site_logdensity=0, Calculate_Range=1, Calculate_evenness=0, Calculate_effective_area=1)
-#nspecies = 20
+#nspecies = 80
 #
 ## Decide on case-specific settings for use when calculating indices
 #strata.limits <- data.frame('STRATA'="All_areas")
@@ -43,7 +43,7 @@
 ################
 #
 ###### Loop through regions
-#for(rI in 7:8){
+#for(rI in 1:length(RegionSet)){
 ##for(rI in 1:length(RegionSet)){
 #  # Which region
 #  Region = RegionSet[rI]
@@ -54,13 +54,13 @@
 #
 #  # Regions with a public API  #   # FishData::
 #    # scrape_data( region="California_current", ...) is identical to previous except 10,000 times smaller
-#  if( Region %in% c("Eastern_Bering_Sea", "Gulf_of_Alaska", "Aleutian_Islands", "California_current")){
-#    Database = scrape_data( region=Region, species_set=nspecies, error_tol=0.01, localdir=LocalDir )
-#    Database = ThorsonUtilities::rename_columns( Database[,c('Sci','Wt','Year','Long','Lat')], newname=c('Sci','Catch_KG','Year','Lon','Lat') )
-#    species_set = unique( Database[,'Sci'] )
+#  if( Region %in% c("Eastern_Bering_Sea", "Gulf_of_Alaska", "Aleutian_Islands", "WCGBTS")){
+#    Download = FishData::download_catch_rates( survey=Region, species_set=nspecies, error_tol=0.01, localdir=LocalDir )
+#    Database = ThorsonUtilities::rename_columns( Download[,c('Sci','Wt','Year','Long','Lat')], newname=c('Sci','Catch_KG','Year','Lon','Lat') )
 #    Database = cbind( Database, 'AreaSwept_km2'=0.01 )
 #    if( !("Vessel" %in% names(Database)) ) Database = cbind( Database, 'Vessel'=1 )
 #    Database = na.omit( Database )
+#    species_set = unique( Database[,'Sci'] )
 #  }
 #  if( Region %in% c("NS-IBTS", "BITS", "SWC-IBTS", "EVHOE")){
 #    Datras = FishData:::download_datras( species_set=nspecies, survey=Region, years=1991:2015, quarters=switch(Region,"NS-IBTS"=1,"BITS"=1,"SWC-IBTS"=1,"EVHOE"=4), localdir=LocalDir )
@@ -118,7 +118,8 @@
 #  species_set = species_set[ which(sapply(as.character(species_set),FUN=function(Char){length(strsplit(Char,split=" ")[[1]])==2})) ]
 #
 #  # Kick out "sp."
-#  if( length(grep("sp.",species_set))>0 ) species_set = species_set[-grep(" sp.",species_set)]
+#  species_set = setdiff(species_set, species_set[grep(" sp.",species_set,fixed=TRUE)])
+#  species_set = setdiff(species_set, species_set[grep("eggs",species_set,fixed=TRUE)])
 #
 #  ##### Loop through species
 #  for( sI in 1:length(species_set)){
@@ -216,11 +217,13 @@
 ## Compress into easy-to-load data frames
 ####################
 #
+#ResultsDir = "C:/Users/James.Thorson/Desktop/UW Hideaway/Website/FishViz/database_nx=1000_V2/"
+#
 ## Which species are available
 #file_set = list.files(ResultsDir)[setdiff(grep("RData",list.files(ResultsDir)),grep("Results",list.files(ResultsDir)))]
 #
 ## Things to save
-#indexDF = cogDF = NULL
+#indexDF = cogDF = areaDF = NULL
 #speciesDF = data.frame( matrix(NA, nrow=length(file_set), ncol=9, dimnames=list(NULL,c("Region","Sci","Common","Family","Order","Class","Phylum","average_occurence","average_density"))) )
 #
 ## Loop through species
@@ -234,6 +237,7 @@
 #  load( file=paste0(ResultsDir,file_set[sI]) )
 #  indexDF <- rbind(indexDF, data.frame("Region"=speciesDF[sI,'Region'], "Species"=speciesDF[sI,'Sci'], Save$Index, "Index"=Save$Index[,'Estimate..metric.tonnes.']/mean(Save$Index[,'Estimate..metric.tonnes.'])) )
 #  cogDF <- rbind(cogDF, data.frame("Region"=speciesDF[sI,'Region'], "Species"=speciesDF[sI,'Sci'], "Year"=Save$COG[which(Save$COG[,'m']==1),'Year'], "East"=Save$COG[which(Save$COG[,'m']==1),c('COG_hat','SE')], "North"=Save$COG[which(Save$COG[,'m']==2),c('COG_hat','SE')]) )
+#  areaDF <- rbind(areaDF, data.frame("Region"=speciesDF[sI,'Region'], "Species"=speciesDF[sI,'Sci'], Save$EffectiveArea[,c('Year','EffectiveArea','SE')]) )
 #
 #  # Get common names for species with "genus[ ]species" names
 #  if( " " %in% strsplit(as.character(speciesDF[sI,'Sci']),split="")[[1]] ){
@@ -284,5 +288,6 @@
 #save( speciesDF, file=paste0(ResultsDir,"Results-speciesDF.RData"))
 #save( indexDF, file=paste0(ResultsDir,"Results-indexDF.RData"))
 #save( cogDF, file=paste0(ResultsDir,"Results-cogDF.RData"))
+#save( areaDF, file=paste0(ResultsDir,"Results-areaDF.RData"))
 #
 #

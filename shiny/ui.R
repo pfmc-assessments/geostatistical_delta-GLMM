@@ -58,6 +58,9 @@ fluidPage(
         plotOutput('plot2'),
         plotOutput('plot3')
       ),
+      tabPanel("Time series: Effective area occupied",
+        plotOutput('plot4')
+      ),
       # Mapping tab
       tabPanel("Maps",
         plotOutput('image1')
