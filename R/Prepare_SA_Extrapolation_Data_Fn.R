@@ -1,6 +1,6 @@
 #' @export
 Prepare_SA_Extrapolation_Data_Fn <-
-function( strata.limits=NULL, region=c("south_coast","west_coast"), zone=NA ){
+function( strata.limits=NULL, region=c("south_coast","west_coast"), zone=NA, ... ){
   # Infer strata
   if( is.null(strata.limits)){
     strata.limits = data.frame('STRATA'="All_areas")

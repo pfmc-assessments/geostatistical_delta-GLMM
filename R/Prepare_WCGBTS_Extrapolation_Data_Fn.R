@@ -1,6 +1,6 @@
 #' @export
 Prepare_WCGBTS_Extrapolation_Data_Fn <-
-function( strata.limits=NULL, surveyname='propInWCGBTS', zone=NA ){
+function( strata.limits=NULL, surveyname='propInWCGBTS', zone=NA, ... ){
   # Infer strata
   if( is.null(strata.limits)){
     strata.limits = data.frame('STRATA'="All_areas")

@@ -1,6 +1,6 @@
 #' @export
 Prepare_Other_Extrapolation_Data_Fn <-
-function( strata.limits, observations_LL, grid_dim_km=c(2,2), maximum_distance_from_sample=sqrt((grid_dim_km[1]/2)^2+(grid_dim_km[2]/2)^2), zone=NA ){
+function( strata.limits, observations_LL, grid_dim_km=c(2,2), maximum_distance_from_sample=sqrt((grid_dim_km[1]/2)^2+(grid_dim_km[2]/2)^2), zone=NA, ... ){
   # Local function
   rename_columns = function( DF, origname=colnames(DF), newname ){
     DF_new = DF

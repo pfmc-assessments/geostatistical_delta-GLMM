@@ -1,5 +1,5 @@
 Prepare_HabCam_Extrapolation_Data_Fn <-
-function( strata.limits=NULL, zone=NA ){
+function( strata.limits=NULL, zone=NA, ... ){
   # Infer strata
   if( is.null(strata.limits)){
     strata.limits = data.frame('STRATA'="All_areas")

@@ -1,6 +1,6 @@
 #' @export
 Prepare_NZ_Extrapolation_Data_Fn <-
-function( strata.limits=NULL, zone=NA, survey="Chatham_rise", Data=NULL ){
+function( strata.limits=NULL, zone=NA, survey="Chatham_rise", Data=NULL, ... ){
   # Infer strata
   if( is.null(strata.limits)){
     strata.limits = data.frame('STRATA'="All_areas")

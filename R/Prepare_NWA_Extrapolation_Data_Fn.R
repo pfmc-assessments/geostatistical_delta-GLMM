@@ -1,6 +1,6 @@
 #' @export
 Prepare_NWA_Extrapolation_Data_Fn <-
-function( strata.limits=NULL, zone=NA ){
+function( strata.limits=NULL, zone=NA, ... ){
   # Infer strata
   if( is.null(strata.limits)){
     strata.limits = list('All_areas'=1:1e5)

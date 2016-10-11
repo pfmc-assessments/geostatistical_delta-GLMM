@@ -1,6 +1,6 @@
 #' @export
 Prepare_BC_Coast_Extrapolation_Data_Fn <-
-function( strata.limits=NULL, strata_to_use=c('SOG','WCVI','QCS','HS','WCHG'), zone=NA ){
+function( strata.limits=NULL, strata_to_use=c('SOG','WCVI','QCS','HS','WCHG'), zone=NA, ... ){
   # Infer strata
   if( is.null(strata.limits)){
     strata.limits = data.frame('STRATA'="All_areas")
