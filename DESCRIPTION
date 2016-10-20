@@ -33,7 +33,6 @@ Imports:
 Depends: 
     R (>= 3.1.0),
 Suggests: 
-    rgeos,
     INLA,
     testthat
 Additional_repositories: 
