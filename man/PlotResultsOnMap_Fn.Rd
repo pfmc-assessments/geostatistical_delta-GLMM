@@ -11,7 +11,7 @@ PlotResultsOnMap_Fn(plot_set = 1:5, MappingDetails, Report, Sdreport = NULL,
   Res = 200, zone = NA, Cex = 0.01, add = FALSE,
   category_names = NULL, textmargin = NULL, pch = NULL,
   Legend = list(use = FALSE, x = c(10, 30), y = c(10, 30)), mfrow = NULL,
-  ...)
+  plot_legend_fig = TRUE, ...)
 }
 \arguments{
 \item{plot_set}{integer-vector defining plots to create

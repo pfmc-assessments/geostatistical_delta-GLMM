@@ -118,7 +118,7 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
   # Write to file
   Table = NULL
   for( cI in 1:TmbData$n_c ){
-    Tmp = data.frame( "Year"=Year_Set, "Unit"=1, "Fleet"=rep(strata_names,each=TmbData$n_t), "Estimate (metric tonnes)"=as.vector(Index_ctl[cI,,,'Estimate']), "SD (log)"=as.vector(log_Index_ctl[cI,,,'Std. Error']), "SD (natural)"=as.vector(Index_ctl[cI,,,'Std. Error']) )
+    Tmp = data.frame( "Year"=Year_Set, "Unit"=1, "Fleet"=rep(strata_names,each=TmbData$n_t), "Estimate_metric_tons"=as.vector(Index_ctl[cI,,,'Estimate']), "SD_log"=as.vector(log_Index_ctl[cI,,,'Std. Error']), "SD_mt"=as.vector(Index_ctl[cI,,,'Std. Error']) )
     if( TmbData$n_c>1 ) Tmp = cbind( "Category"=category_names[cI], Tmp)
     Table = rbind( Table, Tmp )
   }
