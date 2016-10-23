@@ -24,7 +24,7 @@ Plot_data_and_knots = function( Extrapolation_List, Spatial_List, Data_Geostat, 
   # Plot data and grid
   png( file=paste0(PlotDir,Plot1_name), width=6, height=6, res=200, units="in")
     par( mfrow=c(2,2), mar=c(3,3,2,0), mgp=c(1.75,0.25,0) )
-    plot( Extrapolation_List$Data_Extrap[which(Extrapolation_List$Area_km2_x>0),c('Lon','Lat')], cex=0.01, main="Extrapolation (UTM)" )
+    plot( Extrapolation_List$Data_Extrap[which(Extrapolation_List$Area_km2_x>0),c('Lon','Lat')], cex=0.01, main="Extrapolation (Lat-Lon)" )
     map( "world", add=TRUE )
     plot( Extrapolation_List$Data_Extrap[which(Extrapolation_List$Area_km2_x>0),c('E_km','N_km')], cex=0.01, main="Extrapolation (North-East)" )
     plot( Spatial_List$loc_x, col="red", pch=20, main="Knots (North-East)")

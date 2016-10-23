@@ -6,7 +6,7 @@
 \usage{
 Plot_data_and_knots(Extrapolation_List, Spatial_List, Data_Geostat,
   PlotDir = paste0(getwd(), "/"), Plot1_name = "Data_and_knots.png",
-  Data_name = "Data_by_year.png", ...)
+  Plot2_name = "Data_by_year.png", ...)
 }
 \arguments{
 \item{Extrapolation_List}{Output from \code{Prepare_Extrapolation_Data_Fn}}
