@@ -165,8 +165,8 @@ capture.output( Record, file=paste0(DateFile,"Record.txt"))
 
 ## Data-frame for catch-rate data
 
-Depending upon the `Data_Set` chosen, we load different data sets for this example. Each results in a data-frame `Data_Geostat` with a standardized set of columns. For a new data set, the user is responsible for formatting `Data_Geostat` appropriately to match the example format.    
-```{r load_data, tidy=TRUE, linewidth=50}
+Depending upon the `Data_Set` chosen, we load archived data sets that are distributed with the package. Each archived data set is then reformatted to create a data-frame `Data_Geostat` with a standardized set of columns. For a new data set, the user is responsible for formatting `Data_Geostat` appropriately to match this format.  We show the first six rows of `Data_Geostat` given that Data_Set = `Data_Set`.  
+```{r load_data, echo=FALSE, message=FALSE}
 if(Data_Set=="WCGBTS_canary"){
   data( WCGBTS_Canary_example, package="SpatialDeltaGLMM" )
   Year = as.numeric(sapply(WCGBTS_Canary_example[,'PROJECT_CYCLE'], FUN=function(Char){strsplit(as.character(Char)," ")[[1]][2]}))
@@ -222,6 +222,11 @@ if( Data_Set %in% c("Chatham_rise_hake")){
 }
 Data_Geostat = na.omit( Data_Geostat )
 ```
+
+```{r show_data_head, results="asis", echo=FALSE}
+pander::pandoc.table( Data_Geostat[1:6,], digits=3 )
+```
+
 
 ## Extrapolation grid
 
