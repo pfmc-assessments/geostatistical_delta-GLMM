@@ -3,8 +3,7 @@ citHeader("2015 ICES J. Mar. Sci. J. Cons. and if using the package;
 2016 Fish. Res. if using the bias-correction feature;
 2016 Proc R Soc B if using the effective-area-occupied metric.)
 
-citEntry(
- entry = "Article",
+citEntry(entry = "Article",
  title = "Geostatistical delta-generalized linear mixed models improve precision for estimated abundance indices for West Coast groundfishes",
  journal = "ICES J. Mar. Sci. J. Cons",
  volume =  "72",
