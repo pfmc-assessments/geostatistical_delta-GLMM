@@ -85,12 +85,15 @@ become apparent.
 Description of package
 =============
 ### Please cite if using the software
-* Thorson, J.T., Shelton, A.O., Ward, E.J., Skaug, H.J., 2015. Geostatistical delta-generalized linear mixed models improve precision for estimated abundance indices for West Coast groundfishes. ICES J. Mar. Sci. J. Cons. 72, 1297–1310. doi:10.1093/icesjms/fsu243
+* Thorson, J.T., Shelton, A.O., Ward, E.J., Skaug, H.J., 2015. Geostatistical delta-generalized linear mixed models improve precision for estimated abundance indices for West Coast groundfishes. ICES J. Mar. Sci. J. Cons. 72(5), 1297–1310. doi:10.1093/icesjms/fsu243. URL: http://icesjms.oxfordjournals.org/content/72/5/1297
 
 Description of individual features
 =============
 ### Range shift metrics
-* Thorson, J.T., Pinsky, M.L., Ward, E.J., In press. Model-based inference for estimating shifts in species distribution, area occupied, and center of gravity. Methods Ecol. Evol.
+* Thorson, J.T., Pinsky, M.L., Ward, E.J., 2016. Model-based inference for estimating shifts in species distribution, area occupied, and center of gravity. Methods Ecol. Evol. 7(8), 990-1008.  doi:10.1111/2041-210X.12567.  URL: http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12567/full
+
+### Effective area occupied metric
+* Thorson, J.T., Rindorf, A., Gao, J., Hanselman, D.H., and Winker, H. 2016. Density-dependent changes in effective area occupied for sea-bottom-associated marine fishes. Proc R Soc B 283(1840): 20161853. doi:10.1098/rspb.2016.1853. URL: http://rspb.royalsocietypublishing.org/content/283/1840/20161853.  
 
 ### Spatio-temporal statistical methods
 * Thorson, J.T., Skaug, H.J., Kristensen, K., Shelton, A.O., Ward, E.J., Harms, J.H., Benante, J.A., 2014. The importance of spatial models for estimating the strength of density dependence. Ecology 96, 1202–1212. doi:10.1890/14-0739.1. URL: http://www.esajournals.org/doi/abs/10.1890/14-0739.1
@@ -101,11 +104,11 @@ Description of individual features
 * Thorson, J. T., I. Stewart, and A. Punt. 2011. Accounting for fish shoals in single- and multi-species survey data using mixture distribution models. Canadian Journal of Fisheries and Aquatic Sciences 68:1681–1693. URL: http://www.nrcresearchpress.com/doi/abs/10.1139/f2011-086#.VMafcf7F_h4
 
 ### Accounting for variation among vessels
-* Helser, T.E., Punt, A.E., Methot, R.D., 2004. A generalized linear mixed model analysis of a multi-vessel fishery resource survey. Fish. Res. 70, 251–264. doi:10.1016/j.fishres.2004.08.007
-* Thorson, J.T., Ward, E.J., 2014. Accounting for vessel effects when standardizing catch rates from cooperative surveys. Fish. Res. 155, 168–176. doi:10.1016/j.fishres.2014.02.036
+* Helser, T.E., Punt, A.E., Methot, R.D., 2004. A generalized linear mixed model analysis of a multi-vessel fishery resource survey. Fish. Res. 70, 251–264. doi:10.1016/j.fishres.2004.08.007. url: http://www.sciencedirect.com/science/article/pii/S0165783604001705
+* Thorson, J.T., Ward, E.J., 2014. Accounting for vessel effects when standardizing catch rates from cooperative surveys. Fish. Res. 155, 168–176. doi:10.1016/j.fishres.2014.02.036.  url: http://www.sciencedirect.com/science/article/pii/S0165783614000836
 
 ### Bias-correction of estimated indices of abundance
-* Thorson, J.T., and Kristensen, K. 2016. Implementing a generic method for bias correction in statistical models using random effects, with spatial and population dynamics examples. Fish. Res. 175: 66–74. doi:10.1016/j.fishres.2015.11.016.
+* Thorson, J.T., and Kristensen, K. 2016. Implementing a generic method for bias correction in statistical models using random effects, with spatial and population dynamics examples. Fish. Res. 175: 66–74. doi:10.1016/j.fishres.2015.11.016. url: http://www.sciencedirect.com/science/article/pii/S0165783615301399
 
 Funding and support for the tool
 =============
