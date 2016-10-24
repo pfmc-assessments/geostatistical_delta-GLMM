@@ -5,7 +5,7 @@
 \title{Calculate location for knots approximating spatial variation}
 \usage{
 Calc_Kmeans(n_x, loc_orig, nstart = 100, randomseed = NULL,
-  iter.max = 1000, DirPath = NULL, Save_Results = TRUE)
+  iter.max = 1000, DirPath = paste0(getwd(), "/"), Save_Results = TRUE)
 }
 \arguments{
 \item{n_x}{the number of knots to select}
@@ -18,7 +18,7 @@ Calc_Kmeans(n_x, loc_orig, nstart = 100, randomseed = NULL,
 
 \item{iter.max}{the number of iterations used per k-means algorithm (default=1000)}
 
-\item{DirPath}{a directory where the algorithm looks for a previously-saved output (Default=NULL, which turns off this feature)}
+\item{DirPath}{a directory where the algorithm looks for a previously-saved output (default is working directory)}
 
 \item{Save_Results}{a boolean stating whether to save the output (Default=TRUE)}
 }

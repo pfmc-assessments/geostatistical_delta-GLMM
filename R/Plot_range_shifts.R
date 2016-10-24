@@ -71,7 +71,7 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
         Ylim = range(Ybounds,na.rm=TRUE)
         SpatialDeltaGLMM:::Plot_Points_and_Bounds_Fn(x=Year_Set, y=SD_mean_Z_ctm[cI,,mI,'Estimate'], ybounds=Ybounds, col_bounds=rgb(1,0,0,0.2), fn=plot, type="l", lwd=2, col="red", bounds_type="shading", ylim=Ylim, xlab="", ylab="", main="")
         if( cI==1 ) mtext(side=3, text=Znames[mI], outer=FALSE )
-        if( mI==dim(SD_mean_Z_ctm)[[3]]) mtext(side=4, text=category_names[cI], outer=FALSE, line=0.5)
+        if( mI==dim(SD_mean_Z_ctm)[[3]] & TmbData$n_c>1 ) mtext(side=4, text=category_names[cI], outer=FALSE, line=0.5)
       }}
       mtext( side=1:2, text=c("Year","Location"), outer=TRUE, line=c(0,0) )
     dev.off()

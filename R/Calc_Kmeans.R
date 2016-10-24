@@ -8,7 +8,7 @@
 #' @param nstart the number of times that the k-means algorithm is run while searching for the best solution (default=100)
 #' @param randomseed a random number seed
 #' @param iter.max the number of iterations used per k-means algorithm (default=1000)
-#' @param DirPath a directory where the algorithm looks for a previously-saved output (Default=NULL, which turns off this feature)
+#' @param DirPath a directory where the algorithm looks for a previously-saved output (default is working directory)
 #' @param Save_Results a boolean stating whether to save the output (Default=TRUE)
 
 #' @return Tagged list containing outputs
@@ -19,7 +19,7 @@
 
 #' @export
 Calc_Kmeans <-
-function( n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=NULL, Save_Results=TRUE){
+function( n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=paste0(getwd(),"/"), Save_Results=TRUE){
 
   # get old seed
   oldseed = ceiling(runif(1,min=1,max=1e6))
@@ -28,7 +28,6 @@ function( n_x, loc_orig, nstart=100, randomseed=NULL, iter.max=1000, DirPath=NUL
   old.options <- options()
   options( "warn" = -1 )
   on.exit( options(old.options) )
-  if( is.null(DirPath) ) DirPath = paste0(getwd(),"/")
 
   # Calculate knots for SPDE mesh
   if( length(unique(paste(loc_orig[,1],loc_orig[,2],sep="_")))<=n_x ){

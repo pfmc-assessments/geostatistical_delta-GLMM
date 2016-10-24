@@ -19,6 +19,8 @@ Spatial_Information_Fn(Method = "Grid", Lon, Lat, Extrapolation_List,
 \item{grid_size_km,}{the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid")}
 
 \item{n_x,}{the number of vertices in the SPDE mesh (determines the spatial resolution when Method="Mesh")}
+
+\item{...,}{additional arguments passed to \code{Calc_Kmeans}}
 }
 \value{
 Tagged list containing objects for running a VAST model

@@ -1,18 +1,18 @@
 ---
-html_document:
-  toc: yes
+title: Example script for SpatialDeltaGLMM for spatio-temporal analysis of catch-rate
+  data
 author: "James Thorson"
 date: "October 10, 2016"
 output:
-  html_document:
-    number_sections: yes
-    toc: yes
   pdf_document:
     fig_caption: yes
     number_sections: yes
     toc: yes
-title: Example script for SpatialDeltaGLMM for spatio-temporal analysis of catch-rate
-  data
+  html_document:
+    number_sections: yes
+    toc: yes
+html_document:
+  toc: yes
 ---
 
 
@@ -52,22 +52,16 @@ devtools::install_github("nwfsc-assess/geostatistical_delta-GLMM")
 devtools::install_github("james-thorson/utilities")
 ```
 
-Next load libraries...
+Next load libraries.
 ```{r load_libraries, message=FALSE}
 library(TMB)               # Can instead load library(TMBdebug)
 library(SpatialDeltaGLMM)
 ```
 
-... and set location for saving files
-```{r set_path, message=FALSE, warning=FALSE}
-DateFile = paste0(getwd(),'/SpatialDeltaGLMM_example/')
-  dir.create(DateFile)
-```
-
 # Settings
 First chose an example data set for this script, as archived with package
 ```{r, tidy=TRUE, linewidth=60}
-Data_Set = c("Chatham_rise_hake", "Iceland_cod", "WCGBTS_canary", "GSL_american_plaice", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Aleutian_islands_POP")[6]
+Data_Set = c("Chatham_rise_hake", "Iceland_cod", "WCGBTS_canary", "GSL_american_plaice", "BC_pacific_cod", "EBS_pollock", "GOA_Pcod", "GOA_pollock", "GB_spring_haddock", "GB_fall_haddock", "SAWC_jacopever", "Aleutian_islands_POP")[4]
 ```
 
 Next use latest version for CPP code
@@ -152,7 +146,15 @@ Region = switch( Data_Set, "Chatham_rise_hake"="New_Zealand",
                  "Other")
 ```
 
-I also like to save all settings for later reference
+## Save settings
+
+We then set the location for saving files.
+```{r make_dir, message=FALSE, warning=FALSE}
+DateFile = paste0(getwd(),'/SpatialDeltaGLMM_output/')
+  dir.create(DateFile)
+```
+
+I also like to save all settings for later reference, although this is not necessary.
 ```{r, tidy=TRUE, linewidth=50}
 Record = ThorsonUtilities::bundlelist( c("Data_Set","strata.limits","Region","Version","Method","grid_size_km","n_x","FieldConfig","RhoConfig","VesselConfig","ObsModel","Kmeans_Config") )
 save( Record, file=file.path(DateFile,"Record.RData"))
@@ -242,33 +244,32 @@ if( Region == "Other" ){
 ## Derived objects for spatio-temporal estimation
 
 And we finally generate the information used for conducting spatio-temporal parameter estimation, bundled in list `Spatial_List`
-```{r spatial_information, message=FALSE, tidy=TRUE, linewidth=60}
-Spatial_List = Spatial_Information_Fn( grid_size_km=grid_size_km, n_x=n_x, Method=Method, Lon=Data_Geostat[,'Lon'], Lat=Data_Geostat[,'Lat'], Extrapolation_List=Extrapolation_List, randomseed=Kmeans_Config[["randomseed"]], nstart=Kmeans_Config[["nstart"]], iter.max=Kmeans_Config[["iter.max"]], DirPath=DateFile )
+```{r spatial_information, message=FALSE, warning=FALSE, tidy=TRUE, linewidth=60}
+Spatial_List = Spatial_Information_Fn( grid_size_km=grid_size_km, n_x=n_x, Method=Method, Lon=Data_Geostat[,'Lon'], Lat=Data_Geostat[,'Lat'], Extrapolation_List=Extrapolation_List, randomseed=Kmeans_Config[["randomseed"]], nstart=Kmeans_Config[["nstart"]], iter.max=Kmeans_Config[["iter.max"]], DirPath=DateFile, Save_Results=FALSE )
 # Add knots to Data_Geostat
 Data_Geostat = cbind( Data_Geostat, Spatial_List$loc_UTM, "knot_i"=Spatial_List$knot_i )
 ```
 
 # Build and run model
 
+## Build model
+
 To estimate parameters, we first build a list of data-inputs used for parameter estimation.  `Data_Fn` has some simple checks for buggy inputs, but also please read the help file `?Data_Fn`.  
 ```{r build_data, message=FALSE, tidy=TRUE, linewidth=60}
 TmbData = Data_Fn("Version"=Version, "FieldConfig"=FieldConfig, "RhoConfig"=RhoConfig, "ObsModel"=ObsModel, "b_i"=Data_Geostat[,'Catch_KG'], "a_i"=Data_Geostat[,'AreaSwept_km2'], "v_i"=as.numeric(Data_Geostat[,'Vessel'])-1, "s_i"=Data_Geostat[,'knot_i']-1, "t_i"=Data_Geostat[,'Year'], "a_xl"=Spatial_List$a_xl, "MeshList"=Spatial_List$MeshList, "GridList"=Spatial_List$GridList, "Method"=Spatial_List$Method, "Options"=c(SD_site_density=0, SD_site_logdensity=0, Calculate_Range=1, Calculate_evenness=0, Calculate_effective_area=1) )
 ```
 
-We then build the TMB object...
+We then build the TMB object.
 ```{r build_object, message=FALSE, results="hide", tidy=TRUE}
 TmbList = Build_TMB_Fn("TmbData"=TmbData, "RunDir"=DateFile, "Version"=Version, "RhoConfig"=RhoConfig, "VesselConfig"=VesselConfig, "loc_x"=Spatial_List$loc_x)
 Obj = TmbList[["Obj"]]
 ```
 
-...and use a gradient-based nonlinear minimizer to identify maximum likelihood estimates for fixed-effects
+## Estimate fixed effects and predict random effects
+
+Next, we use a gradient-based nonlinear minimizer to identify maximum likelihood estimates for fixed-effects
 ```{r estimate_parameters, results="hide", tidy=TRUE}
 Opt = TMBhelper::Optimize( obj=Obj, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]], getsd=TRUE, savedir=DateFile, bias.correct=FALSE )
-```
-
-Here I print the diagnostics generated during parameter estimation, and I confirm that (1) no parameter is hitting an upper or lower bound and (2) the final gradient for each fixed-effect is close to zero.
-```{r print_results}
-print( Opt$diagnostics[,c('Param','Lower','MLE','Upper','final_gradient')] )
 ```
 
 Finally, we bundle and save output
@@ -278,7 +279,44 @@ Save = list("Opt"=Opt, "Report"=Report, "ParHat"=Obj$env$parList(Opt$par), "TmbD
 save(Save, file=paste0(DateFile,"Save.RData"))
 ```
 
-# Save plots
+# Diagnostic plots
+
+We first apply a set of standard model diagnostics to confirm that the model is reasonable and deserves further attention.  If any of these do not look reasonable, the model output should not be interpreted or used.
+
+## Plot data
+
+It is always good practice to conduct exploratory analysis of data.  Here, I visualize the spatial distribution of data.  Spatio-temporal models involve the assumption that the probability of sampling a given location is statistically independent of the probability distribution for the response at that location.  So if sampling "follows" changes in density, then the model is probably not appropriate!
+```{r explore_data, results="hide", tidy=TRUE, message=FALSE}
+Plot_data_and_knots(Extrapolation_List=Extrapolation_List, Spatial_List=Spatial_List, Data_Geostat=Data_Geostat, PlotDir=DateFile )
+```
+![Spatial extent and location of knots](SpatialDeltaGLMM_output/Data_and_knots.png) 
+
+![Spatial distribution of catch-rate data](SpatialDeltaGLMM_output/Data_by_year.png) 
+
+## Convergence
+Here I print the diagnostics generated during parameter estimation, and I confirm that (1) no parameter is hitting an upper or lower bound and (2) the final gradient for each fixed-effect is close to zero.
+```{r print_results, results="asis"}
+pander::pandoc.table( Opt$diagnostics[,c('Param','Lower','MLE','Upper','final_gradient')] ) 
+```
+
+## Diagnostics for encounter-probability component
+
+Next, we check whether observed encounter frequencies for either low or high probability samples are within the 95% predictive interval for predicted encounter probability
+```{r diagnostics_encounter_prob, results="hide", eval=TRUE, tidy=TRUE, linewidth=50}
+Enc_prob = Check_encounter_prob( Report=Report, Data_Geostat=Data_Geostat, DirName=DateFile)
+```
+![Expectated probability and observed frequency of encounter for "encounter probability" component](SpatialDeltaGLMM_output/Diag--Encounter_prob.png) 
+
+
+## Diagnostics for positive-catch-rate component
+
+We can visualize fit to residuals of catch-rates given encounters using a Q-Q plot.  A good Q-Q plot will have residuals along the one-to-one line.  
+```{r plot_QQ, eval=TRUE, tidy=TRUE, linewidth=50}
+Q = QQ_Fn( TmbData=TmbData, Report=Report, FileName_PP=paste0(DateFile,"Posterior_Predictive.jpg"), FileName_Phist=paste0(DateFile,"Posterior_Predictive-Histogram.jpg"), FileName_QQ=paste0(DateFile,"Q-Q_plot.jpg"), FileName_Qhist=paste0(DateFile,"Q-Q_hist.jpg"))
+```
+![Quantile-quantile plot indicating residuals for "positive catch rate" component](SpatialDeltaGLMM_output/Q-Q_plot.jpg) 
+
+# Model output
 
 Last but not least, we generate useful plots by first determining which years to plot (`Years2Include`), and labels for each plotted year (`Year_Set`)
 ```{r plot_years}
@@ -294,7 +332,7 @@ We can visualize which direction has faster or slower decorrelation (termed "geo
 ```{r plot_aniso, message=FALSE, results="hide"}
 PlotAniso_Fn( FileName=paste0(DateFile,"Aniso.png"), Report=Report, TmbData=TmbData )
 ```
-![Decorrelation distance for different directions](SpatialDeltaGLMM_example/Aniso.png) 
+![Decorrelation distance for different directions](SpatialDeltaGLMM_output/Aniso.png) 
 
 ## Density surface for each year
 
@@ -305,15 +343,16 @@ MapDetails_List = MapDetails_Fn( "Region"=Region, "NN_Extrap"=Spatial_List$Polyg
 # Plot maps representing density or other variables
 PlotResultsOnMap_Fn(plot_set=c(3), MappingDetails=MapDetails_List[["MappingDetails"]], Report=Report, Sdreport=Opt$SD, PlotDF=MapDetails_List[["PlotDF"]], MapSizeRatio=MapDetails_List[["MapSizeRatio"]], Xlim=MapDetails_List[["Xlim"]], Ylim=MapDetails_List[["Ylim"]], FileName=DateFile, Year_Set=Year_Set, Years2Include=Years2Include, Rotate=MapDetails_List[["Rotate"]], Cex=MapDetails_List[["Cex"]], Legend=MapDetails_List[["Legend"]], zone=MapDetails_List[["Zone"]], mar=c(0,0,2,0), oma=c(3.5,3.5,0,0), cex=1.8)
 ```
-![Density maps for each year](SpatialDeltaGLMM_example/Dens.png) 
+![Density maps for each year](SpatialDeltaGLMM_output/Dens.png) 
 
 ## Index of abundance
 
 The index of abundance is generally most useful for stock assessment models.
-```{r plot_index, message=FALSE, tidy=TRUE, linewidth=50}
-PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Opt[["SD"]], Year_Set=Year_Set, Years2Include=Years2Include, strata_names=strata.limits[,1], use_biascorr=TRUE )
+```{r plot_index, message=FALSE, tidy=TRUE, linewidth=50, results="asis"}
+Index = PlotIndex_Fn( DirName=DateFile, TmbData=TmbData, Sdreport=Opt[["SD"]], Year_Set=Year_Set, Years2Include=Years2Include, strata_names=strata.limits[,1], use_biascorr=TRUE )
+pander::pandoc.table( Index$Table[,c("Year","Fleet","Estimate_metric_tons","SD_log","SD_mt")] ) 
 ```
-![Index of abundance plus/minus 1 standard error](SpatialDeltaGLMM_example/Index.png) 
+![Index of abundance plus/minus 1 standard error](SpatialDeltaGLMM_output/Index.png) 
 
 ## Center of gravity and range expansion/contraction
 
@@ -321,9 +360,9 @@ We can detect shifts in distribution or range expansion/contraction.
 ```{r plot_range, message=FALSE, tidy=TRUE, linewidth=50}
 Plot_range_shifts(Report=Report, TmbData=TmbData, Sdreport=Opt[["SD"]], Znames=colnames(TmbData$Z_xm), PlotDir=DateFile)
 ```
-![Center of gravity (COG) indicating shifts in distribution plus/minus 1 standard error](SpatialDeltaGLMM_example/center_of_gravity.png) 
+![Center of gravity (COG) indicating shifts in distribution plus/minus 1 standard error](SpatialDeltaGLMM_output/center_of_gravity.png) 
 
-![Effective area occupied indicating range expansion/contraction plus/minus 1 standard error](SpatialDeltaGLMM_example/Effective_Area.png) 
+![Effective area occupied indicating range expansion/contraction plus/minus 1 standard error](SpatialDeltaGLMM_output/Effective_Area.png) 
 
 ## Vessel effects if included
 
@@ -331,12 +370,4 @@ Most example data-sets don't have vessel effects, so this plot is generally skip
 ```{r plot_vessel, message=TRUE, tidy=TRUE, linewidth=50}
 Return = Vessel_Fn(TmbData=TmbData, Sdreport=Opt[["SD"]], FileName_VYplot=paste0(DateFile,"VY-effect.jpg"))
 ```
-
-## Quantile-quantile plot for positive-catch-rate component
-
-We can visualize fit to residuals of catch-rates given encounters using a Q-Q plot.  A good Q-Q plot will have residuals along the one-to-one line.  
-```{r plot_QQ, eval=TRUE, tidy=TRUE, linewidth=50}
-Q = QQ_Fn( TmbData=TmbData, Report=Report, FileName_PP=paste0(DateFile,"Posterior_Predictive.jpg"), FileName_Phist=paste0(DateFile,"Posterior_Predictive-Histogram.jpg"), FileName_QQ=paste0(DateFile,"Q-Q_plot.jpg"), FileName_Qhist=paste0(DateFile,"Q-Q_hist.jpg"))
-```
-![Quantile-quantile plot indicating residuals for "positive catch rate" component](SpatialDeltaGLMM_example/Q-Q_plot.jpg) 
 

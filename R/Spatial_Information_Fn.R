@@ -9,6 +9,7 @@
 #' @param Extrapolation_List, the output from \code{Prepare_Extrapolation_Data_Fn}
 #' @param grid_size_km, the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid")
 #' @param n_x, the number of vertices in the SPDE mesh (determines the spatial resolution when Method="Mesh")
+#' @param ..., additional arguments passed to \code{Calc_Kmeans}
 
 #' @return Tagged list containing objects for running a VAST model
 #' \describe{

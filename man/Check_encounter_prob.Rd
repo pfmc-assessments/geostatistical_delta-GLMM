@@ -20,7 +20,11 @@ Check_encounter_prob(Report, Data_Geostat, cutpoints_z = seq(0, 1, length =
 \item{...}{Other inputs to `par()`}
 }
 \value{
-Nothing (but generates plots)
+Return Tagged list of output
+\describe{
+  \item{Diag_i}{Diagnostic output for each sample \code{i}}
+  \item{Diag_z}{Diagnostic output for each bin \code{z}}
+}
 }
 \description{
 \code{Check_encounter_prob} is a diagnostic function for checking validity of the encounter-probability component of a spatio-temporal model
