@@ -9,10 +9,12 @@ citEntry(
  journal="ICES J. Mar. Sci. J. Cons",
  volume= "72",
  number="5",
+ pages="1297-1310",
  year="2015",
  doi="10.1093/icesjms/fsu243"
  url="http://icesjms.oxfordjournals.org/content/72/5/1297"
  author="J.T. Thorson, A.O. Shelton, E.J. Ward, H.J. Skaug",
+ textVersion="Thorson, J.T., Shelton, A.O., Ward, E.J., Skaug, H.J., 2015. Geostatistical delta-generalized linear mixed models improve precision for estimated abundance indices for West Coast groundfishes. ICES J. Mar. Sci. J. Cons. 72(5), 1297-1310. doi:10.1093/icesjms/fsu243. URL: http://icesjms.oxfordjournals.org/content/72/5/1297" 
 )
 
 citEntry(
@@ -20,10 +22,12 @@ citEntry(
  title="Implementing a generic method for bias correction in statistical models using random effects, with spatial and population dynamics examples",
  journal="Fish. Res.",
  volume= "175"
+ pages="66-74",
  year="2016",
  doi="10.1016/j.fishres.2015.11.016"
  url="http://www.sciencedirect.com/science/article/pii/S0165783615301399
  author="J.T. Thorson, K. Kristensen",
+ textVersion="Thorson, J.T., and Kristensen, K. 2016. Implementing a generic method for bias correction in statistical models using random effects, with spatial and population dynamics examples. Fish. Res. 175: 66-74. doi:10.1016/j.fishres.2015.11.016. url: http://www.sciencedirect.com/science/article/pii/S0165783615301399" 
 )
 
 citEntry(
