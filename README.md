@@ -18,6 +18,7 @@ Background
 Development notes
 * `SpatialDeltaGLMM` now has unit-testing to ensure that results are consistent across software updates
 * Package `VAST` ([link here](https://github.com/james-thorson/VAST)) has been developed as a multispecies extension to `SpatialDeltaGLMM`, and unit testing confirms that it gives identical results when using data for a single species.  I recommend that new users use `VAST` to ease the transition to multispecies or age/size-structured index models.
+* Other spatio-temporal tools are linked at [www.FishStats.org](http://www.FishStats.org)
 
 [![Build Status](https://travis-ci.org/nwfsc-assess/geostatistical_delta-GLMM.svg?branch=master)](https://travis-ci.org/nwfsc-assess/geostatistical_delta-GLMM)
  
@@ -71,15 +72,9 @@ install_github("nwfsc-assess/geostatistical_delta-GLMM")
 
 Example code
 =============
-Please see examples folder for an example of how to run the model:
-https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/Example--simple.R
+Please see the [tutorial](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/SpatialDeltaGLMM_example.pdf) for example code.  
 
-This code illustrates how to loop through different default model configurations,
-plot diagnostics for each model, and obtain the AIC for each model.
-
-Please also read the [Guidelines for West Coast users](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/wiki/West-Coast-Guidelines)
-wiki page, which is a living document and will evolve over time as best practices
-become apparent.
+Please also read the [Guidelines for West Coast users](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/wiki/West-Coast-Guidelines) wiki page, which is a living document and will evolve over time as best practices become apparent.
 
 
 Description of package
