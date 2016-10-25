@@ -12,8 +12,8 @@ Background
 * The model builds upon delta-generalized linear mixed modelling techniques (Thorson and Ward 2013,2014), which separately models the proportion of tows that catch at least one individual ("encounter probability") and catch rates for tows with at least one individual ("positive catch rates").  
 * Submodels for encounter probability and positive catch rates always incorporate variation in density among years (as a fixed effect), and can incorporate variation among sampling vessels (as a random effect, Thorson and Ward 2014).  
 * Each submodel can also estimate spatial variation (variation that is constant among years), and spatiotemporal variation (variation over space which differs among years).  
-* Spatial and spatiotemporal variation are approximated as Gaussian Markov random fields (Thorson Skaug et al. In press), which imply that correlations in spatial variation decay as a function of distance.  
-* The tool incorporates geometric anisotropy, i.e., differences and rotation of the direction of correlation, where correlations may decline faster inshore-offshore than alongshore (Thorson Shelton et al. In press). 
+* Spatial and spatiotemporal variation are approximated as Gaussian Markov random fields (Thorson Skaug et al. 2015 ICESJMS), which imply that correlations in spatial variation decay as a function of distance.  
+* The tool incorporates geometric anisotropy, i.e., differences and rotation of the direction of correlation, where correlations may decline faster inshore-offshore than alongshore (Thorson Shelton et al. 2015 ICESJMS). 
 
 Development notes
 * `SpatialDeltaGLMM` now has unit-testing to ensure that results are consistent across software updates
@@ -22,10 +22,28 @@ Development notes
 
 [![Build Status](https://travis-ci.org/nwfsc-assess/geostatistical_delta-GLMM.svg?branch=master)](https://travis-ci.org/nwfsc-assess/geostatistical_delta-GLMM)
  
+Resources for using the tool
+=============
+There are three main resources for learning about and using the tool:
+
+1.  Please see the [tutorial](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/SpatialDeltaGLMM_example.pdf) for example code.  
+
+2.  Please also read the [Wiki](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/wiki).  For West Coast users, I have a [Guidelines for West Coast users](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/wiki/West-Coast-Guidelines) wiki page, which is a living document and will evolve over time as best practices become apparent.
+
+3.  Please use the R help files, e.g., model settings are documented in `?SpatialDeltaGLMM::Data_Fn` after you have installed the package
+
+Other resources include:
+
+* You should browse abstracts and read [relevant papers](https://github.com/nwfsc-assess/geostatistical_delta-GLMM#description-of-package)
+
+* You can join the [FishStats listserv](https://groups.google.com/forum/#!forum/fishstats-listserv)
+
+* You can post questions on the [issue tracker](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/issues) but please first confirm that your question isn't answered elsewhere. 
+
 Database
 =============
 
-Regions available in the [example script](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/Example--simple.R): 
+Regions that have been previously tested (and have associated meta-data): 
 ![alt text](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/raw/master/examples/global_coverage.png "Global data coverage")
 and see [FishViz.org](http://www.FishViz.org) for visualization of results for regions with a public API for their data, using package `FishData` ([link here](https://github.com/james-thorson/FishData)).
 
@@ -69,13 +87,6 @@ Or you can always use the development version
 # Install package
 install_github("nwfsc-assess/geostatistical_delta-GLMM") 
 ```
-
-Example code
-=============
-Please see the [tutorial](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/blob/master/examples/SpatialDeltaGLMM_example.pdf) for example code.  
-
-Please also read the [Guidelines for West Coast users](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/wiki/West-Coast-Guidelines) wiki page, which is a living document and will evolve over time as best practices become apparent.
-
 
 Description of package
 =============
