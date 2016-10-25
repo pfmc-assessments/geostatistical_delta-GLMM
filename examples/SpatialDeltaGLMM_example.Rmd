@@ -308,7 +308,7 @@ We first apply a set of standard model diagnostics to confirm that the model is 
 ## Plot data
 
 It is always good practice to conduct exploratory analysis of data.  Here, I visualize the spatial distribution of data.  Spatio-temporal models involve the assumption that the probability of sampling a given location is statistically independent of the probability distribution for the response at that location.  So if sampling "follows" changes in density, then the model is probably not appropriate!
-```{r explore_data, results="hide", tidy=TRUE, message=FALSE}
+```{r explore_data, results="hide", tidy=TRUE, message=FALSE, warning=FALSE}
 Plot_data_and_knots(Extrapolation_List=Extrapolation_List, Spatial_List=Spatial_List, Data_Geostat=Data_Geostat, PlotDir=DateFile )
 ```
 ![Spatial extent and location of knots](SpatialDeltaGLMM_output/Data_and_knots.png) 
@@ -316,7 +316,7 @@ Plot_data_and_knots(Extrapolation_List=Extrapolation_List, Spatial_List=Spatial_
 ![Spatial distribution of catch-rate data](SpatialDeltaGLMM_output/Data_by_year.png) 
 
 ## Convergence
-Here I print the diagnostics generated during parameter estimation, and I confirm that (1) no parameter is hitting an upper or lower bound and (2) the final gradient for each fixed-effect is close to zero.
+Here I print the diagnostics generated during parameter estimation, and I confirm that (1) no parameter is hitting an upper or lower bound and (2) the final gradient for each fixed-effect is close to zero. For explanation of parameters, please see `?Data_Fn`.
 ```{r print_results, results="asis"}
 pander::pandoc.table( Opt$diagnostics[,c('Param','Lower','MLE','Upper','final_gradient')] ) 
 ```
@@ -337,6 +337,10 @@ We can visualize fit to residuals of catch-rates given encounters using a Q-Q pl
 Q = QQ_Fn( TmbData=TmbData, Report=Report, FileName_PP=paste0(DateFile,"Posterior_Predictive.jpg"), FileName_Phist=paste0(DateFile,"Posterior_Predictive-Histogram.jpg"), FileName_QQ=paste0(DateFile,"Q-Q_plot.jpg"), FileName_Qhist=paste0(DateFile,"Q-Q_hist.jpg"))
 ```
 ![Quantile-quantile plot indicating residuals for "positive catch rate" component](SpatialDeltaGLMM_output/Q-Q_plot.jpg) 
+
+## Model selection
+
+To select among models, we recommend using the Akaike Information Criterion, AIC, via `Opt$AIC=` ``r Opt$AIC``. 
 
 # Model output
 

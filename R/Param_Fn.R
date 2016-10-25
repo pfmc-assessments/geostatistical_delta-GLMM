@@ -1,3 +1,52 @@
+#' Calculate parameter inputs for TMB
+#'
+#' \code{Param_Fn} generates the \code{parameters} input for \code{TMB::MakeADFun}
+#'
+#' @param DataList list outputted from \code{SpatialDeltaGLMM::Data_Fn}
+#' @inheritParams Data_Fn
+
+#' @return Tagged list containing starting values for all fixed effects (parameters) and random effects (coefficients)
+#' \describe{
+#'   \item{ln_H_input}{two parameters governing geometric anisotropy (rotation matrix H)}
+#'   \item{hyperparameters_z}{parameters for estimating relationships among derived quantities (generally turned off)}
+#'   \item{beta1_t}{intercepts for encounter probability}
+#'   \item{gamma1_j}{effect of density covariates that are static over time on encounter prob}
+#'   \item{gamma1_tp}{effect of density covariates that change over time on encounter prob}
+#'   \item{lambda1_k}{effect of catchability covariates on encounter prob}
+#'   \item{logetaE1}{reciprocal of pointwise variance in spatio-temporal variation in encounter prob}
+#'   \item{logetaO1}{reciprocal of pointwise variance in spatial variation in encounter prob}
+#'   \item{logkappa1}{governs decorrelation distance in encounter prob}
+#'   \item{logsigmaV1}{log-SD of vessel effects that are static over time on encounter prob}
+#'   \item{logsigmaVT1}{log-SD of vessel effects that vary over time on encounter prob}
+#'   \item{Beta_mean1}{average intercept of encounter prob (used with RhoConfig options)}
+#'   \item{logsigmaB1}{SD for intercept of encounter prob (used with RhoConfig options)}
+#'   \item{Beta_rho1}{first-order autoregressive coefficient for intercept of encounter prob (used with RhoConfig options)}
+#'   \item{Epsilon_rho1}{first-order autoregressive coefficient for spatio-temporal variation of encounter prob (used with RhoConfig options)}
+#'   \item{nu1_v}{vessel effects that are static over time on encounter prob}
+#'   \item{nu1_vt}{vessel effects that are static over time on encounter prob}
+#'   \item{Omegainput1_s}{Spatial variation in encounter prob}
+#'   \item{Epsiloninput1_st}{Spatio-temporal variation in encounter prob}
+#'   \item{beta2_t}{intercepts for positive catch-rate}
+#'   \item{gamma2_j}{effect of density covariates that are static over time on positive catch-rate}
+#'   \item{gamma2_tp}{effect of density covariates that change over time on positive catch-rate}
+#'   \item{lambda2_k}{effect of catchability covariates on positive catch-rate}
+#'   \item{logetaE2}{reciprocal of pointwise variance in spatio-temporal variation in positive catch-rate}
+#'   \item{logetaO2}{reciprocal of pointwise variance in spatial variation in positive catch-rate}
+#'   \item{logkappa2}{governs decorrelation distance in positive catch-rate}
+#'   \item{logsigmaV2}{log-SD of vessel effects that are static over time on positive catch-rate}
+#'   \item{logsigmaVT2}{log-SD of vessel effects that vary over time on positive catch-rate}
+#'   \item{Beta_mean2}{average intercept of positive catch-rate (used with RhoConfig options)}
+#'   \item{logsigmaB2}{SD for intercept of positive catch-rate (used with RhoConfig options)}
+#'   \item{Beta_rho2}{first-order autoregressive coefficient for intercept of positive catch-rate (used with RhoConfig options)}
+#'   \item{Epsilon_rho2}{first-order autoregressive coefficient for spatio-temporal variation of positive catch-rate (used with RhoConfig options)}
+#'   \item{nu2_v}{vessel effects that are static over time on positive catch-rate}
+#'   \item{nu2_vt}{vessel effects that are static over time on positive catch-rate}
+#'   \item{Omegainput2_s}{Spatial variation in positive catch-rate}
+#'   \item{Epsiloninput2_st}{Spatio-temporal variation in positive catch-rate}
+#'   \item{logSigmaM}{effect of catchability covariates on encounter prob}
+#' }
+
+#' @export
 Param_Fn <-
 function( Version, DataList, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0) ){
   # 
