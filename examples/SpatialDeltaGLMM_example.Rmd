@@ -43,7 +43,6 @@ knit_hooks$set(output = function(x, options) {
 # Overview
 This tutorial will walk through a simple example of how to use `SpatialDeltaGLMM` for estimating abundance indices, distribution shifts, and range expansion.
 
-
 # Getting started
 
 First, we install necessary packages.  We also have to install TMB as appropriate for the operating system (see directions elsewhere).
@@ -57,6 +56,24 @@ Next load libraries.
 library(TMB)               # Can instead load library(TMBdebug)
 library(SpatialDeltaGLMM)
 ```
+
+## Further information
+
+If you have further questions after reading this tutorial, please explore the [GitHub repo](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/#description) mainpage, wiki, and glossary.  Also please explore the R help files, e.g., `?PlotIndex_Fn`.  
+
+## Related tools
+
+Related tools for spatio-temporal fisheries analysis are currently housed at [www.FishStats.org](http://www.FishStats.org).  These include [VAST](https://github.com/james-thorson/VAST/#description), a multispecies extension of SpatialDeltaGLMM, and [www.FishViz.org](http://www.FishViz.org), a tool for visualizing results using SpatialDeltaGLMM worldwide.
+
+## How to cite SpatialDeltaGLMM
+
+`SpatialDeltaGLMM` has involved many publications for developing individual features.  If using SpatialDeltaGLMM, please read and cite:
+
+```{r citation, tidy=TRUE, width=70, width.cutoff=70}
+citation("SpatialDeltaGLMM")
+```
+
+and also browse the [GitHub list](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/#description-of-package) of packages.
 
 # Settings
 First chose an example data set for this script, as archived with package
