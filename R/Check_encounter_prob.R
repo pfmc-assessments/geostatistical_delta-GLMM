@@ -23,7 +23,7 @@ Check_encounter_prob = function( Report, Data_Geostat, cutpoints_z=seq(0,1,lengt
   midpoints_z = rowMeans( cbind(cutpoints_z[-1],cutpoints_z[-length(cutpoints_z)]) )
 
   # Get encounter frequency for each bin
-  freq_z = tapply( ifelse(Data_Geostat$Catch_KG>0,1,0), INDEX=z_i, FUN=mean )
+  freq_z = tapply( ifelse(Data_Geostat[,'Catch_KG']>0,1,0), INDEX=z_i, FUN=mean )
 
   # Get expectation given model
   num_z = tapply( Report$R1_i, INDEX=z_i, FUN=length )
@@ -43,7 +43,7 @@ Check_encounter_prob = function( Report, Data_Geostat, cutpoints_z=seq(0,1,lengt
 
   # Return stuff
   Return = NULL
-  Return[["Diag_i"]] = cbind("b_i"=Data_Geostat$Catch_KG, "z_i"=z_i)
+  Return[["Diag_i"]] = cbind("b_i"=Data_Geostat[,'Catch_KG'], "z_i"=z_i)
   Return[["Diag_z"]] = cbind("midpoints_z"=midpoints_z, "freq_z"=freq_z, "num_z"=num_z, "mean_z"=mean_z, "var_z"=var_z, "sd_mean_z"=sd_mean_z)
   return( invisible(Return) )
 }

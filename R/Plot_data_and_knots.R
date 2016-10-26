@@ -33,14 +33,14 @@ Plot_data_and_knots = function( Extrapolation_List, Spatial_List, Data_Geostat, 
 
   # Plot data by year
   # Use Data_Geostat, instead of TmbData, because I want raw locations, not locations at knots
-  Year_Set = min(Data_Geostat$Year):max(Data_Geostat$Year)
+  Year_Set = min(Data_Geostat[,'Year']):max(Data_Geostat[,'Year'])
     Nrow = ceiling( sqrt(length(Year_Set)) )
     Ncol = ceiling( length(Year_Set)/Nrow )
     if( is.null(Year_Set) ) Year_Set = Year_Set
   png( file=paste0(PlotDir,Plot2_name), width=Ncol*2, height=Nrow*2, res=200, units="in")
     par( mfrow=c(Nrow,Ncol), mar=c(0,0,2,0), mgp=c(1.75,0.25,0), oma=c(4,4,0,0) )
     for( t in 1:length(Year_Set) ){
-      Which = which( Data_Geostat$Year == Year_Set[t] )
+      Which = which( Data_Geostat[,'Year'] == Year_Set[t] )
       plot( x=Data_Geostat[Which,'Lon'], y=Data_Geostat[Which,'Lat'], cex=0.01, main=Year_Set[t], xlim=range(Data_Geostat[,'Lon']), ylim=range(Data_Geostat[,'Lat']), xaxt="n", yaxt="n", ... )
       map( "world", add=TRUE )
       if( t>(length(Year_Set)-Ncol) ) axis(1)

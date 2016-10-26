@@ -43,7 +43,7 @@
 #'   \item{nu2_vt}{vessel effects that are static over time on positive catch-rate}
 #'   \item{Omegainput2_s}{Spatial variation in positive catch-rate}
 #'   \item{Epsiloninput2_st}{Spatio-temporal variation in positive catch-rate}
-#'   \item{logSigmaM}{effect of catchability covariates on encounter prob}
+#'   \item{logSigmaM}{variance parameters for positive catch ratesA}
 #' }
 
 #' @export
