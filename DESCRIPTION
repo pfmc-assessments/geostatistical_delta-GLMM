@@ -23,6 +23,7 @@ Imports:
     stats,
     colorspace,
     RandomFields,
+    RandomFieldsUtils,
     shape,
     devtools,
     mixtools,

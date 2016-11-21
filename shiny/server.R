@@ -6,6 +6,7 @@ load( file="database/Results-speciesDF.RData" )
 load( file="database/Results-indexDF.RData" )
 load( file="database/Results-cogDF.RData" )
 load( file="database/Results-areaDF.RData" )
+RegionTable = read.csv( "Survey_names_and_codes.csv", stringsAsFactors=FALSE )
 
 # Global settings
 interval_width = 1
@@ -16,7 +17,7 @@ function(input, output, session){
   #### Dynamic user inputs
   # The following reactive function would return the column variable names corresponding to the dataset selected by the user.
   species_subset <- reactive({
-    rows_subset <- which(speciesDF[,'Region']==input$region)
+    rows_subset <- which(speciesDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code'])
     if( input$species_category=="fish" ) rows_subset <- rows_subset[which(tolower(speciesDF[rows_subset,'Phylum'])=="chordata")]
     if( input$species_category=="top10fish" ){
       rows_subset <- rows_subset[which(tolower(speciesDF[rows_subset,'Phylum'])=="chordata")]
@@ -49,7 +50,7 @@ function(input, output, session){
 
   # Select years for mapping animation
   Num_years <- reactive({
-    dir <- paste0("database/Image-",input$region,"-",input$species2animate,"/")
+    dir <- paste0("database/Image-",RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code'],"-",input$species2animate,"/")
     length( list.files(dir) )
   })
   output$sliderSelex <- renderUI({
@@ -63,11 +64,11 @@ function(input, output, session){
     #isolate({
       par( xaxs="i", yaxs="i" )
       species2plot = sapply( input$species2plot, FUN=function(Char){strsplit(Char,'  ')[[1]][1]})
-      #Ylim = c(0, max(indexDF[which(indexDF[,'Species']%in%species2plot & indexDF[,'Region']==input$region),'Index'])
-      Ylim = c(0.9,1.5) * range(indexDF[which(indexDF[,'Species']%in%species2plot & indexDF[,'Region']==input$region),'Index']%o%c(1,1)*exp(indexDF[which(indexDF[,'Species']%in%species2plot & indexDF[,'Region']==input$region),'SD..log.']%o%c(-interval_width,interval_width)))
-      plot( 1, type="n", xlim=range(indexDF[which(indexDF[,'Region']==input$region),'Year']), ylim=ifelse(abs(Ylim)==Inf,1,Ylim), log=ifelse(input$plotLog==TRUE,"y",""), xlab="Year", ylab="Population biomass (relative to average in the survey)", main="Indices of population abundance")
+      #Ylim = c(0, max(indexDF[which(indexDF[,'Species']%in%species2plot & indexDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']),'Index'])
+      Ylim = c(0.9,1.5) * range(indexDF[which(indexDF[,'Species']%in%species2plot & indexDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']),'Index']%o%c(1,1)*exp(indexDF[which(indexDF[,'Species']%in%species2plot & indexDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']),'SD..log.']%o%c(-interval_width,interval_width)))
+      plot( 1, type="n", xlim=range(indexDF[which(indexDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']),'Year']), ylim=ifelse(abs(Ylim)==Inf,1,Ylim), log=ifelse(input$plotLog==TRUE,"y",""), xlab="Year", ylab="Population biomass (relative to average in the survey)", main="Indices of population abundance")
       for( sI in 1:length(species2plot)){
-        Tmp = indexDF[ which(indexDF[,'Species']==species2plot[sI] & indexDF[,'Region']==input$region), ]
+        Tmp = indexDF[ which(indexDF[,'Species']==species2plot[sI] & indexDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']), ]
         if(input$plotCI==FALSE) lines( y=Tmp[,'Index'], x=Tmp[,'Year'], type="b", col=rainbow(length(species2plot))[sI] )
         if(input$plotCI==TRUE) Plot_Points_and_Bounds_Fn( y=Tmp[,'Index'], x=Tmp[,'Year'], ybounds=(Tmp[,'Index']%o%c(1,1))*exp(Tmp[,'SD..log.']%o%c(-interval_width,interval_width)), type="b", col=rainbow(length(species2plot))[sI], col_bounds=rainbow(length(species2plot),alpha=0.2)[sI], bounds_type="shading")
       }
@@ -82,9 +83,9 @@ function(input, output, session){
       par( xaxs="i" )
       Range = function(vec, buffer=0.2){ range(vec) + c(0,0.2)*diff(range(vec)) }
       species2plot = sapply( input$species2plot, FUN=function(Char){strsplit(Char,"  ")[[1]][1]})
-      plot( 1, type="n", xlim=range(cogDF[which(cogDF[,'Region']==input$region),'Year']), ylim=Range(cogDF[which(cogDF[,'Region']==input$region),'North.COG_hat']%o%c(1,1)+(cogDF[which(cogDF[,'Region']==input$region),'North.SE']%o%c(-interval_width,interval_width))), xlab="Year", ylab="kilometers north of equator", main="Northward center-of-gravity")
+      plot( 1, type="n", xlim=range(cogDF[which(cogDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']),'Year']), ylim=Range(cogDF[which(cogDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']),'North.COG_hat']%o%c(1,1)+(cogDF[which(cogDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']),'North.SE']%o%c(-interval_width,interval_width))), xlab="Year", ylab="kilometers north of equator", main="Northward center-of-gravity")
       for( sI in 1:length(species2plot)){
-        Tmp = cogDF[ which(cogDF[,'Species']==species2plot[sI] & cogDF[,'Region']==input$region), ]
+        Tmp = cogDF[ which(cogDF[,'Species']==species2plot[sI] & cogDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']), ]
         if(input$plotCI==FALSE) lines( y=Tmp[,'North.COG_hat'], x=Tmp[,'Year'], type="b", col=rainbow(length(species2plot))[sI])
         if(input$plotCI==TRUE) Plot_Points_and_Bounds_Fn( y=Tmp[,'North.COG_hat'], x=Tmp[,'Year'], ybounds=(Tmp[,'North.COG_hat']%o%c(1,1))+(Tmp[,'North.SE']%o%c(-interval_width,interval_width)), type="b", col=rainbow(length(species2plot))[sI], col_bounds=rainbow(length(species2plot),alpha=0.2)[sI], bounds_type="shading")
       }
@@ -98,9 +99,9 @@ function(input, output, session){
     #isolate({
       par( xaxs="i" )
       species2plot = sapply( input$species2plot, FUN=function(Char){strsplit(Char,'  ')[[1]][1]})
-      plot( 1, type="n", xlim=range(cogDF[which(cogDF[,'Region']==input$region),'Year']), ylim=range(cogDF[which(cogDF[,'Region']==input$region),'East.COG_hat']%o%c(1,1)+(cogDF[which(cogDF[,'Region']==input$region),'East.SE']%o%c(-interval_width,interval_width))), xlab="Year", ylab="kilometers east of regional reference", main="Eastward center-of-gravity")
+      plot( 1, type="n", xlim=range(cogDF[which(cogDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']),'Year']), ylim=range(cogDF[which(cogDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']),'East.COG_hat']%o%c(1,1)+(cogDF[which(cogDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']),'East.SE']%o%c(-interval_width,interval_width))), xlab="Year", ylab="kilometers east of regional reference", main="Eastward center-of-gravity")
       for( sI in 1:length(species2plot)){
-        Tmp = cogDF[ which(cogDF[,'Species']==species2plot[sI] & cogDF[,'Region']==input$region), ]
+        Tmp = cogDF[ which(cogDF[,'Species']==species2plot[sI] & cogDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']), ]
         if(input$plotCI==FALSE) lines( y=Tmp[,'East.COG_hat'], x=Tmp[,'Year'], type="b", col=rainbow(length(species2plot))[sI])
         if(input$plotCI==TRUE) Plot_Points_and_Bounds_Fn( y=Tmp[,'East.COG_hat'], x=Tmp[,'Year'], ybounds=(Tmp[,'East.COG_hat']%o%c(1,1))+(Tmp[,'East.SE']%o%c(-interval_width,interval_width)), type="b", col=rainbow(length(species2plot))[sI], col_bounds=rainbow(length(species2plot),alpha=0.2)[sI], bounds_type="shading")
       }
@@ -113,10 +114,10 @@ function(input, output, session){
     #isolate({
       par( xaxs="i", yaxs="i" )
       species2plot = sapply( input$species2plot, FUN=function(Char){strsplit(Char,'  ')[[1]][1]})
-      Ylim = c(-0.1,0.5) + range(areaDF[which(areaDF[,'Species']%in%species2plot & areaDF[,'Region']==input$region),'EffectiveArea']%o%c(1,1) + (areaDF[which(areaDF[,'Species']%in%species2plot & areaDF[,'Region']==input$region),'SE']%o%c(-interval_width,interval_width)))
-      plot( 1, type="n", xlim=range(areaDF[which(areaDF[,'Region']==input$region),'Year']), ylim=ifelse(abs(Ylim)==Inf,1,Ylim), xlab="Year", ylab="ln-effective area occupied", main="Indices of log-effective area occupied")
+      Ylim = c(-0.1,0.5) + range(areaDF[which(areaDF[,'Species']%in%species2plot & areaDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']),'EffectiveArea']%o%c(1,1) + (areaDF[which(areaDF[,'Species']%in%species2plot & areaDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']),'SE']%o%c(-interval_width,interval_width)))
+      plot( 1, type="n", xlim=range(areaDF[which(areaDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']),'Year']), ylim=ifelse(abs(Ylim)==Inf,1,Ylim), xlab="Year", ylab="ln-effective area occupied", main="Indices of log-effective area occupied")
       for( sI in 1:length(species2plot)){
-        Tmp = areaDF[ which(areaDF[,'Species']==species2plot[sI] & areaDF[,'Region']==input$region), ]
+        Tmp = areaDF[ which(areaDF[,'Species']==species2plot[sI] & areaDF[,'Region']==RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code']), ]
         if(input$plotCI==FALSE) lines( y=Tmp[,'EffectiveArea'], x=Tmp[,'Year'], type="b", col=rainbow(length(species2plot))[sI] )
         if(input$plotCI==TRUE) Plot_Points_and_Bounds_Fn( y=Tmp[,'EffectiveArea'], x=Tmp[,'Year'], ybounds=(Tmp[,'EffectiveArea']%o%c(1,1))+(Tmp[,'SE']%o%c(-interval_width,interval_width)), type="b", col=rainbow(length(species2plot))[sI], col_bounds=rainbow(length(species2plot),alpha=0.2)[sI], bounds_type="shading")
       }
@@ -126,13 +127,13 @@ function(input, output, session){
 
   # Disply species
   #output$debug_text <- renderPrint({
-  #  dir <- paste0("database/Image-",input$region,"-",input$species2animate,"/")
+  #  dir <- paste0("database/Image-",RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code'],"-",input$species2animate,"/")
   #  paste0(dir,list.files(dir)[input$sliderSelex])
   #})
 
   # Plot animation images
   output$image1 <- renderImage({
-    dir <- paste0("database/Image-",input$region,"-",input$species2animate,"/")
+    dir <- paste0("database/Image-",RegionTable[match(input$region,RegionTable[,'Region_name']),'Survey_code'],"-",input$species2animate,"/")
     list(src=paste0(dir,list.files(dir)[input$sliderNum]), contentType="image/png", alt="Maps") # , width=600, height="auto"
   }, deleteFile=FALSE)
 

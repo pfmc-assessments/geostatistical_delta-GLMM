@@ -33,13 +33,21 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
 
   # Which parameters
   if( "ln_Index_tl" %in% rownames(TMB:::summary.sdreport(Sdreport)) ){
+    # SpatialDeltaGLMM
     ParName = "Index_tl"
     TmbData[['n_c']] = 1
   }
   if( "ln_Index_ctl" %in% rownames(TMB:::summary.sdreport(Sdreport)) ){
+    # VAST Version < 2.0.0
     ParName = "Index_ctl"
   }
+  if( "ln_Index_cyl" %in% rownames(TMB:::summary.sdreport(Sdreport)) ){
+    # VAST Version >= 2.0.0
+    ParName = "Index_cyl"
+    TmbData[["n_t"]] = nrow(TmbData[["t_yz"]])
+  }
   if( "Index_tp" %in% rownames(TMB:::summary.sdreport(Sdreport)) ){
+    # SpatialVAM
     ParName = "Index_tp"
     TmbData[["n_l"]] = 1
     TmbData[["n_c"]] = TmbData[["n_p"]]
@@ -52,7 +60,7 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
   if( is.null(category_names) ) category_names = 1:TmbData$n_c
 
   # Extract index
-  if( ParName %in% c("Index_tl","Index_ctl")){
+  if( ParName %in% c("Index_tl","Index_ctl","Index_cyl")){
     if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
       log_Index_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==paste0("ln_",ParName))],TMB:::summary.sdreport(Sdreport)[which(rownames(TMB:::summary.sdreport(Sdreport))==paste0("ln_",ParName)),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
       Index_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==ParName)],TMB:::summary.sdreport(Sdreport)[which(rownames(TMB:::summary.sdreport(Sdreport))==ParName),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )

@@ -22,7 +22,7 @@
 ################
 ## Settings
 ################
-#RegionSet = c("Eastern_Bering_Sea", "Gulf_of_Alaska", "Aleutian_Islands", "WCGBTS", "NS-IBTS", "BITS", "SWC-IBTS", "EVHOE", "New_Zealand", "Gulf_of_St_Lawrence", "British_Columbia", "Northwest_Atlantic", "South_Africa")
+#RegionSet = c("Eastern_Bering_Sea", "Gulf_of_Alaska", "Aleutian_Islands", "WCGBTS", "NS-IBTS", "BITS", "SWC-IBTS", "EVHOE", "Chatham_Rise", "Gulf_of_St_Lawrence", "British_Columbia", "Northwest_Atlantic", "SAWC")
 #Version = "geo_index_v4a"
 #Method = c("Grid", "Mesh")[2]
 #grid_size_km = 25
@@ -33,7 +33,7 @@
 #ObsModel = 2  # 0=normal (log-link); 1=lognormal; 2=gamma; 4=ZANB; 5=ZINB; 11=lognormal-mixture; 12=gamma-mixture
 #Kmeans_Config = list( "randomseed"=1, "nstart"=100, "iter.max"=1e3 )     # Samples: Do K-means on trawl locs; Domain: Do K-means on extrapolation grid
 #Options = c(SD_site_density=0, SD_site_logdensity=0, Calculate_Range=1, Calculate_evenness=0, Calculate_effective_area=1)
-#nspecies = 80
+#nspecies = 200
 #
 ## Decide on case-specific settings for use when calculating indices
 #strata.limits <- data.frame('STRATA'="All_areas")
@@ -44,6 +44,7 @@
 #
 ###### Loop through regions
 #for(rI in 1:length(RegionSet)){
+##for(rI in setdiff(1:length(RegionSet),5) ){
 ##for(rI in 1:length(RegionSet)){
 #  # Which region
 #  Region = RegionSet[rI]
@@ -71,7 +72,7 @@
 #    Database = cbind( Database, 'AreaSwept_km2'=0.01*Database[,'Duration_minutes']/60 )
 #    if( !("Vessel" %in% names(Database)) ) Database = cbind( Database, 'Vessel'=1 )
 #  }
-#  if( Region %in% c("New_Zealand", "Gulf_of_St_Lawrence", "British_Columbia", "Northwest_Atlantic", "South_Africa")){
+#  if( Region %in% c("Chatham_Rise", "Gulf_of_St_Lawrence", "British_Columbia", "Northwest_Atlantic", "SAWC")){
 #    if( Region=="British_Columbia"){
 #      data( BC_pacific_cod_example, package="SpatialDeltaGLMM" )
 #      Database = data.frame( "Catch_KG"=BC_pacific_cod_example[,'PCOD_WEIGHT'], "Year"=BC_pacific_cod_example[,'Year'], "Vessel"="missing", "AreaSwept_km2"=BC_pacific_cod_example[,'TOW.LENGTH..KM.']/100, "Lat"=BC_pacific_cod_example[,'LAT'], "Lon"=BC_pacific_cod_example[,'LON'], "Pass"=0)
@@ -87,7 +88,7 @@
 #      Database = data.frame( "Catch_KG"=georges_bank_haddock_spring[,'CATCH_WT_CAL'], "Year"=georges_bank_haddock_spring[,'YEAR'], "Vessel"="missing", "AreaSwept_km2"=0.0112*1.852^2, "Lat"=georges_bank_haddock_spring[,'LATITUDE'], "Lon"=georges_bank_haddock_spring[,'LONGITUDE'])
 #      species_set = "Melanogrammus aeglefinus"
 #    }
-#    if( Region=="South_Africa"){
+#    if( Region=="SAWC"){
 #      data( south_africa_westcoast_jacopever, package="SpatialDeltaGLMM" )         # standardized area swept = 0.0112 nm^2 = 0.0112*1.852^2 km^2
 #      Database = data.frame( "Catch_KG"=south_africa_westcoast_jacopever[,'HELDAC'], "Year"=south_africa_westcoast_jacopever[,'Year'], "Vessel"="missing", "AreaSwept_km2"=south_africa_westcoast_jacopever[,'area_swept_nm2']*1.852^2, "Lat"=south_africa_westcoast_jacopever[,'cen_lat'], "Lon"=south_africa_westcoast_jacopever[,'cen_long'])
 #      species_set = "Helicolenus dactylopterus"
@@ -97,7 +98,7 @@
 #      Database = data.frame( "Catch_KG"=iceland_cod[,'Catch_b'], "Year"=iceland_cod[,'year'], "Vessel"=1, "AreaSwept_km2"=iceland_cod[,'towlength'], "Lat"=iceland_cod[,'lat1'], "Lon"=iceland_cod[,'lon1'])
 #      species_set = "Gadus morhua"
 #    }
-#    if( Region=="New_Zealand"){
+#    if( Region=="Chatham_Rise"){
 #      data( chatham_rise_hake, package="SpatialDeltaGLMM" )
 #      Database = data.frame( "Catch_KG"=chatham_rise_hake[,'Hake_kg_per_km2'], "Year"=chatham_rise_hake[,'Year'], "Vessel"=1, "AreaSwept_km2"=1, "Lat"=chatham_rise_hake[,'Lat'], "Lon"=chatham_rise_hake[,'Lon'])
 #      species_set = "Merluccius australis"
@@ -131,11 +132,11 @@
 #      Data_Geostat = Database[ which(Database[,'Sci']==species_set[sI]), ]
 #
 #      # Get extrapolation data
-#      if( Region %in% c("British_Columbia","South_Africa","Iceland","Northwest_Atlantic","NS-IBTS","BITS","SWC-IBTS","EVHOE") ){
+#      if( Region %in% c("British_Columbia","SAWC","Iceland","Northwest_Atlantic","NS-IBTS","BITS","SWC-IBTS","EVHOE") ){
 #        if( Region == "British_Columbia" ){
 #          Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, strata_to_use=c("HS","QCS") )
 #        }
-#        if( Region == "South_Africa" ){
+#        if( Region == "SAWC" ){
 #          Extrapolation_List = Prepare_Extrapolation_Data_Fn( Region=Region, strata.limits=strata.limits, region="west_coast" )
 #        }
 #        if( Region == "Iceland" ){
@@ -219,15 +220,28 @@
 #
 #ResultsDir = "C:/Users/James.Thorson/Desktop/UW Hideaway/Website/FishViz/database_nx=1000_V2/"
 #
+## read table
+#RegionTable = read.csv( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/shiny/Survey_names_and_codes.csv" )
+#
 ## Which species are available
 #file_set = list.files(ResultsDir)[setdiff(grep("RData",list.files(ResultsDir)),grep("Results",list.files(ResultsDir)))]
 #
-## Things to save
+## Loop through species for estimates
 #indexDF = cogDF = areaDF = NULL
-#speciesDF = data.frame( matrix(NA, nrow=length(file_set), ncol=9, dimnames=list(NULL,c("Region","Sci","Common","Family","Order","Class","Phylum","average_occurence","average_density"))) )
+#for(sI in 1:length(file_set) ){
+#  # Load results
+#  load( file=paste0(ResultsDir,file_set[sI]) )
+#  indexDF <- rbind(indexDF, data.frame("Region"=speciesDF[sI,'Region'], "Species"=speciesDF[sI,'Sci'], Save$Index, "Index"=Save$Index[,'Estimate..metric.tonnes.']/mean(Save$Index[,'Estimate..metric.tonnes.'])) )
+#  cogDF <- rbind(cogDF, data.frame("Region"=speciesDF[sI,'Region'], "Species"=speciesDF[sI,'Sci'], "Year"=Save$COG[which(Save$COG[,'m']==1),'Year'], "East"=Save$COG[which(Save$COG[,'m']==1),c('COG_hat','SE')], "North"=Save$COG[which(Save$COG[,'m']==2),c('COG_hat','SE')]) )
+#  areaDF <- rbind(areaDF, data.frame("Region"=speciesDF[sI,'Region'], "Species"=speciesDF[sI,'Sci'], Save$EffectiveArea[,c('Year','EffectiveArea','SE')]) )
+#}
+#save( indexDF, file=paste0(ResultsDir,"Results-indexDF.RData"))
+#save( cogDF, file=paste0(ResultsDir,"Results-cogDF.RData"))
+#save( areaDF, file=paste0(ResultsDir,"Results-areaDF.RData"))
 #
-## Loop through species
-#for(sI in which(is.na(speciesDF[,'Region'])) ){
+## Loop through species for bio-info
+#speciesDF = data.frame( matrix(NA, nrow=length(file_set), ncol=9, dimnames=list(NULL,c("Region","Sci","Common","Family","Order","Class","Phylum","average_occurence","average_density"))) )
+#for(sI in which(is.na(speciesDF[,'Class'])) ){
 #  # Get Genus-Species
 #  Char = strsplit( file_set[sI], split="-", fixed=TRUE)[[1]]
 #  speciesDF[sI,'Sci'] = strsplit( Char[length(Char)], split=".", fixed=TRUE)[[1]][1]
@@ -235,9 +249,6 @@
 #
 #  # Load results
 #  load( file=paste0(ResultsDir,file_set[sI]) )
-#  indexDF <- rbind(indexDF, data.frame("Region"=speciesDF[sI,'Region'], "Species"=speciesDF[sI,'Sci'], Save$Index, "Index"=Save$Index[,'Estimate..metric.tonnes.']/mean(Save$Index[,'Estimate..metric.tonnes.'])) )
-#  cogDF <- rbind(cogDF, data.frame("Region"=speciesDF[sI,'Region'], "Species"=speciesDF[sI,'Sci'], "Year"=Save$COG[which(Save$COG[,'m']==1),'Year'], "East"=Save$COG[which(Save$COG[,'m']==1),c('COG_hat','SE')], "North"=Save$COG[which(Save$COG[,'m']==2),c('COG_hat','SE')]) )
-#  areaDF <- rbind(areaDF, data.frame("Region"=speciesDF[sI,'Region'], "Species"=speciesDF[sI,'Sci'], Save$EffectiveArea[,c('Year','EffectiveArea','SE')]) )
 #
 #  # Get common names for species with "genus[ ]species" names
 #  if( " " %in% strsplit(as.character(speciesDF[sI,'Sci']),split="")[[1]] ){
@@ -277,6 +288,9 @@
 #  #GBIF = taxize::classification(speciesDF[sI,'Sci'], db='gbif')
 #  #EOL = taxize::classification(speciesDF[sI,'Sci'], db='eol')
 #}
+#sum( is.na( match(speciesDF[,'Region'],RegionTable[,'Survey_code'])))
+#save( speciesDF, file=paste0(ResultsDir,"Results-speciesDF.RData"))
+#
 #
 ## Exclude wrong class
 ##if( any(speciesDF[,'Phylum']!="Chordata") ){
@@ -284,10 +298,5 @@
 ##  speciesDF[,c("Common","Family","Order","Class","Phylum")] = NA
 ##}
 #
-## Save compiled results
-#save( speciesDF, file=paste0(ResultsDir,"Results-speciesDF.RData"))
-#save( indexDF, file=paste0(ResultsDir,"Results-indexDF.RData"))
-#save( cogDF, file=paste0(ResultsDir,"Results-cogDF.RData"))
-#save( areaDF, file=paste0(ResultsDir,"Results-areaDF.RData"))
 #
 #

@@ -2,7 +2,8 @@ library(shiny)
 
 # Load stuff
 load( file="database/Results-speciesDF.RData" )
-region_set = unique( speciesDF[,'Region'] )
+RegionTable = read.csv( "Survey_names_and_codes.csv", stringsAsFactors=FALSE )
+region_set = unique( RegionTable[which(RegionTable[,'Survey_code']%in%speciesDF[,'Region']),'Region_name'] )
 
 # Page for user interface
 fluidPage(
@@ -20,7 +21,7 @@ fluidPage(
     # Time series plots
     h1("Plot settings"),
     # Choose region
-    selectInput(inputId="region", label="Region to show", choices=region_set, multiple=FALSE, selected="Eastern_Bering_Sea"),
+    selectInput(inputId="region", label="Region to show", choices=region_set, multiple=FALSE, selected="Eastern Bering Sea"),
     h4("General settings"),
     # General settings
     checkboxInput( inputId="plotCI", label="Plot confidence intervals?", value=TRUE),

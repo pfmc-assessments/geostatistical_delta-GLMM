@@ -13,7 +13,6 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Rotate = 20     # Degrees counter-clockwise
     Cex = 0.01
     Legend = list(use=TRUE, x=c(65,75), y=c(35,65))
-    Zone = NA
   }
   if( Region == "British_Columbia" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -24,7 +23,6 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Rotate = 0
     Cex = 0.1
     Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
-    Zone = NA
   }
   if( Region == "Eastern_Bering_Sea" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -36,7 +34,6 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Rotate = 0
     Cex = 0.01
     Legend = list(use=TRUE,x=c(76,86),y=c(48,83))
-    Zone = 3
   }
   if( Region == "Aleutian_Islands" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -48,7 +45,6 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Rotate = 0
     Cex = 0.01
     Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
-    Zone = NA
   }
   if( Region == "Gulf_of_Alaska" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -59,7 +55,6 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Rotate = 0
     Cex = 0.01
     Legend = list(use=TRUE,x=c(5,10),y=c(30,65))
-    Zone = NA
   }
   if( Region == "Northwest_Atlantic" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -71,7 +66,6 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Rotate = 0
     Cex = 1
     Legend = list(use=TRUE,x=c(70,80),y=c(5,35))
-    Zone = NA
   }
   if( Region == "South_Africa" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -82,7 +76,6 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Rotate = 0
     Cex = 0.1
     Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
-    Zone = NA
   }
   if( Region == "Gulf_of_St_Lawrence" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -93,7 +86,6 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Rotate = 0
     Cex = 1.0
     Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
-    Zone = NA
   }
   if( Region == "New_Zealand" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -104,7 +96,6 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Rotate = 0     # Degrees counter-clockwise
     Cex = 0.01
     Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
-    Zone = NA
   }
   if( Region == "HabCam" ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include)
@@ -116,7 +107,6 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Rotate = 20     # Degrees counter-clockwise
     Cex = 0.01
     Legend = list(use=TRUE,x=c(70,90),y=c(5,35))
-    Zone = NA
   }
   if( is.null(PlotDF) ){
     PlotDF = cbind( Extrapolation_List[["Data_Extrap"]][,c('Lat','Lon')], 'x2i'=NN_Extrap$nn.idx, 'Include'=Include )
@@ -126,8 +116,10 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Rotate = 0
     Cex = 1.0
     Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
-    Zone = Extrapolation_List[["zone"]]
   }
+
+  # Plotting zone has to match zone used for Extrapolation_List, for COG estimates (in UTM via Z_xm) to match map UTM
+  Zone = Extrapolation_List[["zone"]] - ifelse(Extrapolation_List$flip_around_dateline==TRUE, 30, 0)
 
   # Determine map size (equal distance along x-axis and y-axis)
   MapSizeRatio = c("Height(in)"=diff(range(Extrapolation_List$Data_Extrap[,'N_km'])) , "Width(in)"=diff(range(Extrapolation_List$Data_Extrap[,'E_km'])) )

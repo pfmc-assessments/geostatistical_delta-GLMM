@@ -31,13 +31,21 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
 
   # Which parameters
   if( "ln_Index_tl" %in% rownames(TMB:::summary.sdreport(Sdreport)) ){
+    # SpatialDeltaGLMM
     CogName = "mean_Z_tm"
     EffectiveName = "effective_area_tl"
     TmbData[['n_c']] = 1
   }
   if( "ln_Index_ctl" %in% rownames(TMB:::summary.sdreport(Sdreport)) ){
+    # VAST Version < 2.0.0
     CogName = "mean_Z_ctm"
     EffectiveName = "effective_area_ctl"
+  }
+  if( "ln_Index_cyl" %in% rownames(TMB:::summary.sdreport(Sdreport)) ){
+    # VAST Version >= 2.0.0
+    CogName = "mean_Z_cym"
+    EffectiveName = "effective_area_cyl"
+    TmbData[["n_t"]] = nrow(TmbData[["t_yz"]])
   }
 
   # Default inputs
@@ -46,10 +54,10 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
   Return = list( "Year_Set"=Year_Set )
 
   # Plot distribution shift and kernal-area approximation to area occupied if necessary outputs are available
-  if( !any(c("mean_Z_tm","mean_Z_ctm") %in% names(Report)) ){
+  if( !any(c("mean_Z_tm","mean_Z_ctm","mean_Z_cym") %in% names(Report)) ){
     message( "To plot range-shifts and kernal-approximation to area occupied, please re-run with Options['Calculate_Range']=1" )
   }else{
-    message( "\nPlotting center-of-gravity..." )
+    message( "Plotting center-of-gravity..." )
 
     # Extract index
     SD = TMB:::summary.sdreport(Sdreport)
@@ -98,10 +106,10 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
 
   #
   # Only run if necessary outputs are available
-  if( !any(c("effective_area_tl","effective_area_ctl") %in% names(Report)) ){
+  if( !any(c("effective_area_tl","effective_area_ctl","effective_area_cyl") %in% names(Report)) ){
     message( "To plot effective area occupied, please re-run with Options['Calculate_effective_area']=1" )
   }else{
-    message( "\nPlotting effective area occupied..." )
+    message( "Plotting effective area occupied..." )
 
     # Extract estimates
     SD = TMB:::summary.sdreport(Sdreport)

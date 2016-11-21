@@ -16,10 +16,11 @@ html_document:
 ---
 
 
-```{r set_options, echo=FALSE}
+```{r set_options, echo=FALSE, message=FALSE, warning=FALSE}
 # Width should apply to tidy
 # digits hopefully affects number of digits when using print
 options(width=50, width.cutoff=50, digits = 3) 
+install.packages("pander", repos="http://cran.us.r-project.org")
 ```
 
 ```{r wrap-hook, echo=FALSE}
@@ -45,7 +46,7 @@ This tutorial will walk through a simple example of how to use `SpatialDeltaGLMM
 
 # Getting started
 
-First, we install necessary packages.  We also have to install TMB as appropriate for the operating system (see directions elsewhere).
+To install TMB on a windows machine, we need to first install [Rtools](https://cran.r-project.org/bin/windows/Rtools/).  During the installation, please select the option to have Rtools included in your system path.  On other operating systems, it is not necessary to install Rtools.  We then install `SpatialDeltaGLMM`  
 ```{r load_packages, message=FALSE}
 devtools::install_github("nwfsc-assess/geostatistical_delta-GLMM") 
 devtools::install_github("james-thorson/utilities")
@@ -59,7 +60,7 @@ library(SpatialDeltaGLMM)
 
 ## Further information
 
-If you have further questions after reading this tutorial, please explore the [GitHub repo](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/#description) mainpage, wiki, and glossary.  Also please explore the R help files, e.g., `?PlotIndex_Fn`.  
+If you have further questions after reading this tutorial, please explore the [GitHub repo](https://github.com/nwfsc-assess/geostatistical_delta-GLMM/#description) mainpage, wiki, and glossary.  Also please explore the R help files, e.g., `?Data_Fn` for explanation of data inputs, or `?Param_Fn` for explanation of parameters.  
 
 ## Related tools
 
@@ -384,7 +385,7 @@ pander::pandoc.table( Index$Table[,c("Year","Fleet","Estimate_metric_tons","SD_l
 
 We can detect shifts in distribution or range expansion/contraction.  
 ```{r plot_range, message=FALSE, tidy=TRUE, linewidth=50}
-Plot_range_shifts(Report=Report, TmbData=TmbData, Sdreport=Opt[["SD"]], Znames=colnames(TmbData$Z_xm), PlotDir=DateFile)
+Plot_range_shifts(Report=Report, TmbData=TmbData, Sdreport=Opt[["SD"]], Znames=colnames(TmbData$Z_xm), PlotDir=DateFile, Year_Set=Year_Set)
 ```
 ![Center of gravity (COG) indicating shifts in distribution plus/minus 1 standard error](SpatialDeltaGLMM_output/center_of_gravity.png) 
 
