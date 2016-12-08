@@ -56,6 +56,8 @@ PlotResultsOnMap_Fn(plot_set = 1:5, MappingDetails, Report, Sdreport = NULL,
   \item{x}{Left and right-hand limits for legend in percentage of panel}
   \item{y}{bottom and top limits for legend in percentage of panel}
 }}
+
+\item{...}{arguments passed to \code{PlotMap_Fn}}
 }
 \value{
 Mat_xt a matrix (rows: modeled knots; column: modeled year) for plotted output of last element of \code{plot_set}

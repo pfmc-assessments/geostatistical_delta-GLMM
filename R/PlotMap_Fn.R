@@ -6,6 +6,8 @@
 #'
 #' @inheritParams PlotResultsOnMap_Fn
 #' @param plot_legend_fig Boolean, whether to plot a separate figure for the heatmap legend or not
+#' @param land_color color for filling in land (use \code{land_color=rgb(0,0,0,alpha=0)} for transparent land)
+#' @param ... arguments passed to \code{par}
 #'
 #' @details
 #' This function was necessary to buiild because \code{mapproj::mapproject} as used in \code{maps::map} has difficulties with both rotations (for most projections) and
@@ -16,7 +18,7 @@
 PlotMap_Fn <-
 function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=4), Xlim, Ylim, FileName=paste0(getwd(),"/"), Year_Set,
          Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, textmargin="", add=FALSE, pch=20, outermargintext=c("Eastings","Northings"), zlim=NULL,
-         Legend=list("use"=FALSE, "x"=c(10,30), "y"=c(10,30)), mfrow=c(1,1), plot_legend_fig=TRUE, ...){
+         Legend=list("use"=FALSE, "x"=c(10,30), "y"=c(10,30)), mfrow=c(1,1), plot_legend_fig=TRUE, land_color="grey", ...){
 
   # avoid attaching maps and mapdata to use worldHires plotting
   require(maps)
@@ -80,7 +82,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=
         for(levI in 1:(length(lev)-1)) {
           indx = which(tmpUTM$PID == lev[levI])
           if( var(sign(TmpLL[indx,'Y']))==0 ){
-            polygon(x=tmpUTM_rotated@coords[indx,'x'], y=tmpUTM_rotated@coords[indx,'y'], col="grey")
+            polygon(x=tmpUTM_rotated@coords[indx,'x'], y=tmpUTM_rotated@coords[indx,'y'], col=land_color)
           }else{
             warning( "Skipping map polygons that straddle equation, because PBSmapping::convUL doesn't work for these cases" )
           }

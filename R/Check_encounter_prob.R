@@ -7,6 +7,7 @@
 #'
 #' @inheritParams PlotResultsOnMap_Fn
 #' @inheritParams PlotIndex_Fn
+#' @param ... arguments passed to \code{par}
 #'
 #' @return Return Tagged list of output
 #' \describe{

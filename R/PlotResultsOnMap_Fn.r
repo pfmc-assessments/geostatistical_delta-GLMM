@@ -34,6 +34,7 @@
 #'   \item{x}{Left and right-hand limits for legend in percentage of panel}
 #'   \item{y}{bottom and top limits for legend in percentage of panel}
 #' }
+#' @param ... arguments passed to \code{PlotMap_Fn}
 #'
 #' @return Mat_xt a matrix (rows: modeled knots; column: modeled year) for plotted output of last element of \code{plot_set}
 #'

@@ -10,7 +10,7 @@ PlotMap_Fn(MappingDetails, Mat, PlotDF, MapSizeRatio = c(`Width(in)` = 4,
   Cex = 0.01, textmargin = "", add = FALSE, pch = 20,
   outermargintext = c("Eastings", "Northings"), zlim = NULL,
   Legend = list(use = FALSE, x = c(10, 30), y = c(10, 30)), mfrow = c(1, 1),
-  plot_legend_fig = TRUE, ...)
+  plot_legend_fig = TRUE, land_color = "grey", ...)
 }
 \arguments{
 \item{MappingDetails}{tagged list of plot-settings from \code{MapDetails_Fn}}
@@ -33,6 +33,10 @@ PlotMap_Fn(MappingDetails, Mat, PlotDF, MapSizeRatio = c(`Width(in)` = 4,
 }}
 
 \item{plot_legend_fig}{Boolean, whether to plot a separate figure for the heatmap legend or not}
+
+\item{land_color}{color for filling in land (use \code{land_color=rgb(0,0,0,alpha=0)} for transparent land)}
+
+\item{...}{arguments passed to \code{par}}
 }
 \description{
 \code{PlotMap_Fn} is a hidden function to plot a map and fill in regions with colors to represent intensity in an areal-interpretion of model results
