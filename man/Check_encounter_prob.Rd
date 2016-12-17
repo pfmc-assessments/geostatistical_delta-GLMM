@@ -17,7 +17,7 @@ Check_encounter_prob(Report, Data_Geostat, cutpoints_z = seq(0, 1, length =
 
 \item{PlotName}{Name for plot}
 
-\item{...}{arguments passed to \code{PlotMap_Fn}}
+\item{...}{arguments passed to \code{par}}
 }
 \value{
 Return Tagged list of output

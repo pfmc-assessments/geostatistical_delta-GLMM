@@ -4,7 +4,7 @@
 \alias{PlotResultsOnMap_Fn}
 \title{Plot standard maps}
 \usage{
-PlotResultsOnMap_Fn(plot_set = 1:5, MappingDetails, Report, Sdreport = NULL,
+PlotResultsOnMap_Fn(plot_set = 3, MappingDetails, Report, Sdreport = NULL,
   Nknots = Inf, PlotDF, MapSizeRatio = c(`Width(in)` = 4, `Height(in)` = 4),
   Xlim, Ylim, FileName = paste0(getwd(), "/"), Year_Set = NULL,
   Years2Include = NULL, Rescale = FALSE, Rotate = 0, Format = "png",

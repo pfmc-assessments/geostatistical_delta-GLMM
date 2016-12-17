@@ -1,5 +1,24 @@
+#' @title
+#' Plot Pearson residuals on map
+#'
+#' @description
+#' \code{plot_residuals} shows average Pearson residual for every knot for encounter probability and positive catch rate components
+#'
+#' @param Lat_i Latitude for every observation \code{i}
+#' @param Lon_i Longitude for every observation \code{i}
+#' @param Q Output from \code{QQ_Fn}
+#' @param savdir directory to use when saving results
+#' @inheritParams Build_TMB_Fn
+#' @inheritParams PlotResultsOnMap_Fn
+#' @param ... arguments passed to \code{PlotMap_Fn}
+#'
+#' @return A tagged list of Pearson residuals
+#' \describe{
+#'   \item{Q1_xt}{Matrix of average residuals for encounter/non-encounter component by site \code{x} and year \code{t}}
+#'   \item{Q2_xt}{Matrix of average residuals for positive-catch-rate component by site \code{x} and year \code{t}}
+#' }
 
-
+#' @export
 plot_residuals = function( Lat_i, Lon_i, TmbData, Report, Q, savedir=getwd(),
          MappingDetails, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=4), Xlim, Ylim,
          FileName=paste0(getwd(),"/"), Year_Set=NULL, Years2Include=NULL, Rescale=FALSE, Rotate=0, Format="png", Res=200,
@@ -74,6 +93,13 @@ plot_residuals = function( Lat_i, Lon_i, TmbData, Report, Q, savedir=getwd(),
   for( zI in 1:2 ){
     Q_xt = list( Q1_xt, Q2_xt )[[zI]]
     Q_xt = ifelse( abs(Q_xt)>3, 3*sign(Q_xt), Q_xt )
-    Return = PlotMap_Fn( MappingDetails=MappingDetails, Mat=Q_xt[,Years2Include], PlotDF=PlotDF, Col=Col, zlim=c(-3,3), ignore.na=TRUE, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(savedir,"/",c("maps--encounter_pearson_resid","maps--catchrate_pearson_resid")[zI]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin, add=add, pch=pch, Legend=Legend, mfrow=mfrow, plot_legend_fig=plot_legend_fig, ...)
+    PlotMap_Fn( MappingDetails=MappingDetails, Mat=Q_xt[,Years2Include], PlotDF=PlotDF, Col=Col, zlim=c(-3,3), ignore.na=TRUE, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(savedir,"/",c("maps--encounter_pearson_resid","maps--catchrate_pearson_resid")[zI]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin, add=add, pch=pch, Legend=Legend, mfrow=mfrow, plot_legend_fig=plot_legend_fig, ...)
   }
+
+  #################
+  # Returns
+  #################
+
+  Return = list( "Q1_xt"=Q1_xt, "Q2_xt"=Q2_xt )
+  return( invisible(Return) )
 }
