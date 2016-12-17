@@ -41,9 +41,10 @@
 
 #' @export
 PlotResultsOnMap_Fn <-
-function(plot_set=1:5, MappingDetails, Report, Sdreport=NULL, Nknots=Inf, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=4), Xlim, Ylim, FileName=paste0(getwd(),"/"),
-         Year_Set=NULL, Years2Include=NULL, Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, add=FALSE, category_names=NULL,
-         textmargin=NULL, pch=NULL, Legend=list("use"=FALSE, "x"=c(10,30), "y"=c(10,30)), mfrow=NULL, plot_legend_fig=TRUE, ...){
+function(plot_set=3, MappingDetails, Report, Sdreport=NULL, Nknots=Inf, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=4), Xlim, Ylim,
+         FileName=paste0(getwd(),"/"), Year_Set=NULL, Years2Include=NULL, Rescale=FALSE, Rotate=0, Format="png", Res=200,
+         zone=NA, Cex=0.01, add=FALSE, category_names=NULL, textmargin=NULL, pch=NULL,
+         Legend=list("use"=FALSE, "x"=c(10,30), "y"=c(10,30)), mfrow=NULL, plot_legend_fig=TRUE, ...){
 
   # Fill in missing inputs
   if( "D_xt" %in% names(Report)){
@@ -106,14 +107,14 @@ function(plot_set=1:5, MappingDetails, Report, Sdreport=NULL, Nknots=Inf, PlotDF
         # Positive values ("Pos")
         if("D_xt"%in%names(Report)) Mat_xt = log(Report$R2_xt)
         if("D_xct"%in%names(Report)) Mat_xt = log(Report$R2_xct)[,cI,]
-        if("D_xcy"%in%names(Report)) Mat_xt = Report$R2_xcy[,cI,]
+        if("D_xcy"%in%names(Report)) Mat_xt = log(Report$R2_xcy)[,cI,]
         if("dhat_ktp"%in%names(Report)) stop("Not implemented for SpatialVAM")
       }
       if(plot_num==3){
         # Density ("Dens")
         if("D_xt"%in%names(Report)) Mat_xt = log(Report$D_xt)
         if("D_xct"%in%names(Report)) Mat_xt = log(Report$D_xct)[,cI,]
-        if("D_xcy"%in%names(Report)) Mat_xt = Report$D_xcy[,cI,]
+        if("D_xcy"%in%names(Report)) Mat_xt = log(Report$D_xcy[,cI,])
         if("dhat_ktp"%in%names(Report)) Mat_xt = Report$dhat_ktp[,,cI]
       }
       if(plot_num==4){

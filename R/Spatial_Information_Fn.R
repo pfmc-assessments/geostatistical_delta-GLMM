@@ -51,6 +51,13 @@ Spatial_Information_Fn = function( Method="Grid", Lon, Lat, Extrapolation_List, 
   PolygonList = SpatialDeltaGLMM::Calc_Polygon_Areas_and_Polygons_Fn( loc_x=loc_x, Data_Extrap=Extrapolation_List[["Data_Extrap"]], a_el=Extrapolation_List[["a_el"]])
   a_xl = PolygonList[["a_xl"]]
 
+  # Convert loc_x back to location in lat-long coordinates loc_x_LL
+  # if zone=NA or NULL, then it automatically detects appropriate zone
+  #tmpUTM = cbind('PID'=1,'POS'=1:nrow(loc_x),'X'=loc_x[,'E_km'],'Y'=loc_x[,'N_km'])
+  #attr(tmpUTM,"projection") = "UTM"
+  #attr(tmpUTM,"zone") = Extrapolation_List$zone
+  #loc_x_LL = PBSmapping::convUL(tmpUTM)                                                         #$
+
   # Make mesh and info for anisotropy
   MeshList = SpatialDeltaGLMM::Calc_Anisotropic_Mesh( loc_x=Kmeans$centers )
 

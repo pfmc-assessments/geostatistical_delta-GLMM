@@ -17,8 +17,9 @@
 
 PlotMap_Fn <-
 function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=4), Xlim, Ylim, FileName=paste0(getwd(),"/"), Year_Set,
-         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, textmargin="", add=FALSE, pch=20, outermargintext=c("Eastings","Northings"), zlim=NULL,
-         Legend=list("use"=FALSE, "x"=c(10,30), "y"=c(10,30)), mfrow=c(1,1), plot_legend_fig=TRUE, land_color="grey", ...){
+         Rescale=FALSE, Rotate=0, Format="png", Res=200, zone=NA, Cex=0.01, textmargin="", add=FALSE, pch=20,
+         outermargintext=c("Eastings","Northings"), zlim=NULL, Col=NULL,
+         Legend=list("use"=FALSE, "x"=c(10,30), "y"=c(10,30)), mfrow=c(1,1), plot_legend_fig=TRUE, land_color="grey", ignore.na=FALSE, ...){
 
   # avoid attaching maps and mapdata to use worldHires plotting
   require(maps)
@@ -37,7 +38,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=
     if( !is.null(zlim)) Return = ((Num)-zlim[1])/max(diff(zlim),0.01)
     return( Return )
   }
-  Col = colorRampPalette(colors=c("darkblue","blue","lightblue","lightgreen","yellow","orange","red"))
+  if( is.null(Col)) Col = colorRampPalette(colors=c("darkblue","blue","lightblue","lightgreen","yellow","orange","red"))
   
   # Plot
   Par = list( mfrow=mfrow, ...)
@@ -76,7 +77,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=
         tmpUTM_rotated <- maptools::elide( tmpUTM, rotate=Rotate)
         plot( 1, type="n", xlim=range(tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'x']), ylim=range(tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'y']), xaxt="n", yaxt="n" )
         Col_Bin = ceiling( f(tmpUTM_rotated@data[-c(1:nrow(Tmp1)),-c(1:2),drop=FALSE],zlim=zlim)[,tI]*49 ) + 1
-        if( any(Col_Bin<1 | Col_Bin>50) ) stop("zlim doesn't span the range of the variable")
+        if( ignore.na==FALSE && any(Col_Bin<1 | Col_Bin>50) ) stop("zlim doesn't span the range of the variable")
         points(x=tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'x'], y=tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'y'], col=Col(n=50)[Col_Bin], cex=Cex, pch=pch)
         lev = levels(as.factor(tmpUTM_rotated@data$PID))
         for(levI in 1:(length(lev)-1)) {
@@ -93,7 +94,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=
     }
     # Include legend
     if( Legend$use==TRUE ){
-      SpatialDeltaGLMM:::smallPlot( SpatialDeltaGLMM:::Heatmap_Legend(colvec=Col(50), heatrange=range(Mat[Which,]), dopar=FALSE), x=Legend$x, y=Legend$y, mar=c(0,0,0,0), mgp=c(2,0.5,0), tck=-0.2, font=2 )  #
+      SpatialDeltaGLMM:::smallPlot( SpatialDeltaGLMM:::Heatmap_Legend(colvec=Col(50), heatrange=list(range(Mat[Which,],na.rm=TRUE),zlim)[[ifelse(is.null(zlim),1,2)]], dopar=FALSE), x=Legend$x, y=Legend$y, mar=c(0,0,0,0), mgp=c(2,0.5,0), tck=-0.2, font=2 )  #
     }
     # Margin text
     if(add==FALSE) mtext(side=1, outer=TRUE, outermargintext[1], cex=1.75, line=par()$oma[1]/2)
@@ -114,7 +115,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=
            width=1, height=2*MapSizeRatio['Height(in)'], res=Res, units='in')
     }
     if(Format %in% c("png","jpg","tif","tiff")){
-      SpatialDeltaGLMM:::Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), textmargin=textmargin )
+      SpatialDeltaGLMM:::Heatmap_Legend( colvec=Col(n=50), heatrange=list(range(Mat,na.rm=TRUE),zlim)[[ifelse(is.null(zlim),1,2)]], textmargin=textmargin )
       dev.off()
     }
   }
