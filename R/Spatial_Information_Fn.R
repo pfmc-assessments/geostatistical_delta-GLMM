@@ -7,7 +7,8 @@
 #' @param Lon, Longitude for each sample
 #' @param Lat, Latitude for each sample
 #' @param Extrapolation_List, the output from \code{Prepare_Extrapolation_Data_Fn}
-#' @param grid_size_km, the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid")
+#' @param grid_size_km, the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid") when not using \code{Method="Spherical_mesh"}
+#' @param grid_size_LL, the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid") when using \code{Method="Spherical_mesh"}
 #' @param n_x, the number of vertices in the SPDE mesh (determines the spatial resolution when Method="Mesh")
 #' @param ..., additional arguments passed to \code{Calc_Kmeans}
 
@@ -24,31 +25,49 @@
 #' }
 
 #' @export
-Spatial_Information_Fn = function( Method="Grid", Lon, Lat, Extrapolation_List, grid_size_km=50, n_x, ... ){
+Spatial_Information_Fn = function( Method="Mesh", Lon, Lat, Extrapolation_List, grid_size_km=50, grid_size_LL=1, n_x, ... ){
+
   # Convert to an Eastings-Northings coordinate system
-  tmpUTM = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Lon, Lat=Lat, zone=Extrapolation_List$zone, flip_around_dateline=Extrapolation_List$flip_around_dateline )                                                         #$
-  loc_UTM = cbind( 'E_km'=tmpUTM[,'X'], 'N_km'=tmpUTM[,'Y'])
+  if( Method=="Spherical_mesh" ){
+    loc_i = data.frame( 'Lon'=Lon, 'Lat'=Lat )
+    # Bounds for 2D AR1 grid
+    Grid_bounds = (grid_size_km/110) * apply(Extrapolation_List$Data_Extrap[,c('Lon','Lat')]/(grid_size_km/110), MARGIN=2, FUN=function(vec){trunc(range(vec))+c(0,1)})
 
-  # Calculate k-means centroids (but only once for all species)
-  Kmeans = SpatialDeltaGLMM::Calc_Kmeans(n_x=n_x, loc_orig=loc_UTM[,c("E_km", "N_km")], ... )
+    # Calculate k-means centroids
+    Kmeans = SpatialDeltaGLMM::Calc_Kmeans(n_x=n_x, loc_orig=loc_i[,c("Lon", "Lat")], ... )
 
-  # Calculate grid for 2D AR1 process
-  Grid_bounds = grid_size_km * apply(Extrapolation_List$Data_Extrap[,c('E_km','N_km')]/grid_size_km, MARGIN=2, FUN=function(vec){trunc(range(vec))+c(0,1)})
-  loc_grid = expand.grid( 'E_km'=seq(Grid_bounds[1,1],Grid_bounds[2,1],by=grid_size_km), 'N_km'=seq(Grid_bounds[1,2],Grid_bounds[2,2],by=grid_size_km) )
-  Which = sort(unique(RANN::nn2(data=loc_grid, query=Extrapolation_List$Data_Extrap[which(Extrapolation_List$Area_km2_x>0),c('E_km','N_km')], k=1)$nn.idx[,1]))
-  loc_grid = loc_grid[Which,]
-  grid_num = RANN::nn2( data=loc_grid, query=loc_UTM, k=1)$nn.idx[,1]
+    # Calculate grid for 2D AR1 process
+    loc_grid = expand.grid( 'Lon'=seq(Grid_bounds[1,1],Grid_bounds[2,1],by=grid_size_LL), 'Lat'=seq(Grid_bounds[1,2],Grid_bounds[2,2],by=grid_size_LL) )
+    Which = sort(unique(RANN::nn2(data=loc_grid, query=Extrapolation_List$Data_Extrap[which(Extrapolation_List$Area_km2_x>0),c('Lon','Lat')], k=1)$nn.idx[,1]))
+    loc_grid = loc_grid[Which,]
+    grid_num = RANN::nn2( data=loc_grid, query=loc_i, k=1)$nn.idx[,1]
+  }
+  if( Method %in% c("Mesh","Grid") ){
+    loc_i = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Lon, Lat=Lat, zone=Extrapolation_List$zone, flip_around_dateline=Extrapolation_List$flip_around_dateline )                                                         #$
+    loc_i = cbind( 'E_km'=loc_i[,'X'], 'N_km'=loc_i[,'Y'])
+    # Bounds for 2D AR1 grid
+    Grid_bounds = grid_size_km * apply(Extrapolation_List$Data_Extrap[,c('E_km','N_km')]/grid_size_km, MARGIN=2, FUN=function(vec){trunc(range(vec))+c(0,1)})
+
+    # Calculate k-means centroids
+    Kmeans = SpatialDeltaGLMM::Calc_Kmeans(n_x=n_x, loc_orig=loc_i[,c("E_km", "N_km")], ... )
+
+    # Calculate grid for 2D AR1 process
+    loc_grid = expand.grid( 'E_km'=seq(Grid_bounds[1,1],Grid_bounds[2,1],by=grid_size_km), 'N_km'=seq(Grid_bounds[1,2],Grid_bounds[2,2],by=grid_size_km) )
+    Which = sort(unique(RANN::nn2(data=loc_grid, query=Extrapolation_List$Data_Extrap[which(Extrapolation_List$Area_km2_x>0),c('E_km','N_km')], k=1)$nn.idx[,1]))
+    loc_grid = loc_grid[Which,]
+    grid_num = RANN::nn2( data=loc_grid, query=loc_i, k=1)$nn.idx[,1]
+  }
 
   # Calc design matrix and areas
   if( Method=="Grid" ){
     knot_i = grid_num
     loc_x = loc_grid
   }
-  if( Method=="Mesh" ){
+  if( Method %in% c("Mesh","Spherical_mesh") ){
     knot_i = Kmeans$cluster
     loc_x = Kmeans$centers
   }
-  PolygonList = SpatialDeltaGLMM::Calc_Polygon_Areas_and_Polygons_Fn( loc_x=loc_x, Data_Extrap=Extrapolation_List[["Data_Extrap"]], a_el=Extrapolation_List[["a_el"]])
+  PolygonList = Calc_Polygon_Areas_and_Polygons_Fn( loc_x=loc_x, Data_Extrap=Extrapolation_List[["Data_Extrap"]], a_el=Extrapolation_List[["a_el"]])
   a_xl = PolygonList[["a_xl"]]
 
   # Convert loc_x back to location in lat-long coordinates loc_x_LL
@@ -58,17 +77,18 @@ Spatial_Information_Fn = function( Method="Grid", Lon, Lat, Extrapolation_List, 
   #attr(tmpUTM,"zone") = Extrapolation_List$zone
   #loc_x_LL = PBSmapping::convUL(tmpUTM)                                                         #$
 
-  # Make mesh and info for anisotropy
-  MeshList = SpatialDeltaGLMM::Calc_Anisotropic_Mesh( loc_x=Kmeans$centers )
+  # Make mesh and info for anisotropy  SpatialDeltaGLMM::
+  MeshList = Calc_Anisotropic_Mesh( Method=Method, loc_x=Kmeans$centers )
 
   # Make matrices for 2D AR1 process
   Dist_grid = dist(loc_grid, diag=TRUE, upper=TRUE)
   M0 = as( ifelse(as.matrix(Dist_grid)==0, 1, 0), "dgTMatrix" )
   M1 = as( ifelse(as.matrix(Dist_grid)==grid_size_km, 1, 0), "dgTMatrix" )
   M2 = as( ifelse(as.matrix(Dist_grid)==sqrt(2)*grid_size_km, 1, 0), "dgTMatrix" )
-  GridList = list("M0"=M0, "M1"=M1, "M2"=M2, "grid_size_km"=grid_size_km)
+  if( Method=="Spherical_mesh" ) GridList = list("M0"=M0, "M1"=M1, "M2"=M2, "grid_size_km"=grid_size_LL)
+  if( Method %in% c("Mesh","Grid") ) GridList = list("M0"=M0, "M1"=M1, "M2"=M2, "grid_size_km"=grid_size_km)
 
   # Return
-  Return = list("MeshList"=MeshList, "GridList"=GridList, "a_xl"=a_xl, "loc_UTM"=loc_UTM, "Kmeans"=Kmeans, "knot_i"=knot_i, "Method"=Method, "loc_x"=loc_x, "PolygonList"=PolygonList, "NN_Extrap"=PolygonList$NN_Extrap)
+  Return = list("MeshList"=MeshList, "GridList"=GridList, "a_xl"=a_xl, "loc_i"=loc_i, "Kmeans"=Kmeans, "knot_i"=knot_i, "Method"=Method, "loc_x"=loc_x, "PolygonList"=PolygonList, "NN_Extrap"=PolygonList$NN_Extrap)
   return( Return )
 }

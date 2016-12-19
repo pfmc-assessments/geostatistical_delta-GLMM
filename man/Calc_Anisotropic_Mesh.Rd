@@ -4,12 +4,15 @@
 \alias{Calc_Anisotropic_Mesh}
 \title{Make mesh for distances among points}
 \usage{
-Calc_Anisotropic_Mesh(loc_x, mesh = NULL, refine = FALSE, ...)
+Calc_Anisotropic_Mesh(loc_x, Method = "Mesh", anisotropic_mesh = NULL,
+  refine = FALSE, ...)
 }
 \arguments{
 \item{loc_x}{location (eastings and northings in kilometers, UTM) for each sample or knot}
 
-\item{mesh}{OPTIONAL, isotropic mesh (if missing, its recalculated from loc_x)}
+\item{Method}{spatial method determines ("Mesh" and "Grid" give}
+
+\item{anisotropic_mesh}{OPTIONAL, anisotropic mesh (if missing, its recalculated from loc_x)}
 
 \item{refine}{OPTIONAL, specify whether to add additional points (beyond loc_x and minimal boundary knots)}
 }

@@ -122,7 +122,11 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
   Zone = Extrapolation_List[["zone"]] - ifelse(Extrapolation_List$flip_around_dateline==TRUE, 30, 0)
 
   # Determine map size (equal distance along x-axis and y-axis)
-  MapSizeRatio = c("Height(in)"=diff(range(Extrapolation_List$Data_Extrap[,'N_km'])) , "Width(in)"=diff(range(Extrapolation_List$Data_Extrap[,'E_km'])) )
+  if( all(!is.na(Extrapolation_List$Data_Extrap[,c('N_km','E_km')])) ){
+    MapSizeRatio = c("Height(in)"=diff(range(Extrapolation_List$Data_Extrap[,'N_km'])) , "Width(in)"=diff(range(Extrapolation_List$Data_Extrap[,'E_km'])) )
+  }else{
+    MapSizeRatio = c("Height(in)"=diff(range(Extrapolation_List$Data_Extrap[,'Lat'])) , "Width(in)"=diff(range(Extrapolation_List$Data_Extrap[,'Lon'])) )
+  }
   MapSizeRatio = MapSizeRatio / sqrt(prod(MapSizeRatio)) * 4  # 14 square-inches
 
   # bundle and return
