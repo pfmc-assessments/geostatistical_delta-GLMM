@@ -19,7 +19,7 @@ PlotResultsOnMap_Fn(plot_set = 3, MappingDetails, Report, Sdreport = NULL,
   \item{plot_set=1}{Probability of encounter/non-encounter}
   \item{plot_set=2}{Log-expected positive catch rate}
   \item{plot_set=3}{Log-predicted density (product of encounter probability and positive catch rates)}
-  \item{plot_set=4}{Log-pPositive catch rates (rescaled)}
+  \item{plot_set=4}{Log-positive catch rates (rescaled)}
   \item{plot_set=5}{Log-predicted density (rescaled)}
   \item{plot_set=6}{Spatio-temporal variation in encounter probability}
   \item{plot_set=7}{Spatio-temporal variation in log-positive catch rates}
