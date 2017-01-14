@@ -1,6 +1,6 @@
 
 
-Plot_Ellipse_Fn = function( filename, yearset=NULL, years2include=NULL, MappingDetails, MapSizeRatio=c("Height(in)"=4,"Width(in)"=4), Xlim, Ylim, ZinUTM=TRUE, zone=NA, ncol_legend=2, Format="png", ... ){
+Plot_Ellipse_Fn = function( filename, Report, yearset=NULL, years2include=NULL, MappingDetails, MapSizeRatio=c("Height(in)"=4,"Width(in)"=4), Xlim, Ylim, ZinUTM=TRUE, zone=NA, ncol_legend=2, Format="png", ... ){
   # Only run if necessary outputs are available
   if( all(c("mean_Z_tl","cov_Z_tl") %in% names(Report)) ){
     # Decide on years

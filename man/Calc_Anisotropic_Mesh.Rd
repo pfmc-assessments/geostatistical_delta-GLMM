@@ -15,6 +15,8 @@ Calc_Anisotropic_Mesh(loc_x, Method = "Mesh", anisotropic_mesh = NULL,
 \item{anisotropic_mesh}{OPTIONAL, anisotropic mesh (if missing, its recalculated from loc_x)}
 
 \item{refine}{OPTIONAL, specify whether to add additional points (beyond loc_x and minimal boundary knots)}
+
+\item{...}{Arguments passed to \code{INLA::inla.mesh.create}}
 }
 \value{
 Tagged list containing distance metrics

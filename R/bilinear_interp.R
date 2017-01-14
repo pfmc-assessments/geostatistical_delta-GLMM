@@ -3,9 +3,9 @@
 #'
 #' \code{bilinear_interp} calculates three coefficients, used to calculate height via blinear interpolation from height and location of three neighbors
 #'
-#' @param xy1, 2D location and height of first neighbor
-#' @param xy2, 2D location and height of second neighbor
-#' @param xy3, 2D location and height of third neighbor
+#' @param xyz1, 2D location and height of first neighbor
+#' @param xyz2, 2D location and height of second neighbor
+#' @param xyz3, 2D location and height of third neighbor
 #' @param xypred, 2D location of location to interpolate
 
 #' @return Tagged list of useful output

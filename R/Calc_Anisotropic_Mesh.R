@@ -7,6 +7,7 @@
 #' @param Method spatial method determines ("Mesh" and "Grid" give
 #' @param anisotropic_mesh OPTIONAL, anisotropic mesh (if missing, its recalculated from loc_x)
 #' @param refine OPTIONAL, specify whether to add additional points (beyond loc_x and minimal boundary knots)
+#' @param ... Arguments passed to \code{INLA::inla.mesh.create}
 
 #' @return Tagged list containing distance metrics
 

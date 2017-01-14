@@ -3,13 +3,13 @@
 #'
 #' \code{Spatial_Information_Fn} builds a tagged list with all the spatial information needed for \code{Data_Fn}
 #'
-#' @param Method, a character of either "Grid" or "Mesh" where "Grid" is a 2D AR1 process, and "Mesh" is the SPDE method with geometric anisotropy
+#' @param n_x, the number of vertices in the SPDE mesh (determines the spatial resolution when Method="Mesh")
 #' @param Lon, Longitude for each sample
 #' @param Lat, Latitude for each sample
+#' @param Method, a character of either "Grid" or "Mesh" where "Grid" is a 2D AR1 process, and "Mesh" is the SPDE method with geometric anisotropy
 #' @param Extrapolation_List, the output from \code{Prepare_Extrapolation_Data_Fn}
 #' @param grid_size_km, the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid") when not using \code{Method="Spherical_mesh"}
 #' @param grid_size_LL, the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid") when using \code{Method="Spherical_mesh"}
-#' @param n_x, the number of vertices in the SPDE mesh (determines the spatial resolution when Method="Mesh")
 #' @param ..., additional arguments passed to \code{Calc_Kmeans}
 
 #' @return Tagged list containing objects for running a VAST model
@@ -25,7 +25,7 @@
 #' }
 
 #' @export
-Spatial_Information_Fn = function( Method="Mesh", Lon, Lat, Extrapolation_List, grid_size_km=50, grid_size_LL=1, n_x, ... ){
+Spatial_Information_Fn = function( n_x, Lon, Lat, Extrapolation_List, Method="Mesh", grid_size_km=50, grid_size_LL=1, ... ){
 
   # Convert to an Eastings-Northings coordinate system
   if( Method=="Spherical_mesh" ){

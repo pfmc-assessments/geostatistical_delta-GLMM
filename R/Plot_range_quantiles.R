@@ -1,5 +1,5 @@
 
-Plot_range_quantiles = function( Data_Extrap, Report, a_xl, NN_Extrap, Year_Set=NULL, Prob_vec=c(0.10,0.5,0.90), FileName_Quantiles=paste0(getwd(),"/Range_boundary.png") ){
+Plot_range_quantiles = function( Data_Extrap, Report, TmbData, a_xl, NN_Extrap, Year_Set=NULL, Prob_vec=c(0.10,0.5,0.90), FileName_Quantiles=paste0(getwd(),"/Range_boundary.png") ){
   # Default inputs
   if( is.null(Year_Set)) Year_Set = 1:TmbData$n_t
 

@@ -25,4 +25,4 @@ testthat::test_check("SpatialDeltaGLMM")
 #devtools::check( "/media/sf_c/Users/jim/Desktop/Project_git/FishData/ )
 
 # Update documentation
-#devtools::document( "C:/Users/James.Thorson/Desktop/Project_git/FishData/" )
+#devtools::document( "C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/" )

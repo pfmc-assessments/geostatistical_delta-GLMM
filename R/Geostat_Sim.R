@@ -1,7 +1,7 @@
 
 #' @export
 Geostat_Sim <-
-function(Sim_Settings, Extrapolation_List, MakePlot=TRUE){
+function(Sim_Settings, Extrapolation_List, MakePlot=TRUE, DateFile=paste0(getwd(),"/") ){
   # Terminology
   # O: Spatial component; E: spatiotemporal component
   # O1: presence-absence; O2: positive catch rate

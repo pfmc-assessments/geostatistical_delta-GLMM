@@ -63,6 +63,8 @@ Data_Fn(Version, FieldConfig, ObsModel = 2, b_i, a_i, s_i, t_i, a_xl,
 \item{Options}{OPTIONAL, a vector of form c('SD_site_density'=0,'SD_site_logdensity'=0,'Calculate_Range'=0,'Calculate_evenness'=0,'Calculate_effective_area'=0), where Calculate_Range=1 turns on calculation of center of gravity, and Calculate_effective_area=1 turns on calculation of effective area occupied}
 
 \item{CheckForErrors}{OPTIONAL, whether to check for errors in input (NOTE: when CheckForErrors=TRUE, the function will throw an error if it detects a problem with inputs.  However, failing to throw an error is no guaruntee that the inputs are all correct)}
+
+\item{Alpha}{order of SPDE mesh (default = 2, alternative = 1)}
 }
 \value{
 Tagged list containing inputs to function Build_TMB_Fn()

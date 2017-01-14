@@ -7,13 +7,13 @@
 bilinear_interp(xyz1, xyz2, xyz3, xypred)
 }
 \arguments{
+\item{xyz1,}{2D location and height of first neighbor}
+
+\item{xyz2,}{2D location and height of second neighbor}
+
+\item{xyz3,}{2D location and height of third neighbor}
+
 \item{xypred,}{2D location of location to interpolate}
-
-\item{xy1,}{2D location and height of first neighbor}
-
-\item{xy2,}{2D location and height of second neighbor}
-
-\item{xy3,}{2D location and height of third neighbor}
 }
 \value{
 Tagged list of useful output

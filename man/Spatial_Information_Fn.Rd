@@ -4,11 +4,11 @@
 \alias{Spatial_Information_Fn}
 \title{Build objects related to spatial information}
 \usage{
-Spatial_Information_Fn(Method = "Mesh", Lon, Lat, Extrapolation_List,
-  grid_size_km = 50, grid_size_LL = 1, n_x, ...)
+Spatial_Information_Fn(n_x, Lon, Lat, Extrapolation_List, Method = "Mesh",
+  grid_size_km = 50, grid_size_LL = 1, ...)
 }
 \arguments{
-\item{Method,}{a character of either "Grid" or "Mesh" where "Grid" is a 2D AR1 process, and "Mesh" is the SPDE method with geometric anisotropy}
+\item{n_x,}{the number of vertices in the SPDE mesh (determines the spatial resolution when Method="Mesh")}
 
 \item{Lon,}{Longitude for each sample}
 
@@ -16,11 +16,11 @@ Spatial_Information_Fn(Method = "Mesh", Lon, Lat, Extrapolation_List,
 
 \item{Extrapolation_List,}{the output from \code{Prepare_Extrapolation_Data_Fn}}
 
+\item{Method,}{a character of either "Grid" or "Mesh" where "Grid" is a 2D AR1 process, and "Mesh" is the SPDE method with geometric anisotropy}
+
 \item{grid_size_km,}{the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid") when not using \code{Method="Spherical_mesh"}}
 
 \item{grid_size_LL,}{the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid") when using \code{Method="Spherical_mesh"}}
-
-\item{n_x,}{the number of vertices in the SPDE mesh (determines the spatial resolution when Method="Mesh")}
 
 \item{...,}{additional arguments passed to \code{Calc_Kmeans}}
 }
