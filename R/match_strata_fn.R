@@ -1,3 +1,4 @@
+#' @export
 match_strata_fn <- function(x, strata_dataframe) {
   # Default all strata
   match_latitude_TF = match_longitude_TF = match_depth_TF = rep( TRUE, nrow(strata_dataframe))

@@ -22,7 +22,6 @@ Data_Fn(Version, FieldConfig, ObsModel = 2, b_i, a_i, s_i, t_i, a_xl,
   \item{ObsModel=0}{Normal}
   \item{ObsModel=1}{Lognormal}
   \item{ObsModel=2}{Gamma}
-  \item{ObsModel=3}{A tagged list of parameter starting values used when building Obj, which can be extracted, modified, and then put back into \code{Build_TMB_Fn} to define different starting values}
   \item{ObsModel=11}{Mixture lognormal}
   \item{ObsModel=12}{Mixture gamma}
   \item{ObsModel=4}{Zero-adjusted negative binomial}
