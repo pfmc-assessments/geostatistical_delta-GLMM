@@ -50,7 +50,7 @@ function( Version, TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), CovConfig
   if(TmbData[["ObsModel"]]%in%c(4,5)){
     Map[["logSigmaM"]] = factor( c(1,NA,2,NA) )
   }
-  if(TmbData[["ObsModel"]]%in%c(6)){
+  if(TmbData[["ObsModel"]]%in%c(6,7)){
     Map[["logSigmaM"]] = factor( c(NA,NA,NA,NA) )
   }
   # Anisotropy

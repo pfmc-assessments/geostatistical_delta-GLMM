@@ -24,6 +24,6 @@ test_that("Chatham Rise hake is working ", {
   on.exit( dyn.unload(paste0(test_path,"/",TMB::dynlib(Record$Version))), add=TRUE )
   Opt = TMBhelper::Optimize( obj=TmbList[["Obj"]], getsd=FALSE, lower=TmbList[["Lower"]], upper=TmbList[["Upper"]] )  # , rel.tol=1e-20
   # Comparisons
-  expect_equal( Opt$par, opt$par, tolerance=1e-3 )
-  expect_equal( Opt$objective, opt$objective, tolerance=1e-3 )
+  expect_equal( Opt$par, opt$par, tolerance=1e-2 )
+  expect_equal( Opt$objective, opt$objective, tolerance=1e-2 )
 })

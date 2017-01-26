@@ -22,44 +22,44 @@ Prepare_Extrapolation_Data_Fn = function( Region, strata.limits, observations_LL
 
   Extrapolation_List = NULL
   if( tolower(Region) == "california_current" ){
-    Extrapolation_List = SpatialDeltaGLMM:::Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_WCGBTS_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
   if( tolower(Region) %in% c("wcghl","wcghl_domain") ){
-    Extrapolation_List = SpatialDeltaGLMM:::Prepare_WCGHL_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_WCGHL_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }                      #
   if( tolower(Region) == "british_columbia" ){
-    Extrapolation_List = SpatialDeltaGLMM:::Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_BC_Coast_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
   if( tolower(Region) == "eastern_bering_sea" ){ #
-    Extrapolation_List = SpatialDeltaGLMM:::Prepare_EBS_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_EBS_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
   if( tolower(Region) == "aleutian_islands" ){ #
-    Extrapolation_List = SpatialDeltaGLMM:::Prepare_AI_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_AI_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
   if( tolower(Region) == "gulf_of_alaska" ){
-    Extrapolation_List = SpatialDeltaGLMM:::Prepare_GOA_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_GOA_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
   if( tolower(Region) == "northwest_atlantic" ){
-    Extrapolation_List = SpatialDeltaGLMM:::Prepare_NWA_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_NWA_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
   if( tolower(Region) == "south_africa" ){
-    Extrapolation_List = SpatialDeltaGLMM:::Prepare_SA_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_SA_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
   if( tolower(Region) == "gulf_of_st_lawrence" ){
-    Extrapolation_List = SpatialDeltaGLMM:::Prepare_GSL_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_GSL_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
   if( tolower(Region) == "new_zealand" ){
-    Extrapolation_List = SpatialDeltaGLMM:::Prepare_NZ_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_NZ_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
   if( tolower(Region) == "habcam" ){  #
-    Extrapolation_List = SpatialDeltaGLMM:::Prepare_HabCam_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_HabCam_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
   if( tolower(Region) == "gulf_of_mexico" ){
-    Extrapolation_List = SpatialDeltaGLMM:::Prepare_GOM_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_GOM_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
   }
   if( is.null(Extrapolation_List) ){
     if( is.null(observations_LL)) message("Because you're using a new region, please provide 'observations_LL' input")
-    Extrapolation_List = SpatialDeltaGLMM:::Prepare_Other_Extrapolation_Data_Fn( strata.limits=strata.limits, observations_LL=observations_LL, ... )
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_Other_Extrapolation_Data_Fn( strata.limits=strata.limits, observations_LL=observations_LL, ... )
   }
 
   # Return

@@ -18,7 +18,7 @@ function( strata.limits=NULL, region=c("south_coast","west_coast"), zone=NA, ...
   Tmp = cbind("BEST_DEPTH_M"=0, "BEST_LAT_DD"=Data_Extrap[,'cen_lat'], "BEST_LON_DD"=Data_Extrap[,'cen_long'])
   a_el = as.data.frame(matrix(NA, nrow=nrow(Data_Extrap), ncol=length(strata.limits), dimnames=list(NULL,names(strata.limits))))
   for(l in 1:ncol(a_el)){
-    a_el[,l] = apply(Tmp, MARGIN=1, FUN=SpatialDeltaGLMM:::match_strata_fn, strata_dataframe=strata.limits[l,,drop=FALSE])
+    a_el[,l] = apply(Tmp, MARGIN=1, FUN=SpatialDeltaGLMM::match_strata_fn, strata_dataframe=strata.limits[l,,drop=FALSE])
     a_el[,l] = ifelse( is.na(a_el[,l]), 0, Area_km2_x)
   }
 

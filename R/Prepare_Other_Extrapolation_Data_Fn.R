@@ -73,7 +73,7 @@ function( strata.limits, observations_LL, grid_dim_km=c(2,2), maximum_distance_f
   Tmp = cbind("BEST_DEPTH_M"=0, "BEST_LAT_DD"=Data_Extrap[,'Lat'], "BEST_LON_DD"=Data_Extrap[,'Lon'])
   a_el = as.data.frame(matrix(NA, nrow=nrow(Data_Extrap), ncol=nrow(strata.limits), dimnames=list(NULL,strata.limits[,'STRATA'])))
   for(l in 1:ncol(a_el)){
-    a_el[,l] = apply(Tmp, MARGIN=1, FUN=SpatialDeltaGLMM:::match_strata_fn, strata_dataframe=strata.limits[l,,drop=FALSE])
+    a_el[,l] = apply(Tmp, MARGIN=1, FUN=SpatialDeltaGLMM::match_strata_fn, strata_dataframe=strata.limits[l,,drop=FALSE])
     a_el[,l] = ifelse( is.na(a_el[,l]), 0, Area_km2_x)
   }
 

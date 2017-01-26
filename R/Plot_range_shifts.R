@@ -30,18 +30,18 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
   category_names=NULL, interval_width=1, ...){
 
   # Which parameters
-  if( "ln_Index_tl" %in% rownames(TMB:::summary.sdreport(Sdreport)) ){
+  if( "ln_Index_tl" %in% rownames(TMB::summary.sdreport(Sdreport)) ){
     # SpatialDeltaGLMM
     CogName = "mean_Z_tm"
     EffectiveName = "effective_area_tl"
     TmbData[['n_c']] = 1
   }
-  if( "ln_Index_ctl" %in% rownames(TMB:::summary.sdreport(Sdreport)) ){
+  if( "ln_Index_ctl" %in% rownames(TMB::summary.sdreport(Sdreport)) ){
     # VAST Version < 2.0.0
     CogName = "mean_Z_ctm"
     EffectiveName = "effective_area_ctl"
   }
-  if( "ln_Index_cyl" %in% rownames(TMB:::summary.sdreport(Sdreport)) ){
+  if( "ln_Index_cyl" %in% rownames(TMB::summary.sdreport(Sdreport)) ){
     # VAST Version >= 2.0.0
     CogName = "mean_Z_cym"
     EffectiveName = "effective_area_cyl"
@@ -60,12 +60,12 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
     message( "Plotting center-of-gravity..." )
 
     # Extract index
-    SD = TMB:::summary.sdreport(Sdreport)
+    SD = TMB::summary.sdreport(Sdreport)
     if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
       message("Using bias-corrected estimates for center of gravity...")
-      SD_mean_Z_ctm = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==CogName)],TMB:::summary.sdreport(Sdreport)[which(rownames(TMB:::summary.sdreport(Sdreport))==CogName),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_m')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      SD_mean_Z_ctm = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==CogName)],TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==CogName),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_m')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
     }else{
-      SD_mean_Z_ctm = array( TMB:::summary.sdreport(Sdreport)[which(rownames(TMB:::summary.sdreport(Sdreport))==CogName),], dim=c(unlist(TmbData[c('n_c','n_t','n_m')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      SD_mean_Z_ctm = array( TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==CogName),], dim=c(unlist(TmbData[c('n_c','n_t','n_m')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
     }
     # Extract estimates
     #SD_log_area_Z_tmm = array(SD[which(rownames(SD)=="log_area_Z_tmm"),], dim=c(dim(Report$area_Z_tmm),2))
@@ -77,7 +77,7 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
       for( mI in 1:dim(SD_mean_Z_ctm)[[3]]){
         Ybounds = (SD_mean_Z_ctm[cI,,mI,'Estimate']%o%rep(interval_width,2) + SD_mean_Z_ctm[cI,,mI,'Std. Error']%o%c(-interval_width,interval_width))
         Ylim = range(Ybounds,na.rm=TRUE)
-        SpatialDeltaGLMM:::Plot_Points_and_Bounds_Fn(x=Year_Set, y=SD_mean_Z_ctm[cI,,mI,'Estimate'], ybounds=Ybounds, col_bounds=rgb(1,0,0,0.2), fn=plot, type="l", lwd=2, col="red", bounds_type="shading", ylim=Ylim, xlab="", ylab="", main="")
+        SpatialDeltaGLMM::Plot_Points_and_Bounds_Fn(x=Year_Set, y=SD_mean_Z_ctm[cI,,mI,'Estimate'], ybounds=Ybounds, col_bounds=rgb(1,0,0,0.2), fn=plot, type="l", lwd=2, col="red", bounds_type="shading", ylim=Ylim, xlab="", ylab="", main="")
         if( cI==1 ) mtext(side=3, text=Znames[mI], outer=FALSE )
         if( mI==dim(SD_mean_Z_ctm)[[3]] & TmbData$n_c>1 ) mtext(side=4, text=category_names[cI], outer=FALSE, line=0.5)
       }}
@@ -97,7 +97,7 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
     #KernelArea_Table = cbind("Year"=Year_Set, "KernelArea"=SD_log_area_Z_tmm[,2,1,1], "SE"=SD_log_area_Z_tmm[,2,1,2])
     #png( file=FileName_Area, width=4, height=4, res=200, units="in")
     #  par( mfrow=c(1,1), mar=c(3,3,2,0), mgp=c(1.75,0.25,0), tck=-0.02, oma=c(0,0,0,0))
-    #  SpatialDeltaGLMM:::Plot_Points_and_Bounds_Fn( x=Year_Set, y=SD_log_area_Z_tmm[,2,1,1], ybounds=SD_log_area_Z_tmm[,2,1,1]%o%rep(1,2)+SD_log_area_Z_tmm[,2,1,2]%o%c(-1,1), fn=plot, bounds_type="shading", col_bounds=rgb(1,0,0,0.2), col="red", lwd=2, xlab="Year", ylab="ln(km^2)", type="l", main="Kernel approximation to area occupied")
+    #  SpatialDeltaGLMM::Plot_Points_and_Bounds_Fn( x=Year_Set, y=SD_log_area_Z_tmm[,2,1,1], ybounds=SD_log_area_Z_tmm[,2,1,1]%o%rep(1,2)+SD_log_area_Z_tmm[,2,1,2]%o%c(-1,1), fn=plot, bounds_type="shading", col_bounds=rgb(1,0,0,0.2), col="red", lwd=2, xlab="Year", ylab="ln(km^2)", type="l", main="Kernel approximation to area occupied")
     #dev.off()
 
     # Return stuff
@@ -112,14 +112,14 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
     message( "Plotting effective area occupied..." )
 
     # Extract estimates
-    SD = TMB:::summary.sdreport(Sdreport)
+    SD = TMB::summary.sdreport(Sdreport)
     if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
       message("Using bias-corrected estimates for effective area...")
-      SD_effective_area_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==EffectiveName)],TMB:::summary.sdreport(Sdreport)[which(rownames(TMB:::summary.sdreport(Sdreport))==EffectiveName),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
-      SD_log_effective_area_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==paste0("log_",EffectiveName))],TMB:::summary.sdreport(Sdreport)[which(rownames(TMB:::summary.sdreport(Sdreport))==paste0("log_",EffectiveName)),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      SD_effective_area_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==EffectiveName)],TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==EffectiveName),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      SD_log_effective_area_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==paste0("log_",EffectiveName))],TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==paste0("log_",EffectiveName)),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
     }else{
-      SD_effective_area_ctl = array( TMB:::summary.sdreport(Sdreport)[which(rownames(TMB:::summary.sdreport(Sdreport))==EffectiveName),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
-      SD_log_effective_area_ctl = array( TMB:::summary.sdreport(Sdreport)[which(rownames(TMB:::summary.sdreport(Sdreport))==paste0("log_",EffectiveName)),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      SD_effective_area_ctl = array( TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==EffectiveName),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      SD_log_effective_area_ctl = array( TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==paste0("log_",EffectiveName)),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
     }
 
     # Plot area
@@ -127,7 +127,7 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
       par( mfrow=c(1,1), mar=c(2,2,1,0), mgp=c(1.75,0.25,0), tck=-0.02, oma=c(1,1,1,0), mfrow=c(ceiling(sqrt(TmbData$n_c)),ceiling(TmbData$n_c/ceiling(sqrt(TmbData$n_c)))))
       for( cI in 1:TmbData$n_c ){
         Ybounds = SD_log_effective_area_ctl[cI,,1,1]%o%rep(interval_width,2) + SD_log_effective_area_ctl[cI,,1,2]%o%c(-interval_width,interval_width)
-        SpatialDeltaGLMM:::Plot_Points_and_Bounds_Fn( x=Year_Set, y=SD_log_effective_area_ctl[cI,,1,1], ybounds=Ybounds, fn=plot, bounds_type="shading", col_bounds=rgb(1,0,0,0.2), col="red", lwd=2, xlab="", ylab="", type="l", main=category_names[cI])
+        SpatialDeltaGLMM::Plot_Points_and_Bounds_Fn( x=Year_Set, y=SD_log_effective_area_ctl[cI,,1,1], ybounds=Ybounds, fn=plot, bounds_type="shading", col_bounds=rgb(1,0,0,0.2), col="red", lwd=2, xlab="", ylab="", type="l", main=category_names[cI])
       }
       mtext( side=1:3, text=c("Year","ln(km^2)","Effective area occupied"), outer=TRUE, line=c(0,0,0) )
     dev.off()
