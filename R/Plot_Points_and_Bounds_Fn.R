@@ -1,4 +1,5 @@
 
+#' @export
 Plot_Points_and_Bounds_Fn = function( x, y, ybounds, fn=lines, col_bounds="black", bounds_type="whiskers", border=NA, border_lty="solid", ... ){
   fn( y=y, x=x, ... )
   if( bounds_type=="whiskers" ){
