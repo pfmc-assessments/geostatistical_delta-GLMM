@@ -39,9 +39,9 @@ plot_residuals = function( Lat_i, Lon_i, TmbData, Report, Q, savedir=getwd(),
   ##################
 
   # Extract binomial stuff for encounter-nonencounter data
-  exp_rate_xt = tapply( Report$R1_i, INDEX=list(TmbData$s_i,TmbData$t_i), FUN=mean )
-  obs_rate_xt = tapply( TmbData$b_i>0, INDEX=list(TmbData$s_i,TmbData$t_i), FUN=mean )
-  total_num_xt = tapply( TmbData$b_i>0, INDEX=list(TmbData$s_i,TmbData$t_i), FUN=length )
+  exp_rate_xt = tapply( Report$R1_i, INDEX=list(TmbData$s_i,factor(TmbData$t_i,levels=1:TmbData$n_t-1)), FUN=mean )
+  obs_rate_xt = tapply( TmbData$b_i>0, INDEX=list(TmbData$s_i,factor(TmbData$t_i,levels=1:TmbData$n_t-1)), FUN=mean )
+  total_num_xt = tapply( TmbData$b_i>0, INDEX=list(TmbData$s_i,factor(TmbData$t_i,levels=1:TmbData$n_t-1)), FUN=length )
   exp_num_xt = exp_rate_xt * total_num_xt
   obs_num_xt = obs_rate_xt * total_num_xt
 
@@ -79,9 +79,9 @@ plot_residuals = function( Lat_i, Lon_i, TmbData, Report, Q, savedir=getwd(),
   #Q2_xt = tapply( Q_i, INDEX=list(TmbData$s_i[which(TmbData$b_i>0)],TmbData$t_i[which(TmbData$b_i>0)]), FUN=mean )
 
   ### Method #3 -- Pearson residuals
-  sum_obs_xt = tapply( TmbData$b_i[which_pos], INDEX=list(factor(TmbData$s_i[which_pos],levels=1:TmbData$n_x-1),TmbData$t_i[which_pos]), FUN=sum )
-  sum_exp_xt = tapply( pred_y, INDEX=list(factor(TmbData$s_i[which_pos],levels=1:TmbData$n_x-1),TmbData$t_i[which_pos]), FUN=sum )
-  var_exp_xt = tapply( var_y, INDEX=list(factor(TmbData$s_i[which_pos],levels=1:TmbData$n_x-1),TmbData$t_i[which_pos]), FUN=sum )
+  sum_obs_xt = tapply( TmbData$b_i[which_pos], INDEX=list(factor(TmbData$s_i[which_pos],levels=1:TmbData$n_x-1),factor(TmbData$t_i,levels=1:TmbData$n_t-1)[which_pos]), FUN=sum )
+  sum_exp_xt = tapply( pred_y, INDEX=list(factor(TmbData$s_i[which_pos],levels=1:TmbData$n_x-1),factor(TmbData$t_i,levels=1:TmbData$n_t-1)[which_pos]), FUN=sum )
+  var_exp_xt = tapply( var_y, INDEX=list(factor(TmbData$s_i[which_pos],levels=1:TmbData$n_x-1),factor(TmbData$t_i,levels=1:TmbData$n_t-1)[which_pos]), FUN=sum )
   Q2_xt = (sum_obs_xt - sum_exp_xt) / sqrt(var_exp_xt)
 
   #################
