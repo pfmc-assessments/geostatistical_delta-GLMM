@@ -14,21 +14,22 @@ function(TmbData, Report, FileName_PP=NULL, FileName_Phist=NULL, FileName_QQ=NUL
     # mean(u.nz[,2])
     for(ObsI in 1:length(Which)){
       pred_y[ObsI] = (Report$R2_i[Which[ObsI]]*TmbData$a_i[Which[ObsI]])
-      if(TmbData$ObsModel==1){     
+      if( !(TmbData$ObsModel[1] %in% c(1,2,11,12)) ) stop("QQ not working except for when TmbData$ObsModel[1] is 1, 2, 11, or 12")
+      if(TmbData$ObsModel[1]==1){
         y[ObsI,] = rlnorm(n=ncol(y), meanlog=log(pred_y[ObsI])-pow(Report$SigmaM[1],2)/2, sdlog=Report$SigmaM[1])   # Plotting in log-space
         Q[ObsI] = plnorm(q=TmbData$b_i[Which[ObsI]], meanlog=log(pred_y[ObsI])-pow(Report$SigmaM[1],2)/2, sdlog=Report$SigmaM[1])
       }
-      if(TmbData$ObsModel==2){     
+      if(TmbData$ObsModel[1]==2){
         b = pow(Report$SigmaM[1],2) * pred_y[ObsI];
         y[ObsI,] = rgamma(n=ncol(y), shape=1/pow(Report$SigmaM[1],2), scale=b)
         Q[ObsI] = pgamma(q=TmbData$b_i[Which[ObsI]], shape=1/pow(Report$SigmaM[1],2), scale=b)
       }
-      if(TmbData$ObsModel==11){     
+      if(TmbData$ObsModel[1]==11){
         ECE = rbinom(n=1000, size=1, prob=1-Report$SigmaM[2])
         y[ObsI,] = rlnorm(n=ncol(y), meanlog=log(pred_y[ObsI])-pow(Report$SigmaM[1],2)/2, sdlog=Report$SigmaM[1])*(1-ECE) + rlnorm(n=ncol(y), meanlog=log(pred_y[ObsI])-pow(Report$SigmaM[4],2)/2+log(1+Report$SigmaM[3]), sdlog=Report$SigmaM[4])*ECE
         Q[ObsI] = plnorm(q=TmbData$b_i[Which[ObsI]], meanlog=log(pred_y[ObsI])-pow(Report$SigmaM[1],2)/2, sdlog=Report$SigmaM[1])*Report$SigmaM[2] + plnorm(q=TmbData$b_i[Which[ObsI]], meanlog=log(pred_y[ObsI])-pow(Report$SigmaM[4],2)/2+log(1+Report$SigmaM[3]), sdlog=Report$SigmaM[4])*(1-Report$SigmaM[2])
       }
-      if(TmbData$ObsModel==12){     
+      if(TmbData$ObsModel[1]==12){
         b = pow(Report$SigmaM[1],2) * pred_y[ObsI];
         b2 = pow(Report$SigmaM[4],2) * pred_y[ObsI] * (1+Report$SigmaM[3]);
         ECE = rbinom(n=ncol(y), size=1, prob=1-Report$SigmaM[2])
