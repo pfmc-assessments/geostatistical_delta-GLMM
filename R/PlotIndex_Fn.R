@@ -59,6 +59,13 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
   if( is.null(strata_names) ) strata_names = 1:TmbData$n_l
   if( is.null(category_names) ) category_names = 1:TmbData$n_c
 
+  # Logical check
+  if( "unbiased"%in%names(Sdreport) ){
+    if( all(is.na(Sdreport$unbiased$value)) ){
+      stop("You appear to be using bias-correction, but all values are NA. Please report problem to package author."
+    }
+  }
+
   # Extract index
   if( ParName %in% c("Index_tl","Index_ctl","Index_cyl")){
     if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
