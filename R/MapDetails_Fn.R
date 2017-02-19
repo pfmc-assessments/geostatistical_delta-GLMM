@@ -43,7 +43,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
     Ylim=c(51,55)
     #MapSizeRatio = c("Height(in)"=2,"Width(in)"=5)
     Rotate = 0
-    Cex = 0.01
+    Cex = 0.2
     Legend = list(use=FALSE,x=c(10,30),y=c(10,30))
   }
   if( Region == "Gulf_of_Alaska" ){
@@ -138,7 +138,7 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
   }else{
     MapSizeRatio = c("Height(in)"=diff(range(Extrapolation_List$Data_Extrap[,'Lat'])) , "Width(in)"=diff(range(Extrapolation_List$Data_Extrap[,'Lon'])) )
   }
-  MapSizeRatio = MapSizeRatio / sqrt(prod(MapSizeRatio)) * 4  # 14 square-inches
+  MapSizeRatio = MapSizeRatio / sqrt(prod(MapSizeRatio)) * 4  # 4 square-inches
 
   # bundle and return
   mapdetails_list = list("PlotDF"=PlotDF, "MappingDetails"=MappingDetails, "Xlim"=Xlim, "Ylim"=Ylim, "MapSizeRatio"=MapSizeRatio, "Rotate"=Rotate, "Cex"=Cex, "Legend"=Legend, "Zone"=Zone )
