@@ -92,7 +92,7 @@ function(plot_set=3, MappingDetails, Report, Sdreport=NULL, Nknots=Inf, PlotDF, 
 
   # Select locations to plot
   if( Nknots<Inf ){
-    NN_plot = RANN::kmeans(x=PlotDF[,c("Lon","Lat")], centers=Nknots, iter.max=50, nstart=2, trace=0)
+    NN_plot = stats::kmeans(x=PlotDF[,c("Lon","Lat")], centers=Nknots, iter.max=50, nstart=2, trace=0)
     Match = match( 1:Nknots, NN_plot$cluster)
     PlotDF = PlotDF[Match,]
     message( "Restricted plotting locations to ", Nknots, " locations" )

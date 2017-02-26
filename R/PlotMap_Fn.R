@@ -93,7 +93,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=
             if( var(sign(TmpLL[indx,'Y']))==0 ){
               polygon(x=tmpUTM_rotated@coords[indx,'x'], y=tmpUTM_rotated@coords[indx,'y'], col=land_color)
             }else{
-              warning( "Skipping map polygons that straddle equation, because PBSmapping::convUL doesn't work for these cases" )
+              warning( "Skipping map polygons that straddle equator, because PBSmapping::convUL doesn't work for these cases" )
             }
           }
         }
