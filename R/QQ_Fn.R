@@ -8,13 +8,26 @@ function(TmbData, Report, FileName_PP=NULL, FileName_Phist=NULL, FileName_QQ=NUL
   pred_y = var_y = rep(NA, length(Which) ) # vector to track quantiles for each observation
 
   # Make plot while calculating posterior predictives
-  if( !is.null(FileName_PP) ) jpeg(FileName_PP,width=10,height=3,res=200,units="in")
+  if( !is.null(FileName_PP) ) jpeg(FileName_PP, width=10, height=3, res=200, units="in")
     par(mar=c(2,2,2,0), mgp=c(1.25,0.25,0), tck=-0.02)
     plot( TmbData$b_i[Which], ylab="", xlab="",log="y", main="", col="blue")
-    # mean(u.nz[,2])
+    # Loop through observations
     for(ObsI in 1:length(Which)){
-      pred_y[ObsI] = (Report$R2_i[Which[ObsI]]*TmbData$a_i[Which[ObsI]])
+      # Calculate pred_y
+        # I can't use R2_i anymore because interpretation changed around March 9, 2017 (due to area-swept change in Poisson-process and Tweedie functions)
+        # However, I CAN use P2_i, which has a stable definition over time (as a linear predictor)
+      if( length(TmbData$ObsModel)==1 || TmbData$ObsModel[2]==0 ){
+        pred_y[ObsI] = TmbData$a_i[Which[ObsI]] * exp(Report$P2_i[Which[ObsI]])
+      }
+      if( length(TmbData$ObsModel)>=2 || TmbData$ObsModel[2]==1 ){
+        R1_i = 1 - exp( -1 * Report$SigmaM[TmbData$c_i[Which[ObsI]],3] * exp(Report$P1_i[Which[ObsI]]) )
+        pred_y[ObsI] = exp(Report$P1_i[Which[ObsI]]) / R1_i * exp(Report$P2_i[Which[ObsI]]);
+      }
+      if( length(TmbData$ObsModel)>=2 || TmbData$ObsModel[2]==2 ){
+        pred_y[ObsI] = TmbData$a_i[Which[ObsI]] * exp(Report$P2_i[Which[ObsI]])
+      }
       if( !(TmbData$ObsModel[1] %in% c(1,2,11,12)) ) stop("QQ not working except for when TmbData$ObsModel[1] is 1, 2, 11, or 12")
+      # Simulate quantiles for different distributions
       if(TmbData$ObsModel[1]==1){
         y[ObsI,] = rlnorm(n=ncol(y), meanlog=log(pred_y[ObsI])-pow(Report$SigmaM[1],2)/2, sdlog=Report$SigmaM[1])   # Plotting in log-space
         Q[ObsI] = plnorm(q=TmbData$b_i[Which[ObsI]], meanlog=log(pred_y[ObsI])-pow(Report$SigmaM[1],2)/2, sdlog=Report$SigmaM[1])
@@ -36,7 +49,7 @@ function(TmbData, Report, FileName_PP=NULL, FileName_Phist=NULL, FileName_QQ=NUL
         y[ObsI,] = rgamma(n=ncol(y), shape=1/pow(Report$SigmaM[1],2), scale=b)*(1-ECE) + rgamma(n=ncol(y), shape=1/pow(Report$SigmaM[4],2), scale=b2)*ECE
         Q[ObsI] = pgamma(q=TmbData$b_i[Which[ObsI]], shape=1/pow(Report$SigmaM[1],2), scale=b)*Report$SigmaM[2] + pgamma(q=TmbData$b_i[Which[ObsI]], shape=1/pow(Report$SigmaM[4],2), scale=b2)*(1-Report$SigmaM[2])
       }
-      #Q[ObsI] = mean(y[ObsI,] > TmbData$b_i[Which[ObsI]])
+      # Add results to plot
       var_y[ObsI] = var( y[ObsI,] )
       Quantiles = quantile(y[ObsI,],prob=c(0.025,0.25,0.75,0.975))
       lines(x=c(ObsI,ObsI), y=Quantiles[2:3], lwd=2)
@@ -48,7 +61,7 @@ function(TmbData, Report, FileName_PP=NULL, FileName_Phist=NULL, FileName_QQ=NUL
   if( !is.null(FileName_PP) ) dev.off()
   
   # Q-Q plot
-  if( !is.null(FileName_QQ) ) jpeg(FileName_QQ,width=4,height=4,res=200,units="in")
+  if( !is.null(FileName_QQ) ) jpeg(FileName_QQ, width=4, height=4, res=200, units="in")
     par(mfrow=c(1,1), mar=c(2,2,2,0), mgp=c(1.25,0.25,0), tck=-0.02)
     Qtemp = na.omit(Q)
     Order = order(Qtemp)
@@ -57,13 +70,13 @@ function(TmbData, Report, FileName_PP=NULL, FileName_Phist=NULL, FileName_QQ=NUL
   if( !is.null(FileName_QQ) ) dev.off()
   
   # Aggregate predictive distribution
-  if( !is.null(FileName_Phist) ) jpeg(FileName_Phist,width=4,height=4,res=200,units="in")
+  if( !is.null(FileName_Phist) ) jpeg(FileName_Phist, width=4, height=4, res=200, units="in")
     par(mfrow=c(1,1), mar=c(2,2,2,0), mgp=c(1.25,0.25,0), tck=-0.02)
     hist( log(y), main="Aggregate predictive dist.", xlab="log(Obs)", ylab="Density")
   if( !is.null(FileName_Phist) ) dev.off()
   
   # Quantile histogram
-  if( !is.null(FileName_Qhist) ) jpeg(FileName_Qhist,width=4,height=4,res=200,units="in")
+  if( !is.null(FileName_Qhist) ) jpeg(FileName_Qhist, width=4, height=4, res=200, units="in")
     par(mfrow=c(1,1), mar=c(2,2,2,0), mgp=c(1.25,0.25,0), tck=-0.02)
     hist(na.omit(Q), main="Quantile_histogram", xlab="Quantile", ylab="Number")
   if( !is.null(FileName_Qhist) ) dev.off()
