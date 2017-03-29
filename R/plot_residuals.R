@@ -92,8 +92,9 @@ plot_residuals = function( Lat_i, Lon_i, TmbData, Report, Q, savedir=getwd(),
   textmargin = "Pearson residual"
   for( zI in 1:2 ){
     Q_xt = list( Q1_xt, Q2_xt )[[zI]]
-    Q_xt = ifelse( abs(Q_xt)>3, 3*sign(Q_xt), Q_xt )
-    PlotMap_Fn( MappingDetails=MappingDetails, Mat=Q_xt[,Years2Include], PlotDF=PlotDF, Col=Col, zlim=c(-3,3), ignore.na=TRUE, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(savedir,"/",c("maps--encounter_pearson_resid","maps--catchrate_pearson_resid")[zI]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin, add=add, pch=pch, Legend=Legend, mfrow=mfrow, plot_legend_fig=plot_legend_fig, ...)
+    zlim = c(-1,1) * ceiling(max(abs(Q_xt),na.rm=TRUE))
+    #Q_xt = ifelse( abs(Q_xt)>3, 3*sign(Q_xt), Q_xt )
+    SpatialDeltaGLMM:::PlotMap_Fn( MappingDetails=MappingDetails, Mat=Q_xt[,Years2Include], PlotDF=PlotDF, Col=Col, zlim=zlim, ignore.na=TRUE, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(savedir,"/",c("maps--encounter_pearson_resid","maps--catchrate_pearson_resid")[zI]), Year_Set=Year_Set[Years2Include], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin, add=add, pch=pch, Legend=Legend, mfrow=mfrow, plot_legend_fig=plot_legend_fig, ...)
   }
 
   #################

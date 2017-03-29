@@ -1,6 +1,7 @@
 #' @export
 QQ_Fn <-
 function(TmbData, Report, FileName_PP=NULL, FileName_Phist=NULL, FileName_QQ=NULL, FileName_Qhist=NULL){
+
   pow = function(a,b) a^b
   Which = which(TmbData$b_i>0)
   Q = rep(NA, length(Which) ) # vector to track quantiles for each observation
@@ -19,11 +20,11 @@ function(TmbData, Report, FileName_PP=NULL, FileName_Phist=NULL, FileName_QQ=NUL
       if( length(TmbData$ObsModel)==1 || TmbData$ObsModel[2]==0 ){
         pred_y[ObsI] = TmbData$a_i[Which[ObsI]] * exp(Report$P2_i[Which[ObsI]])
       }
-      if( length(TmbData$ObsModel)>=2 || TmbData$ObsModel[2]==1 ){
-        R1_i = 1 - exp( -1 * Report$SigmaM[TmbData$c_i[Which[ObsI]],3] * exp(Report$P1_i[Which[ObsI]]) )
-        pred_y[ObsI] = exp(Report$P1_i[Which[ObsI]]) / R1_i * exp(Report$P2_i[Which[ObsI]]);
+      if( length(TmbData$ObsModel)>=2 && TmbData$ObsModel[2]==1 ){
+        R1_i = 1 - exp( -1 * Report$SigmaM[TmbData$c_i[Which[ObsI]]+1,3] * TmbData$a_i[Which[ObsI]] * exp(Report$P1_i[Which[ObsI]]) )
+        pred_y[ObsI] = TmbData$a_i[Which[ObsI]] * exp(Report$P1_i[Which[ObsI]]) / R1_i * exp(Report$P2_i[Which[ObsI]]);
       }
-      if( length(TmbData$ObsModel)>=2 || TmbData$ObsModel[2]==2 ){
+      if( length(TmbData$ObsModel)>=2 && TmbData$ObsModel[2]==2 ){
         pred_y[ObsI] = TmbData$a_i[Which[ObsI]] * exp(Report$P2_i[Which[ObsI]])
       }
       if( !(TmbData$ObsModel[1] %in% c(1,2,11,12)) ) stop("QQ not working except for when TmbData$ObsModel[1] is 1, 2, 11, or 12")
