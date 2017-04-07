@@ -13,7 +13,7 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
   # Specify default values
   Settings = list("beta1_mean"=0, "beta2_mean"=0, "beta1_slope"=0, "beta2_slope"=0, "beta1_sd"=0, "beta2_sd"=0, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=0,
     "Depth_km2"=0, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.1, "SigmaE2"=0.1, "SigmaV1"=0, "SigmaV2"=0, "SigmaVY1"=0, "SigmaVY2"=0,
-    "Range1"=1000, "Range2"=500, "SigmaM"=1, "ObsModel"=ObsModel)
+    "Range1"=1000, "Range2"=500, "SigmaM"=1, "ObsModel"=c(2,0) )
   # Replace defaults with provided values (if any)
   for( i in 1:length(Sim_Settings)){
     if(names(Sim_Settings)[i] %in% names(Settings)){
@@ -31,7 +31,7 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
   # Local functions
   RFsim = function(model, x, y, standardize=TRUE){
     vec = RandomFields::RFsimulate(model=model, x=x, y=y)@data[,1]
-    if(standardize==TRUE) vec = (vec - mean(vec)) / sd(vec) * sqrt(model_O1@par.general$var)
+    if(standardize==TRUE) vec = (vec - mean(vec)) / sd(vec) * sqrt(model@par.general$var)
     return(vec)
   }
 
