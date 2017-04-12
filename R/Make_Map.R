@@ -1,3 +1,4 @@
+#' @export
 Make_Map <-
 function( Version, TmbData, VesselConfig=c("Vessel"=0,"VesselYear"=0), CovConfig=TRUE, DynCovConfig=TRUE, Q_Config=TRUE, RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0), Aniso=TRUE){
   # Local functions
