@@ -30,9 +30,19 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
 
   # Local functions
   RFsim = function(model, x, y, standardize=TRUE){
-    vec = RandomFields::RFsimulate(model=model, x=x, y=y)@data[,1]
-    if(standardize==TRUE) vec = (vec - mean(vec)) / sd(vec) * sqrt(model@par.general$var)
+    if( model_O1@par.general$var>0 ){
+      vec = RandomFields::RFsimulate(model=model, x=x, y=y)@data[,1]
+      if(standardize==TRUE) vec = (vec - mean(vec)) / sd(vec) * sqrt(model@par.general$var)
+    }else{
+      vec = rep(0,length(x))
+    }
     return(vec)
+  }
+  rPoisGam = function( n=1, shape, scale, intensity ){
+    Num = rpois( n=n, lambda=intensity )
+    Biomass = rep(0, length=n)
+    for(i in which(Num>0) ) Biomass[i] = sum( rgamma(n=Num[i], shape=shape, scale=scale) )
+    return( Biomass )
   }
 
   # Initialize random-field objects
@@ -48,7 +58,7 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
     v_i = rep(rep( 1:4, each=Settings[['Nsamp_per_year']]/4), Settings[['Nyears']])
     a_i = rep(0.01, length(s_i))
   }else{
-    NN_domain = RANN::nn2( data=Data_Extrap[,c('Lon','Lat')], query=Data_Geostat[,c('Lon','Lat')], k=1)
+    NN_domain = RANN::nn2( data=Extrapolation_List$Data_Extrap[,c('Lon','Lat')], query=Data_Geostat[,c('Lon','Lat')], k=1)
     s_i = NN_domain$nn.idx[,1]
     t_i = Data_Geostat[,'Year'] - min(Data_Geostat[,'Year']) + 1
     v_i = as.numeric(factor(Data_Geostat[,'Vessel']))
@@ -109,18 +119,34 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
     R1_i = 1 - exp( -1*a_i*exp(P1_i) )
     R2_i = a_i*exp(P1_i) / R1_i * exp(P2_i)
   }
+  if( Settings[['ObsModel']][2]==2 ){
+    R1_i = a_i * exp(P1_i)
+    R2_i = exp(P2_i)
+  }
 
   # Simulate catch and assemble data frame
-  b1_i = rbinom( n=length(R1_i), size=1, prob=R1_i )
-  b2_i = rlnorm( n=length(R2_i), meanlog=log(R2_i)-Settings[['SigmaM']]^2/2, sdlog=Settings[['SigmaM']])
-  b_i = b1_i * b2_i
+  if( Settings[['ObsModel']][1]==2 ){
+    b1_i = rbinom( n=length(R1_i), size=1, prob=R1_i )
+    b2_i = rlnorm( n=length(R2_i), meanlog=log(R2_i)-Settings[['SigmaM']]^2/2, sdlog=Settings[['SigmaM']])
+    b_i = b1_i * b2_i
+  }
+  if( Settings[['ObsModel']][1]==8 ){
+    if( Settings[['ObsModel']][2]!=2 ) stop("Must use 'ObsModel=c(8,2)'")
+    b_i = rep(NA,length(R1_i))
+    for(i in 1:length(b_i)) b_i[i] = rPoisGam( n=1, shape=Settings[['SigmaM']], scale=R1_i[i], intensity=R2_i[i] )
+  }
+  if( Settings[['ObsModel']][1]==10 ){
+    if( Settings[['ObsModel']][2]!=2 ) stop("Must use 'ObsModel=c(8,2)'")
+    b_i = rep(NA,length(R1_i))                            # R1_i(i)*R2_i(i), R1_i(i), invlogit(SigmaM(c_i(i),0))+1.0
+    for(i in 1:length(b_i)) b_i[i] = tweedie::rtweedie(n=1, mu=R1_i[i]*R2_i[i], phi=R1_i[i], power=plogis(Settings[['SigmaM']])+1.0)
+  }
   Data_Geostat = cbind( "Catch_KG"=b_i, "Year"=t_i, "Vessel"=v_i, "AreaSwept_km2"=a_i, "Lat"=loc_i[,'Lat'], "Lon"=loc_i[,'Lon'] )
 
   # Calculate true spatio-temporal biomass and annual abundance
   if( Settings[['ObsModel']][2]==0 ){
     B_st = plogis(P1_st) * exp(P2_st) * outer(Extrapolation_List$Area_km2_x,rep(1,max(t_i)))
   }
-  if( Settings[['ObsModel']][2]==1 ){
+  if( Settings[['ObsModel']][2] %in% c(1,2) ){
     B_st = exp(P1_st) * exp(P2_st) * outer(Extrapolation_List$Area_km2_x,rep(1,max(t_i)))
   }
 
@@ -134,7 +160,7 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
   # Calculate stratified biomass
   B_tl = array(NA, dim=c(max(t_i),ncol(Extrapolation_List$a_el)), dimnames=list(NULL,colnames(Extrapolation_List$a_el)))
   for( l in 1:ncol(B_tl) ){
-    B_tl[,l] = colSums( B_st * outer(Extrapolation_List$a_el[,l]/Extrapolation_List$Area_km2_x,rep(1,max(t_i))) )
+    B_tl[,l] = colSums( B_st * outer(Extrapolation_List$a_el[,l]/Extrapolation_List$Area_km2_x,rep(1,max(t_i))), na.rm=TRUE )
   }
 
   # plot data
@@ -169,7 +195,7 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
   # Return stuff
   Return = list( "Data_Geostat"=data.frame(Data_Geostat), "B_tl"=B_tl, "B_st"=B_st, "COG_tm"=COG_tm, "beta1_t"=beta1_t, "beta2_t"=beta2_t, "O1_s"=O1_s, "O2_s"=O2_s, "E1_st"=E1_st,
     "Vessel1_vy"=Vessel1_vy, "Vessel2_vy"=Vessel2_vy, "Vessel1_v"=Vessel1_v, "Vessel2_v"=Vessel2_v, "E2_st"=E2_st, "P1_st"=P1_st,
-    "P2_st"=P2_st, "s_i"=s_i, "t_i"=t_i, "P1_i"=P1_i, "P2_i"=P2_i, "R1_i"=R1_i, "R2_i"=R2_i, "b1_i"=b1_i, "b2_i"=b2_i,
-    "time_for_simulation"=time_for_simulation, "Sim_Settings"=Settings )
+    "P2_st"=P2_st, "s_i"=s_i, "t_i"=t_i, "P1_i"=P1_i, "P2_i"=P2_i, "R1_i"=R1_i, "R2_i"=R2_i, "time_for_simulation"=time_for_simulation, "Sim_Settings"=Settings )
+  if( exists("b1_i")) Return = c(Return, list("b1_i"=b1_i, "b2_i"=b2_i))
   return( Return )
 }

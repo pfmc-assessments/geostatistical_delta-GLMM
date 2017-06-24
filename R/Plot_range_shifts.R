@@ -26,7 +26,7 @@
 
 #' @export
 Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=paste0(getwd(),"/"), FileName_COG=paste0(PlotDir,"/center_of_gravity.png"),
-  FileName_Area=paste0(PlotDir,"/Area.png"), FileName_EffArea=paste0(PlotDir,"/Effective_Area.png"), Znames=rep("",ncol(Report$mean_Z_tm)), use_biascorr=TRUE,
+  FileName_Area=paste0(PlotDir,"/Area.png"), FileName_EffArea=paste0(PlotDir,"/Effective_Area.png"), Znames=rep("",ncol(TmbData$Z_xm)), use_biascorr=TRUE,
   category_names=NULL, interval_width=1, ...){
 
   # Which parameters
@@ -72,7 +72,7 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
 
     # Plot center of gravity
     png( file=FileName_COG, width=6.5, height=TmbData$n_c*2, res=200, units="in")
-      par( mar=c(2,2,1,0), mgp=c(1.75,0.25,0.25), tck=-0.02, oma=c(1,1,0,1.5), mfrow=c(TmbData$n_c,dim(SD_mean_Z_ctm)[[3]]) )  # , ...
+      par( mar=c(2,2,1,0), mgp=c(1.75,0.25,0), tck=-0.02, oma=c(1,1,0,1.5), mfrow=c(TmbData$n_c,dim(SD_mean_Z_ctm)[[3]]), ... )  #
       for( cI in 1:TmbData$n_c ){
       for( mI in 1:dim(SD_mean_Z_ctm)[[3]]){
         Ybounds = (SD_mean_Z_ctm[cI,,mI,'Estimate']%o%rep(interval_width,2) + SD_mean_Z_ctm[cI,,mI,'Std. Error']%o%c(-interval_width,interval_width))
@@ -127,7 +127,7 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
       par( mfrow=c(1,1), mar=c(2,2,1,0), mgp=c(1.75,0.25,0), tck=-0.02, oma=c(1,1,1,0), mfrow=c(ceiling(sqrt(TmbData$n_c)),ceiling(TmbData$n_c/ceiling(sqrt(TmbData$n_c)))))
       for( cI in 1:TmbData$n_c ){
         Ybounds = SD_log_effective_area_ctl[cI,,1,1]%o%rep(interval_width,2) + SD_log_effective_area_ctl[cI,,1,2]%o%c(-interval_width,interval_width)
-        SpatialDeltaGLMM::Plot_Points_and_Bounds_Fn( x=Year_Set, y=SD_log_effective_area_ctl[cI,,1,1], ybounds=Ybounds, fn=plot, bounds_type="shading", col_bounds=rgb(1,0,0,0.2), col="red", lwd=2, xlab="", ylab="", type="l", main=category_names[cI])
+        SpatialDeltaGLMM::Plot_Points_and_Bounds_Fn( x=Year_Set, y=SD_log_effective_area_ctl[cI,,1,1], ybounds=Ybounds, ylim=range(Ybounds), fn=plot, bounds_type="shading", col_bounds=rgb(1,0,0,0.2), col="red", lwd=2, xlab="", ylab="", type="l", main=category_names[cI])
       }
       mtext( side=1:3, text=c("Year","ln(km^2)","Effective area occupied"), outer=TRUE, line=c(0,0,0) )
     dev.off()
