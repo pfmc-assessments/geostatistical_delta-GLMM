@@ -11,9 +11,12 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
   # t_i: year for sample i
 
   # Specify default values
-  Settings = list("beta1_mean"=0, "beta2_mean"=0, "beta1_slope"=0, "beta2_slope"=0, "beta1_sd"=0, "beta2_sd"=0, "Nyears"=10, "Nsamp_per_year"=600, "Depth_km"=0,
-    "Depth_km2"=0, "Dist_sqrtkm"=0, "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.1, "SigmaE2"=0.1, "SigmaV1"=0, "SigmaV2"=0, "SigmaVY1"=0, "SigmaVY2"=0,
-    "Range1"=1000, "Range2"=500, "SigmaM"=1, "ObsModel"=c(2,0) )
+  Settings = list("beta1_mean"=0, "beta2_mean"=0, "beta1_slope"=0, "beta2_slope"=0, "beta1_sd"=0, "beta2_sd"=0, "Nyears"=10, "Nsamp_per_year"=600,
+    "Depth1_km"=0, "Depth1_km2"=0, "Dist1_sqrtkm"=0, "Depth2_km"=0, "Depth2_km2"=0, "Dist2_sqrtkm"=0,
+    "SigmaO1"=0.5, "SigmaO2"=0.5, "SigmaE1"=0.1, "SigmaE2"=0.1, "SigmaV1"=0, "SigmaV2"=0, "SigmaVY1"=0, "SigmaVY2"=0,
+    "Range1"=1000, "Range2"=500, "SigmaM"=1, "ObsModel"=c(2,0),
+    "Nages"=1, "M"=Inf, "K"=Inf, "Linf"=1, "W_alpha"=1, "W_beta"=3, "Selex_A50_mean"=0, "Selex_A50_sd"=0, "Selex_Aslope"=Inf )
+
   # Replace defaults with provided values (if any)
   for( i in 1:length(Sim_Settings)){
     if(names(Sim_Settings)[i] %in% names(Settings)){
@@ -56,13 +59,24 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
     s_i = sample(1:nrow(Extrapolation_List$Data_Extrap), size=Settings[['Nyears']]*Settings[['Nsamp_per_year']]) #, nrow=Settings[['Nsamp_per_year']], ncol=Settings[['Nyears']])
     t_i = rep( 1:Settings[['Nyears']], each=Settings[['Nsamp_per_year']])
     v_i = rep(rep( 1:4, each=Settings[['Nsamp_per_year']]/4), Settings[['Nyears']])
-    a_i = rep(0.01, length(s_i))
+    w_i = rep(0.01, length(s_i))
   }else{
     NN_domain = RANN::nn2( data=Extrapolation_List$Data_Extrap[,c('Lon','Lat')], query=Data_Geostat[,c('Lon','Lat')], k=1)
     s_i = NN_domain$nn.idx[,1]
     t_i = Data_Geostat[,'Year'] - min(Data_Geostat[,'Year']) + 1
     v_i = as.numeric(factor(Data_Geostat[,'Vessel']))
-    a_i = Data_Geostat[,'AreaSwept_km2']
+    w_i = Data_Geostat[,'AreaSwept_km2']
+  }
+
+  # Duplicate locations if Nages>1
+  if( Settings[["Nages"]]>=2 ){
+    a_i = rep( 1:Settings[["Nages"]], times=length(s_i) )
+    s_i = rep( s_i, each=Settings[["Nages"]] )
+    t_i = rep( t_i, each=Settings[["Nages"]] )
+    v_i = rep( v_i, each=Settings[["Nages"]] )
+    w_i = rep( w_i, each=Settings[["Nages"]] )
+  }else{
+    a_i = rep( 1, times=length(s_i) )
   }
 
   # Generate locations, years, vessel for each sample i
@@ -99,28 +113,105 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
   Vessel1_v = array( rnorm( n=max(v_i), mean=0, sd=Settings[['SigmaV1']]), dim=c(max(v_i)) )
   Vessel2_v = array( rnorm( n=max(v_i), mean=0, sd=Settings[['SigmaV2']]), dim=c(max(v_i)) )
 
-  # Calculate expected values
-  P1_st = P2_st = matrix(NA, nrow=nrow(loc_s), ncol=max(t_i) )
-  for(t in 1:max(t_i)){
-    P1_st[,t] = beta1_t[t] + O1_s + E1_st[,t] + as.matrix(X_sj)%*%unlist(Settings[c('Depth_km','Depth_km2','Dist_sqrtkm')])
-    P2_st[,t] = beta2_t[t] + O2_s + E2_st[,t] + as.matrix(X_sj)%*%unlist(Settings[c('Depth_km','Depth_km2','Dist_sqrtkm')])
+  # Calculate covariate effect
+  eta1_s = as.matrix(X_sj) %*% unlist(Settings[c('Depth1_km','Depth1_km2','Dist1_sqrtkm')])
+  eta2_s = as.matrix(X_sj) %*% unlist(Settings[c('Depth2_km','Depth2_km2','Dist2_sqrtkm')])
+
+  # If Nages==1, then simulate as biomass-dynamic model
+  if( Settings[["Nages"]]==1 ){
+    # Calculate expected values
+    P1_st = P2_st = matrix(NA, nrow=nrow(loc_s), ncol=max(t_i) )
+    for(t in 1:max(t_i)){
+      P1_st[,t] = beta1_t[t] + O1_s + E1_st[,t] + eta1_s
+      P2_st[,t] = beta2_t[t] + O2_s + E2_st[,t] + eta2_s
+    }
+
+    # Calculate linear predictors
+    P1_i = P1_st[cbind(s_i,t_i)] + Vessel1_vy[cbind(v_i,t_i)] + Vessel1_v[v_i]
+    P2_i = P2_st[cbind(s_i,t_i)] + Vessel2_vy[cbind(v_i,t_i)] + Vessel2_v[v_i]
+
+    # Calculate true spatio-temporal biomass and annual abundance
+    if( Settings[['ObsModel']][2]==0 ){
+      B_ast = array( plogis(P1_st) * exp(P2_st) * outer(Extrapolation_List$Area_km2_x,rep(1,max(t_i))), dim=c(1,dim(P1_st)) )
+    }
+    if( Settings[['ObsModel']][2] %in% c(1,2) ){
+      B_ast = array( exp(P1_st) * exp(P2_st) * outer(Extrapolation_List$Area_km2_x,rep(1,max(t_i))), dim=c(1,dim(P2_st)) )
+    }
+    B_st = B_ast[1,,]
+
+    # Objects specific to Nages==1
+    Return = list( "P1_st"=P1_st, "P2_st"=P2_st )
+
+    # Calculate true spatio-temporal biomass and annual abundance
+    if( Settings[['ObsModel']][2]==0 ){
+      B_st = plogis(P1_st) * exp(P2_st) * outer(Extrapolation_List$Area_km2_x,rep(1,max(t_i)))
+    }
+    if( Settings[['ObsModel']][2] %in% c(1,2) ){
+      B_st = exp(P1_st) * exp(P2_st) * outer(Extrapolation_List$Area_km2_x,rep(1,max(t_i)))
+    }
   }
 
-  # Calculate linear predictors
-  P1_i = P1_st[cbind(s_i,t_i)] + Vessel1_vy[cbind(v_i,t_i)] + Vessel1_v[v_i]
-  P2_i = P2_st[cbind(s_i,t_i)] + Vessel2_vy[cbind(v_i,t_i)] + Vessel2_v[v_i]
+  # If Nages==1, then simulate as biomass-dynamic model
+  if( Settings[["Nages"]]>=2 ){
+    if( !(Settings[['ObsModel']][2] %in% c(1,2)) ) stop("If using age-structured simulation, please use 'Settings[['ObsModel']][2]=1'")
+
+    # Deviations in initial age-structure
+    E1_sa = matrix(NA, nrow=nrow(loc_s), ncol=Settings[["Nages"]] )
+    for(a in 2:Settings[["Nages"]]){
+      E1_sa[,a] = RFsim(model=model_E1, x=loc_s[,'E_km'], y=loc_s[,'N_km'], standardize=standardize_fields)
+      message( "Finished variation for age ", a, " in year 1" )
+    }
+
+    # Biomass at age
+    L_a = Settings[["Linf"]] * (1 - exp(-Settings[["K"]] * 1:Settings[["Nages"]]) )
+    W_a = Settings[["W_alpha"]] * L_a^Settings[["W_beta"]]
+
+    # Selectivity at age
+    Selex_A50_v = rnorm( max(v_i), mean=Settings[["Selex_A50_mean"]], sd=Settings[["Selex_A50_sd"]] )
+    Selex_av = NULL
+    for( v in 1:max(v_i)) Selex_av = cbind( Selex_av, plogis(1:Settings[["Nages"]], location=Selex_A50_v[v], scale=Settings[["Selex_Aslope"]]) )
+
+    # Numbers-density at age (N_ast) and Individual weight at age (W_ast) for age 1
+    N_ast = W_ast = array(NA, dim=c(Settings[["Nages"]],nrow(loc_s),max(t_i)) )
+    for(t in 1:max(t_i)){
+      # Individual weight at age
+      W_ast[,,t] = W_a %o% exp( beta2_t[t] + O2_s + E2_st[,t] + eta2_s )
+      # Numbers-density at age
+      N_ast[1,,t] = exp( beta1_t[t] + O1_s + E1_st[,t] + eta1_s )
+      for( a in 2:Settings[["Nages"]] ){
+        # Initial age-structure
+        if( t==1 ){
+          N_ast[a,,t] = exp( beta1_t[t] + O1_s + E1_sa[,a] + eta1_s )
+        }
+        if( t>=2 ){
+          N_ast[a,,t] = exp(-Settings[["M"]]) * N_ast[a-1,,t-1]
+        }
+      }
+    }
+
+    # Calculate linear predictors
+    P1_i = Selex_av[cbind(a_i,v_i)] * log(N_ast[cbind(a_i,s_i,t_i)]) + Vessel1_vy[cbind(v_i,t_i)] + Vessel1_v[v_i]
+    P2_i = log(W_ast[cbind(a_i,s_i,t_i)]) + Vessel2_vy[cbind(v_i,t_i)] + Vessel2_v[v_i]
+
+    # Calculate true spatio-temporal biomass and annual abundance
+    B_ast = N_ast * W_ast * (rep(1,Settings[["Nages"]]) %o% Extrapolation_List$Area_km2_x %o% rep(1,max(t_i)))
+    B_st = apply( B_ast, MARGIN=2:3, FUN=sum )
+
+    # Objects specific to Nages>=2
+    Return = list( "L_a"=L_a, "W_a"=W_a, "Selex_av"=Selex_av, "E1_sa"=E1_sa, "N_ast"=N_ast, "W_ast"=W_ast )
+  }
 
   # Calculate linked-predictors
   if( Settings[['ObsModel']][2]==0 ){
     R1_i = plogis( P1_i )
-    R2_i = a_i * exp( P2_i )
+    R2_i = w_i * exp( P2_i )
   }
   if( Settings[['ObsModel']][2]==1 ){
-    R1_i = 1 - exp( -1*a_i*exp(P1_i) )
-    R2_i = a_i*exp(P1_i) / R1_i * exp(P2_i)
+    R1_i = 1 - exp( -1*w_i*exp(P1_i) )
+    R2_i = w_i*exp(P1_i) / R1_i * exp(P2_i)
   }
   if( Settings[['ObsModel']][2]==2 ){
-    R1_i = a_i * exp(P1_i)
+    R1_i = w_i * exp(P1_i)
     R2_i = exp(P2_i)
   }
 
@@ -133,22 +224,14 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
   if( Settings[['ObsModel']][1]==8 ){
     if( Settings[['ObsModel']][2]!=2 ) stop("Must use 'ObsModel=c(8,2)'")
     b_i = rep(NA,length(R1_i))
-    for(i in 1:length(b_i)) b_i[i] = rPoisGam( n=1, shape=Settings[['SigmaM']], scale=R1_i[i], intensity=R2_i[i] )
+    for(i in 1:length(b_i)) b_i[i] = rPoisGam( n=1, shape=Settings[['SigmaM']], scale=R2_i[i], intensity=R1_i[i] )
   }
   if( Settings[['ObsModel']][1]==10 ){
-    if( Settings[['ObsModel']][2]!=2 ) stop("Must use 'ObsModel=c(8,2)'")
+    if( Settings[['ObsModel']][2]!=2 ) stop("Must use 'ObsModel=c(10,2)'")
     b_i = rep(NA,length(R1_i))                            # R1_i(i)*R2_i(i), R1_i(i), invlogit(SigmaM(c_i(i),0))+1.0
     for(i in 1:length(b_i)) b_i[i] = tweedie::rtweedie(n=1, mu=R1_i[i]*R2_i[i], phi=R1_i[i], power=plogis(Settings[['SigmaM']])+1.0)
   }
-  Data_Geostat = cbind( "Catch_KG"=b_i, "Year"=t_i, "Vessel"=v_i, "AreaSwept_km2"=a_i, "Lat"=loc_i[,'Lat'], "Lon"=loc_i[,'Lon'] )
-
-  # Calculate true spatio-temporal biomass and annual abundance
-  if( Settings[['ObsModel']][2]==0 ){
-    B_st = plogis(P1_st) * exp(P2_st) * outer(Extrapolation_List$Area_km2_x,rep(1,max(t_i)))
-  }
-  if( Settings[['ObsModel']][2] %in% c(1,2) ){
-    B_st = exp(P1_st) * exp(P2_st) * outer(Extrapolation_List$Area_km2_x,rep(1,max(t_i)))
-  }
+  Data_Geostat = cbind( "Catch_KG"=b_i, "Year"=t_i, "Vessel"=v_i, "Age"=a_i, "AreaSwept_km2"=w_i, "Lat"=loc_i[,'Lat'], "Lon"=loc_i[,'Lon'] )
 
   # Calculate true center-of-gravity (COG)
   COG_tm = array(NA, dim=c(max(t_i),4), dimnames=list(NULL,c("Lat","Lon","E_km","N_km")))
@@ -163,39 +246,16 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
     B_tl[,l] = colSums( B_st * outer(Extrapolation_List$a_el[,l]/Extrapolation_List$Area_km2_x,rep(1,max(t_i))), na.rm=TRUE )
   }
 
-  # plot data
-  if(MakePlot==TRUE){
-    f = function(Num) ((Num)-min((Num),na.rm=TRUE))/diff(range((Num),na.rm=TRUE))
-    Col = colorRampPalette(colors=c("darkblue","blue","lightblue","lightgreen","yellow","orange","red"))
-    Xlim = c(-126,-117); Ylim = c(32,49)
-    MapSizeRatio = c( "Height(in)"=4, "Width(in)"=2 )
-    for(RespI in 1:3){
-      Mat = matrix(NA, ncol=max(t_i), nrow=nrow(Extrapolation_List$Data_Extrap))
-      for(t in 1:max(t_i)){
-        if(RespI==1) Mat[,t] = plogis(P1_st[,t])
-        if(RespI==2) Mat[,t] = exp(P2_st[,t])
-        if(RespI==3) Mat[,t] = plogis(P1_st[,t]) * exp(P2_st[,t])
-      }
-      png(file=paste(DateFile,"True_",switch(RespI, "Pres","Pos","Dens"),".png",sep=""), width=5*MapSizeRatio['Width(in)'], height=2*MapSizeRatio['Height(in)'], res=200, units='in')
-        par(mfrow=c(2,5), mar=c(2,2,0,0))
-        for(t in 1:max(t_i)){
-          maps::map("worldHires", ylim=Ylim, xlim=Xlim, col="grey90",fill=T, main="", mar=c(0,0,2.5,0),interior=TRUE)
-          points(x=Extrapolation_List$Data_Extrap[,'Lon'], y=Extrapolation_List$Data_Extrap[,'Lat'], col=Col(n=50)[ceiling(f(Mat)[,t]*49)+1], cex=0.01, pch=20)
-        }
-      dev.off()
-      # Legend
-      png(file=paste0(DateFile,"True_",switch(RespI, "Pres","Pos","Dens","Pos_Rescaled","Dens_Rescaled"),"_Legend.png",sep=""), width=1, height=2*MapSizeRatio['Height(in)'], res=200, units='in')
-        SpatialDeltaGLMM:::Heatmap_Legend( colvec=Col(n=50), heatrange=range(Mat), textmargin=switch(RespI, "Encounter probability","log(Positive catch rate)",expression(paste("log Density, log(kg. / ",km^2,")",sep="")),NULL,NULL) )
-      dev.off()
-    }
-  }
+  # Timing
   time_for_simulation = Sys.time()-start_time
   message( "Total time: ", time_for_simulation )
 
-  # Return stuff
-  Return = list( "Data_Geostat"=data.frame(Data_Geostat), "B_tl"=B_tl, "B_st"=B_st, "COG_tm"=COG_tm, "beta1_t"=beta1_t, "beta2_t"=beta2_t, "O1_s"=O1_s, "O2_s"=O2_s, "E1_st"=E1_st,
-    "Vessel1_vy"=Vessel1_vy, "Vessel2_vy"=Vessel2_vy, "Vessel1_v"=Vessel1_v, "Vessel2_v"=Vessel2_v, "E2_st"=E2_st, "P1_st"=P1_st,
-    "P2_st"=P2_st, "s_i"=s_i, "t_i"=t_i, "P1_i"=P1_i, "P2_i"=P2_i, "R1_i"=R1_i, "R2_i"=R2_i, "time_for_simulation"=time_for_simulation, "Sim_Settings"=Settings )
+  # Objects shared by both
+  Return = c( Return, list("Data_Geostat"=data.frame(Data_Geostat), "B_tl"=B_tl, "B_st"=B_st, "COG_tm"=COG_tm, "beta1_t"=beta1_t,
+    "beta2_t"=beta2_t, "O1_s"=O1_s, "O2_s"=O2_s, "E1_st"=E1_st, "Vessel1_vy"=Vessel1_vy, "Vessel2_vy"=Vessel2_vy, "eta1_s"=eta1_s, "eta2_s"=eta2_s,
+    "Vessel1_v"=Vessel1_v, "Vessel2_v"=Vessel2_v, "E2_st"=E2_st, "s_i"=s_i, "t_i"=t_i, "a_i"=a_i, "w_i"=w_i,
+    "P1_i"=P1_i, "P2_i"=P2_i, "R1_i"=R1_i, "R2_i"=R2_i,
+    "time_for_simulation"=time_for_simulation, "Sim_Settings"=Settings) )
   if( exists("b1_i")) Return = c(Return, list("b1_i"=b1_i, "b2_i"=b2_i))
   return( Return )
 }
