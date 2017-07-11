@@ -181,7 +181,7 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
       for( a in 2:Settings[["Nages"]] ){
         # Initial age-structure
         if( t==1 ){
-          N_ast[a,,t] = exp( beta1_t[t] + O1_s + E1_sa[,a] + eta1_s )
+          N_ast[a,,t] = exp( beta1_t[t] + O1_s + E1_sa[,a] + eta1_s - Settings[["M"]]*(a-1)  )
         }
         if( t>=2 ){
           N_ast[a,,t] = exp(-Settings[["M"]]) * N_ast[a-1,,t-1]
@@ -196,9 +196,10 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
     # Calculate true spatio-temporal biomass and annual abundance
     B_ast = N_ast * W_ast * (rep(1,Settings[["Nages"]]) %o% Extrapolation_List$Area_km2_x %o% rep(1,max(t_i)))
     B_st = apply( B_ast, MARGIN=2:3, FUN=sum )
+    B_at = apply( B_ast, MARGIN=c(1,3), FUN=sum )
 
     # Objects specific to Nages>=2
-    Return = list( "L_a"=L_a, "W_a"=W_a, "Selex_av"=Selex_av, "E1_sa"=E1_sa, "N_ast"=N_ast, "W_ast"=W_ast )
+    Return = list( "L_a"=L_a, "W_a"=W_a, "Selex_av"=Selex_av, "E1_sa"=E1_sa, "N_ast"=N_ast, "W_ast"=W_ast, "B_ast"=B_ast, "B_at"=B_at )
   }
 
   # Calculate linked-predictors
