@@ -190,11 +190,12 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
     }
 
     # Calculate linear predictors
-    P1_i = Selex_av[cbind(a_i,v_i)] * log(N_ast[cbind(a_i,s_i,t_i)]) + Vessel1_vy[cbind(v_i,t_i)] + Vessel1_v[v_i]
+    P1_i = log(Selex_av[cbind(a_i,v_i)] * N_ast[cbind(a_i,s_i,t_i)]) + Vessel1_vy[cbind(v_i,t_i)] + Vessel1_v[v_i]
     P2_i = log(W_ast[cbind(a_i,s_i,t_i)]) + Vessel2_vy[cbind(v_i,t_i)] + Vessel2_v[v_i]
 
-    # Calculate true spatio-temporal biomass and annual abundance
-    B_ast = N_ast * W_ast * (rep(1,Settings[["Nages"]]) %o% Extrapolation_List$Area_km2_x %o% rep(1,max(t_i)))
+    # Calculate true AVAILABLE spatio-temporal biomass and annual abundance
+    Selex_a = plogis(1:Settings[["Nages"]], location=Settings[["Selex_A50_mean"]], scale=Settings[["Selex_Aslope"]])
+    B_ast = N_ast * W_ast * (Selex_a %o% Extrapolation_List$Area_km2_x %o% rep(1,max(t_i)))
     B_st = apply( B_ast, MARGIN=2:3, FUN=sum )
     B_at = apply( B_ast, MARGIN=c(1,3), FUN=sum )
 
