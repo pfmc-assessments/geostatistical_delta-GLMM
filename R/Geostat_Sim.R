@@ -1,4 +1,31 @@
 
+#' Simulate data
+#'
+#' \code{Geostat_Sim} simulates data for use when testing \code{SpatialDeltaGLMM}
+#'
+#' @param Sim_Settings an optional tagged list for specifying input parameters (see function code to determine settings)
+#' @inheritParams Spatial_Information_Fn
+#' @param Data_Geostat A data frame with column headers \code{c('Lon','Lat','Year','Vessel','AreaSwept_km2')} containing sample design to mimic
+#' @param standardize_fields Boolean, whether to ensure that random fields have sample mean and standard deviation equal to their inputted values
+
+#' @return Return Tagged list of output
+#' \describe{
+#'   \item{Data_Geostat}{Simulated data for analysis}
+#'   \item{B_tl}{True biomass for each year and stratum}
+#' }
+
+#' @examples
+#' ## Do not run (will be slow, due to simulating fine-scale spatial variation for many sites):
+#' ##
+#' ## # Prepare inputs
+#' ## Database = FishData::download_catch_rates( survey="Eastern_Bering_Sea", species_set="Gadus chalcogrammus", error_tol=0.01 )
+#' ## Data_Geostat = data.frame("Lat"=Database[,'Lat'], "Lon"=Database[,'Long'], "Year"=Database[,'Year'], "Vessel"="missing", "AreaSwept_km2"=1 )
+#' ## Extrapolation_List = SpatialDeltaGLMM::Prepare_Extrapolation_Data_Fn( Region="Eastern_Bering_Sea", strata.limits=data.frame( 'STRATA'="All_areas") )
+#' ##
+#' ## # Use function
+#' ## SimList = SpatialDeltaGLMM::Geostat_Sim(Sim_Settings=list(), Extrapolation_List, Data_Geostat=Data_Geostat )
+#' ## Data_Sim = SimList$Data_Geostat
+
 #' @export
 Geostat_Sim <-
 function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, DateFile=paste0(getwd(),"/"), standardize_fields=FALSE ){
@@ -18,7 +45,7 @@ function(Sim_Settings, Extrapolation_List, Data_Geostat=NULL, MakePlot=FALSE, Da
     "Nages"=1, "M"=Inf, "K"=Inf, "Linf"=1, "W_alpha"=1, "W_beta"=3, "Selex_A50_mean"=0, "Selex_A50_sd"=0, "Selex_Aslope"=Inf )
 
   # Replace defaults with provided values (if any)
-  for( i in 1:length(Sim_Settings)){
+  for( i in seq_len(length(Sim_Settings)) ){
     if(names(Sim_Settings)[i] %in% names(Settings)){
       Settings[[match(names(Sim_Settings)[i],names(Settings))]] = Sim_Settings[[i]]
     }
