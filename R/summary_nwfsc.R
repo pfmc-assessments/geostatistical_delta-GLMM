@@ -40,7 +40,7 @@ summary_nwfsc = function( obj, sdreport, savedir=NULL ){
 
   # Return
   Return = list("TableA"=TableA, "TableB"=TableB, "TableC"=TableC)
-  if( !is.null(savedir)) for(i in 1:3) write.csv(Return[[i]], file=paste0(savedir,"/",names(Return)[i],".csv"), row.names=FALSE)
+  if( !is.null(savedir)) for(i in 1:3) write.csv(Return[[i]], file=paste0(savedir,"/",names(Return)[i],".csv"), row.names=c(FALSE,FALSE,TRUE)[i] )
   return(Return)
 }
 
