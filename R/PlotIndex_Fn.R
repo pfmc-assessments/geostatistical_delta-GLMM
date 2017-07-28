@@ -113,7 +113,10 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
   
   # Fix at zeros any years-category combinations with no data
   if( treat_missing_as_zero==TRUE ){
+    # Determine year-category pairs with no data
     Num_ct = tapply( TmbData$b_i, INDEX=list(factor(TmbData$c_i,levels=1:TmbData$n_c-1),factor(TmbData$t_i[,1],levels=1:TmbData$n_t-1)), FUN=function(vec){sum(!is.na(vec))} )
+    Num_ct = ifelse( is.na(Num_ct), 0, Num_ct )
+    # Replace values with 0 (estimate) and NA (standard error)
     Index_ctl[,,,'Estimate'] = ifelse(Num_ct%o%rep(1,TmbData$n_l)==0, 0, Index_ctl[,,,'Estimate'])
     Index_ctl[,,,'Std. Error'] = ifelse(Num_ct%o%rep(1,TmbData$n_l)==0, NA, Index_ctl[,,,'Std. Error'])
     log_Index_ctl[,,,'Estimate'] = ifelse(Num_ct%o%rep(1,TmbData$n_l)==0, -Inf, log_Index_ctl[,,,'Estimate'])
