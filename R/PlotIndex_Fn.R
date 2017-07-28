@@ -17,6 +17,7 @@
 #' @param plot_log Boolean, whether to plot y-axis in log-scale
 #' @param width plot width in inches
 #' @param height plot height in inches
+#' @param treat_missing_as_zero Boolean whether to treat years and species with no (or only NA) data as instances where the index should be zero
 #' @param ... Other inputs to `par()`
 #' @inheritParams PlotResultsOnMap_Fn
 #'
@@ -29,7 +30,8 @@
 #' @export
 PlotIndex_Fn <-
 function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(getwd(),"/"), PlotName="Index.png", interval_width=1,
-  strata_names=NULL, category_names=NULL, use_biascorr=FALSE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4, ... ){
+  strata_names=NULL, category_names=NULL, use_biascorr=FALSE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4,
+  treat_missing_as_zero=TRUE, ... ){
 
   # Which parameters
   if( "ln_Index_tl" %in% rownames(TMB::summary.sdreport(Sdreport)) ){
@@ -84,7 +86,7 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
       }else{
         log_Index_ctl = log( Index_ctl )
         log_Index_ctl[,,,'Std. Error'] = log_Index_ctl[,,,'Std. Error'] / log_Index_ctl[,,,'Estimate']
-        warning( "Using kludge for log-standard errors of index, to be replaced in later versions of 'SpatialVAM'" )
+        warning( "Using kludge for log-standard errors of index, to be replaced in later versions of 'MIST'" )
       }
     }else{
       Index_ctl = aperm( array( TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==ParName),], dim=c(unlist(TmbData[c('n_t','n_c','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) ), perm=c(2,1,3,4))
@@ -93,7 +95,7 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
       }else{
         log_Index_ctl = log( Index_ctl )
         log_Index_ctl[,,,'Std. Error'] = log_Index_ctl[,,,'Std. Error'] / log_Index_ctl[,,,'Estimate']
-        warning( "Using kludge for log-standard errors of index, to be replaced in later versions of 'SpatialVAM'" )
+        warning( "Using kludge for log-standard errors of index, to be replaced in later versions of 'MIST'" )
       }
     }
   }
@@ -109,13 +111,22 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
     Calc_design = FALSE
   }
   
+  # Fix at zeros any years-category combinations with no data
+  if( treat_missing_as_zero==TRUE ){
+    Num_ct = tapply( TmbData$b_i, INDEX=list(factor(TmbData$c_i,levels=1:TmbData$n_c-1),factor(TmbData$t_i[,1],levels=1:TmbData$n_t-1)), FUN=function(vec){sum(!is.na(vec))} )
+    Index_ctl[,,,'Estimate'] = ifelse(Num_ct%o%rep(1,TmbData$n_l)==0, 0, Index_ctl[,,,'Estimate'])
+    Index_ctl[,,,'Std. Error'] = ifelse(Num_ct%o%rep(1,TmbData$n_l)==0, NA, Index_ctl[,,,'Std. Error'])
+    log_Index_ctl[,,,'Estimate'] = ifelse(Num_ct%o%rep(1,TmbData$n_l)==0, -Inf, log_Index_ctl[,,,'Estimate'])
+    log_Index_ctl[,,,'Std. Error'] = ifelse(Num_ct%o%rep(1,TmbData$n_l)==0, NA, log_Index_ctl[,,,'Std. Error'])
+  }
+
   # Plot
   Par = list( mar=c(2,2,1,0), mgp=c(2,0.5,0), tck=-0.02, yaxs="i", oma=c(1,1,0,0), mfrow=c(ceiling(sqrt(TmbData$n_c)),ceiling(TmbData$n_c/ceiling(sqrt(TmbData$n_c)))), ... )
   png( file=paste0(DirName,"/",PlotName), width=width, height=height, res=200, units="in")
     par( Par )
     for( cI in 1:TmbData$n_c ){
       # Calculate y-axis limits
-      Ylim = c(0, max(Index_ctl[cI,Years2Include,,'Estimate']%o%c(1,1) * exp(log_Index_ctl[cI,Years2Include,,'Std. Error']%o%c(-interval_width,interval_width))) )
+      Ylim = c(0, max(Index_ctl[cI,Years2Include,,'Estimate']%o%c(1,1) * exp(log_Index_ctl[cI,Years2Include,,'Std. Error']%o%c(-interval_width,interval_width)),na.rm=TRUE) )
       if( plot_log==TRUE ) Ylim[1] = min(Index_ctl[cI,Years2Include,,'Estimate']%o%c(1,1) * exp(log_Index_ctl[cI,Years2Include,,'Std. Error']%o%c(-interval_width,interval_width)))
       if( Calc_design==TRUE ) Ylim[2] = max(Ylim[2], (Design_t[,'Estimate']%o%c(1,1))+Design_t[,'Std. Error']%o%c(-interval_width,interval_width))
       if( Calc_design==TRUE & plot_log==TRUE ) Ylim[2] = min(Ylim[2], (Design_t[,'Estimate']%o%c(1,1))+Design_t[,'Std. Error']%o%c(-interval_width,interval_width))
@@ -141,6 +152,6 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
   write.csv( Table, file=paste0(DirName,"/Table_for_SS3.csv"), row.names=FALSE)
 
   # Return stuff
-  Return = list( "Table"=Table, "log_Index_ctl"=log_Index_ctl, "Index_ctl"=Index_ctl, "Ylim"=Ylim)
+  Return = list( "Table"=Table, "log_Index_ctl"=log_Index_ctl, "Index_ctl"=Index_ctl, "Ylim"=Ylim )
   return( invisible(Return) )
 }
