@@ -40,7 +40,7 @@ convert_utm_to_ll_fn <-
     # on.exit(detach('package:dplyr'))
 
 if (length(eastings) != length(northings)){
-  stop('eastings and northings not same length, make sure that they represent paired coordinates')
+  stop('eastings and northings are not same length, make sure that they represent paired coordinates')
 }
 
     utm_coords <-
