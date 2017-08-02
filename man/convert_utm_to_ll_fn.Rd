@@ -31,6 +31,7 @@ around dateline, will convert back and provide estimtes of "original" lat lon
 Values should be viewed as estimates for plotting and general pairing
 }
 \examples{
+\dontrun{
 eastings <- Spatial_List$loc_x[,'E_km']
 
 northings <- Spatial_List$loc_x[,'N_km']
@@ -42,4 +43,5 @@ flip_around_dateline <- Extrapolation_List$flip_around_dateline
 latlongs <- convert_utm_to_ll_fn(eastings = eastings, northings = northings, zone = zone, flip_around_dateline = flip_around_dateline)
 
 ggmap::qmplot(x = approx_long, y = approx_lat, data = latlongs, color = 'red')
+}
 }
