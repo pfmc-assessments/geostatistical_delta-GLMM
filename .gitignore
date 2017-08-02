@@ -5,3 +5,4 @@ shiny/database/
 shiny/testing/
 shiny/global_coverage.png
 .Rproj.user
+*.Rproj
