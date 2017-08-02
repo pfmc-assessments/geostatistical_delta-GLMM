@@ -29,4 +29,3 @@ Tagged list used in other functions
 \description{
 \code{Prepare_Extrapolation_Data_Fn} builds an object used to determine areas to extrapolation densities to when calculating indices
 }
-

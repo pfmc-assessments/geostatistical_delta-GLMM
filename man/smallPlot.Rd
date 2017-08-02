@@ -14,4 +14,3 @@ parameters of small plot, invisible.
 \description{
 Inset plot with margins, background and border (based on: https://github.com/cran/berryFunctions/blob/master/R/smallPlot.R)
 }
-

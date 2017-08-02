@@ -23,4 +23,3 @@ Plot_data_and_knots(Extrapolation_List, Spatial_List, Data_Geostat,
 \description{
 \code{Plot_data_and_knots} produces diagnostics plots for the spatial distribution of data and knots
 }
-

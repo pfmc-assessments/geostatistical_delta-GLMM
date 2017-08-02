@@ -65,4 +65,3 @@ Mat_xt a matrix (rows: modeled knots; column: modeled year) for plotted output o
 \description{
 \code{PlotResultsOnMap_Fn} plots a standard set of diagnostic maps
 }
-

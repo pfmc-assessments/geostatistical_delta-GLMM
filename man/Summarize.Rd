@@ -22,4 +22,3 @@ Tagged list of useful output
 \details{
 Please post on the GitHub issue tracker if you'd like for another specific output to be added and documented here
 }
-

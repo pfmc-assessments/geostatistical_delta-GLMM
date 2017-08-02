@@ -24,4 +24,3 @@ Tagged list containing distance metrics
 \description{
 \code{Calc_Anistropic_Mesh} builds a tagged list representing distances for isotropic or geometric anisotropic triangulated mesh
 }
-

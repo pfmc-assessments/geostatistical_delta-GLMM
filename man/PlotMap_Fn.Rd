@@ -47,4 +47,3 @@ truncating the cocuntry boundaries within the plotting region (which \code{mappr
 so that the post-projection is often missing boundaries that are within the plotting rectangle).  I use rectangular projections by default, but Lamberts or Albers conformal
 projections would also be useful for many cases.
 }
-
