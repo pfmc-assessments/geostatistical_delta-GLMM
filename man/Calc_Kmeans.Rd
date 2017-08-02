@@ -32,4 +32,3 @@ Tagged list containing outputs
 \description{
 \code{Calc_Kmeans} determines the location for a set of knots for approximating spatial variation
 }
-

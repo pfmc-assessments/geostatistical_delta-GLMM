@@ -61,4 +61,3 @@ Tagged list containing objects for running a VAST model
 \description{
 \code{Build_TMB_Fn} builds a tagged list with everything necessary to run or interpret inputs to a geostatistical delta-GLMM
 }
-

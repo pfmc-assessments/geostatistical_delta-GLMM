@@ -29,4 +29,3 @@ Return Tagged list of output
 \description{
 \code{Check_encounter_prob} is a diagnostic function for checking validity of the encounter-probability component of a spatio-temporal model
 }
-

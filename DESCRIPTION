@@ -12,7 +12,7 @@ Description: SpatialDeltaGLMM is an R package for implementing a spatial delta-
     functions and model-comparison tools, and (3) is intended to improve analysis
     speed, replicability, peer-review, and interpretation of index standardization.
     methods
-Imports: 
+Imports:
     graphics,
     utils,
     mapproj,
@@ -31,17 +31,21 @@ Imports:
     maps,
     mapdata,
     TMB,
-    MatrixModels  
-Depends: 
+    MatrixModels  ,
+    dplyr,
+    purrr,
+    sf,
+    rgdal
+Depends:
     R (>= 3.1.0),
-Suggests: 
+Suggests:
     INLA,
     testthat
-Additional_repositories: 
+Additional_repositories:
     https://www.math.ntnu.no/inla/R/stable
 License: GPL-2
 LazyData: yes
 BuildVignettes: yes
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 URL: http://github.com/nwfsc-assess/geostatistical_delta-GLMM
 BugReports: http://github.com/nwfsc-assess/geostatistical_delta-GLMM/issues

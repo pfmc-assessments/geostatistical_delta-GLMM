@@ -2,3 +2,5 @@
 ^\.travis\.yml$
 ^shiny$
 ^examples$
+^.*\.Rproj$
+^\.Rproj\.user$
