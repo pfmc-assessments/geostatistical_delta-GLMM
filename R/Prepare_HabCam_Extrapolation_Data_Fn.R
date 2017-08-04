@@ -1,3 +1,4 @@
+#' @export
 Prepare_HabCam_Extrapolation_Data_Fn <-
 function( strata.limits=NULL, zone=NA, ... ){
   # Infer strata
