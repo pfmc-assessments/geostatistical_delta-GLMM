@@ -24,4 +24,3 @@ Tagged list containing objects for running a VAST model
 \description{
 \code{summary_nwfsc} generates output tables requested by the PFMC SSC
 }
-

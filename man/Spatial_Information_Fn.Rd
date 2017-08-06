@@ -30,14 +30,13 @@ Tagged list containing objects for running a VAST model
   \item{MeshList}{A tagged list with inputs related to the SPDE mesh}
   \item{GridList}{A tagged list with inputs related to the 2D AR1 grid}
   \item{a_xl}{A data frame with areas for each knot and each strattum}
-  \item{loc_UTM}{A data frame with the converted UTM coordinates for each sample}
+  \item{loc_x}{The UTM location for each knot}
+  \item{loc_x_lat_long}{A data frame with the corrected lat long for each knot}
   \item{Kmeans}{Output from \code{Calc_Kmeans} with knots for a triangulated mesh}
   \item{knot_i}{The knot associated with each sample}
   \item{Method}{The Method input (for archival purposes)}
-  \item{loc_x}{The UTM location for each knot}
 }
 }
 \description{
 \code{Spatial_Information_Fn} builds a tagged list with all the spatial information needed for \code{Data_Fn}
 }
-

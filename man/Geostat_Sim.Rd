@@ -39,4 +39,3 @@ Return Tagged list of output
 ## SimList = SpatialDeltaGLMM::Geostat_Sim(Sim_Settings=list(), Extrapolation_List, Data_Geostat=Data_Geostat )
 ## Data_Sim = SimList$Data_Geostat
 }
-

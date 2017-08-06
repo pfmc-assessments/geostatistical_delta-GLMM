@@ -55,4 +55,3 @@ Return Tagged list of output
 \description{
 \code{PlotIndex_Fn} plots an index proportion to population abundance
 }
-

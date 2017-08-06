@@ -32,4 +32,3 @@ Tagged list of useful output
   # Should equal 1.7
   }
 }
-

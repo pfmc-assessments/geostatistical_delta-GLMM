@@ -25,4 +25,3 @@ Tagged list containing distance metrics
 \description{
 \code{Calc_Polygon_Areas_and_Polygons_Fn} builds outputs for a given triangulated mesh used for approximating spatial variation
 }
-

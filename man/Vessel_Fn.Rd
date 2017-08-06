@@ -19,4 +19,3 @@ Return Tagged list of output
 \description{
 \code{Vessel_Fn} plots estimated vessel effects for model components
 }
-

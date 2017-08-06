@@ -49,4 +49,3 @@ Return Tagged list of output
 \description{
 \code{Plot_range_shifts} plots center-of-gravity, kernel-area occupied, and effective-area occupied
 }
-

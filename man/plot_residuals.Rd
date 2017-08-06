@@ -58,4 +58,3 @@ A tagged list of Pearson residuals
 \description{
 \code{plot_residuals} shows average Pearson residual for every knot for encounter probability and positive catch rate components
 }
-
