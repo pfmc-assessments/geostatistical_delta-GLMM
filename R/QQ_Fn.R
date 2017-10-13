@@ -17,7 +17,7 @@ function(TmbData, Report, FileName_PP=NULL, FileName_Phist=NULL, FileName_QQ=NUL
       # Calculate pred_y
         # I can't use R2_i anymore because interpretation changed around March 9, 2017 (due to area-swept change in Poisson-process and Tweedie functions)
         # However, I CAN use P2_i, which has a stable definition over time (as a linear predictor)
-      if( length(TmbData$ObsModel)==1 || TmbData$ObsModel[2]==0 ){
+      if( length(TmbData$ObsModel)==1 || TmbData$ObsModel[2]%in%c(0,3) ){
         pred_y[ObsI] = TmbData$a_i[Which[ObsI]] * exp(Report$P2_i[Which[ObsI]])
       }
       if( length(TmbData$ObsModel)>=2 && TmbData$ObsModel[2]==1 ){
@@ -25,7 +25,8 @@ function(TmbData, Report, FileName_PP=NULL, FileName_Phist=NULL, FileName_QQ=NUL
         pred_y[ObsI] = TmbData$a_i[Which[ObsI]] * exp(Report$P1_i[Which[ObsI]]) / R1_i * exp(Report$P2_i[Which[ObsI]]);
       }
       if( length(TmbData$ObsModel)>=2 && TmbData$ObsModel[2]==2 ){
-        pred_y[ObsI] = TmbData$a_i[Which[ObsI]] * exp(Report$P2_i[Which[ObsI]])
+        stop("QQ not set up for Tweedie distribution")
+        #pred_y[ObsI] = TmbData$a_i[Which[ObsI]] * exp(Report$P2_i[Which[ObsI]])
       }
       if( !(TmbData$ObsModel[1] %in% c(1,2,11,12)) ) stop("QQ not working except for when TmbData$ObsModel[1] is 1, 2, 11, or 12")
       # Simulate quantiles for different distributions
