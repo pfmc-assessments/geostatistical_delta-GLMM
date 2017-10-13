@@ -6,6 +6,7 @@
 #' @param Region a character entry that is matched against potential values to determine the region for the extrapolation grid.
 #' @param strata.limits an input for determining stratification of indices (see example script)
 #' @param observations_LL a matrix with two columns (labeled 'Lat' and 'Lon') giving latitude and longitude for each observation (only used when Region doesn't match known entries)
+#' @param input_grid a matrix with three columns (labeled 'Lat', 'Lon', and 'Area_km2') giving latitude, longitude, and area for each cell of a user-supplied grid (only used when \code{Region=="User"})
 #' @param ... other objects passed for individual regions (see example script)
 
 #' @return Tagged list used in other functions
@@ -18,7 +19,7 @@
 #' }
 
 #' @export
-Prepare_Extrapolation_Data_Fn = function( Region, strata.limits, observations_LL=NULL, ... ){
+Prepare_Extrapolation_Data_Fn = function( Region, strata.limits, observations_LL=NULL, input_grid=NULL, ... ){
 
   Extrapolation_List = NULL
   if( tolower(Region) == "california_current" ){
@@ -56,6 +57,11 @@ Prepare_Extrapolation_Data_Fn = function( Region, strata.limits, observations_LL
   }
   if( tolower(Region) == "gulf_of_mexico" ){
     Extrapolation_List = SpatialDeltaGLMM::Prepare_GOM_Extrapolation_Data_Fn( strata.limits=strata.limits, ... )
+  }
+  if( tolower(Region) == "user" ){
+    if( is.null(input_grid)) message("Because you're using a user-supplied region, please provide 'input_grid' input")
+    if( !(all(c("Lat","Lon","Area_km2") %in% colnames(input_grid))) ) message("'input_grid' must contain columns named 'Lat', 'Lon', and 'Area_km2'")
+    Extrapolation_List = SpatialDeltaGLMM::Prepare_User_Extrapolation_Data_Fn( strata.limits=strata.limits, input_grid=input_grid, ... )
   }
   if( is.null(Extrapolation_List) ){
     if( is.null(observations_LL)) message("Because you're using a new region, please provide 'observations_LL' input")
