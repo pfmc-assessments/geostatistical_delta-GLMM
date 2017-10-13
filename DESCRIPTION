@@ -47,6 +47,6 @@ Additional_repositories:
 License: GPL-2
 LazyData: yes
 BuildVignettes: yes
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 URL: http://github.com/nwfsc-assess/geostatistical_delta-GLMM
 BugReports: http://github.com/nwfsc-assess/geostatistical_delta-GLMM/issues
