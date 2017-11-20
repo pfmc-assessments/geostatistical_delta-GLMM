@@ -130,7 +130,11 @@ MapDetails_Fn = function( Region, NN_Extrap, Extrapolation_List, Include=(Extrap
   }
 
   # Plotting zone has to match zone used for Extrapolation_List, for COG estimates (in UTM via Z_xm) to match map UTM
-  Zone = Extrapolation_List[["zone"]] - ifelse(Extrapolation_List$flip_around_dateline==TRUE, 30, 0)
+  if( is.numeric(Extrapolation_List$zone) ){
+    Zone = Extrapolation_List[["zone"]] - ifelse(Extrapolation_List$flip_around_dateline==TRUE, 30, 0)
+  }else{
+    Zone = Extrapolation_List$zone
+  }
 
   # Determine map size (equal distance along x-axis and y-axis)
   if( all(!is.na(Extrapolation_List$Data_Extrap[,c('N_km','E_km')])) ){

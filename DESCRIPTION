@@ -31,7 +31,8 @@ Imports:
     maps,
     mapdata,
     TMB,
-    MatrixModels,  
+    MatrixModels,
+    rgdal,
     ThorsonUtilities,
     TMBhelper
 Depends: 

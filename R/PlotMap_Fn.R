@@ -74,12 +74,19 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=
         }
         # If rotating:  Record all polygons; Rotate them and all points;  Plot rotated polygons;  Plot points
         if( Rotate!=0 ){
+          # Extract map features
           boundary_around_limits = 3
           Map = maps::map(MappingDetails[[1]], MappingDetails[[2]], plot=FALSE, ylim=mean(Ylim)+boundary_around_limits*c(-0.5,0.5)*diff(Ylim), xlim=mean(Xlim)+boundary_around_limits*c(-0.5,0.5)*diff(Xlim), fill=TRUE) # , orientation=c(mean(y.lim),mean(x.lim),15)
           Tmp1 = na.omit( cbind('PID'=cumsum(is.na(Map$x)), 'POS'=1:length(Map$x), 'X'=Map$x, 'Y'=Map$y, matrix(0,ncol=length(Year_Set),nrow=length(Map$x),dimnames=list(NULL,Year_Set))) )
           TmpLL = rbind( Tmp1, cbind('PID'=max(Tmp1[,1])+1, 'POS'=1:length(Which)+max(Tmp1[,2]), 'X'=PlotDF[Which,'Lon'], 'Y'=PlotDF[Which,'Lat'], Mat[Which,]) )
           tmpUTM = TmpLL
-          tmpUTM[,c('X','Y')] = as.matrix(SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=TmpLL[,'X'], Lat=TmpLL[,'Y'], zone=zone, flip_around_dateline=ifelse(MappingDetails[[1]]%in%c("world2","world2Hires"),FALSE,FALSE) )[,c('X','Y')])
+          # Convert map to Eastings-Northings
+          if( is.numeric(Extrapolation_List$zone) ){
+            tmpUTM[,c('X','Y')] = as.matrix(SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=TmpLL[,'X'], Lat=TmpLL[,'Y'], zone=zone, flip_around_dateline=ifelse(MappingDetails[[1]]%in%c("world2","world2Hires"),FALSE,FALSE) )[,c('X','Y')])
+          }else{
+            tmpUTM[,c('X','Y')] = as.matrix(SpatialDeltaGLMM::Convert_LL_to_EastNorth_Fn( Lon=TmpLL[,'X'], Lat=TmpLL[,'Y'], crs=zone )[,c('E_km','N_km')])
+          }
+          # Rotate map features and maps simultaneously
           tmpUTM = data.frame(tmpUTM)
           sp::coordinates(tmpUTM) = c("X","Y")
           tmpUTM_rotated <- maptools::elide( tmpUTM, rotate=Rotate)
@@ -87,6 +94,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=
           Col_Bin = ceiling( f(tmpUTM_rotated@data[-c(1:nrow(Tmp1)),-c(1:2),drop=FALSE],zlim=zlim)[,tI]*49 ) + 1
           if( ignore.na==FALSE && any(Col_Bin<1 | Col_Bin>50) ) stop("zlim doesn't span the range of the variable")
           points(x=tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'x'], y=tmpUTM_rotated@coords[-c(1:nrow(Tmp1)),'y'], col=Col(n=50)[Col_Bin], cex=Cex, pch=pch)
+          # Plot map features
           lev = levels(as.factor(tmpUTM_rotated@data$PID))
           for(levI in 1:(length(lev)-1)) {
             indx = which(tmpUTM$PID == lev[levI])
