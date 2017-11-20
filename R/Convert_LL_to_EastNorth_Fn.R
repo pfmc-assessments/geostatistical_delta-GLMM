@@ -1,7 +1,7 @@
 
 #' Convert from Lat-Long to Eastings-Northings using WGS
 #'
-#' \code{Convert_LL_to_UTM_Fn} converts from Latitude-Longitude to World Geodetic System Eastings-Northings for a given location
+#' \code{Convert_LL_to_EastNorth_Fn} converts from Latitude-Longitude to World Geodetic System Eastings-Northings for a given location
 #'
 #' @param Lat vector of latitudes
 #' @param Lon vector of longitudes
@@ -9,8 +9,8 @@
 
 #' @return A data frame with the following columns
 #' \describe{
-#'   \item{X}{The UTM eastings for each value of Lon}
-#'   \item{Y}{The UTM northings measured from the equator for each Lat}
+#'   \item{E_km}{The eastings for each value of Lon (in kilometers)}
+#'   \item{N_km}{The northings for each value of Lat (in kilometers)}
 #' }
 
 #' @export
