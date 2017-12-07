@@ -45,7 +45,7 @@ Spatial_Information_Fn = function( n_x, Lon, Lat, Extrapolation_List, Method="Me
   if( Method %in% c("Mesh","Grid") ){
     if( is.numeric(Extrapolation_List$zone) ){
       loc_i = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Lon, Lat=Lat, zone=Extrapolation_List$zone, flip_around_dateline=Extrapolation_List$flip_around_dateline )                                                         #$
-      colnames(loc_i) = c('E_km','N_km')
+      loc_i = cbind( 'E_km'=loc_i[,'X'], 'N_km'=loc_i[,'Y'])
     }else{
       loc_i = SpatialDeltaGLMM::Convert_LL_to_EastNorth_Fn( Lon=Lon, Lat=Lat, crs=Extrapolation_List$zone )
     }
