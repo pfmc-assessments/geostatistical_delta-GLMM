@@ -5,7 +5,7 @@
 \title{Build extrapolation grid}
 \usage{
 Prepare_Extrapolation_Data_Fn(Region, strata.limits, observations_LL = NULL,
-  ...)
+  input_grid = NULL, ...)
 }
 \arguments{
 \item{Region}{a character entry that is matched against potential values to determine the region for the extrapolation grid.}
@@ -13,6 +13,8 @@ Prepare_Extrapolation_Data_Fn(Region, strata.limits, observations_LL = NULL,
 \item{strata.limits}{an input for determining stratification of indices (see example script)}
 
 \item{observations_LL}{a matrix with two columns (labeled 'Lat' and 'Lon') giving latitude and longitude for each observation (only used when Region doesn't match known entries)}
+
+\item{input_grid}{a matrix with three columns (labeled 'Lat', 'Lon', and 'Area_km2') giving latitude, longitude, and area for each cell of a user-supplied grid (only used when \code{Region=="User"})}
 
 \item{...}{other objects passed for individual regions (see example script)}
 }

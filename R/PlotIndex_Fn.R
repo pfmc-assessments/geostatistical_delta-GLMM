@@ -55,6 +55,16 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
     TmbData[["n_c"]] = TmbData[["n_p"]]
   }
 
+  # Add t_iz if missing (e.g., from earlier version of VAST, or SpatialDeltaGLMM)
+  if( !("t_iz" %in% names(TmbData)) ){
+    TmbData$t_iz = matrix( TmbData$t_i, ncol=1 )
+  }
+
+  # Add in t_yz if missing (e.g., from earlier version of VAST, or SpatialDeltaGLMM)
+  if( !("t_yz" %in% names(TmbData)) ){
+    TmbData$t_yz = matrix(1:TmbData$n_t - 1, ncol=1)
+  }
+
   # Fill in missing
   if( is.null(Year_Set) ) Year_Set = 1:TmbData$n_t
   if( is.null(Years2Include) ) Years2Include = 1:TmbData$n_t
