@@ -13,7 +13,8 @@
 #'
 
 #' @export
-Plot_data_and_knots = function( Extrapolation_List, Spatial_List, Data_Geostat, PlotDir=paste0(getwd(),"/"), Plot1_name="Data_and_knots.png", Plot2_name="Data_by_year.png", ...){
+Plot_data_and_knots = function( Extrapolation_List, Spatial_List, Data_Geostat, PlotDir=paste0(getwd(),"/"),
+  Plot1_name="Data_and_knots.png", Plot2_name="Data_by_year.png", col=rep("red",nrow(Data_Geostat)), ...){
 
   # avoid attaching maps and mapdata to use worldHires plotting
   require(maps)
@@ -45,7 +46,7 @@ Plot_data_and_knots = function( Extrapolation_List, Spatial_List, Data_Geostat, 
     par( mfrow=c(Nrow,Ncol), mar=c(0,0,2,0), mgp=c(1.75,0.25,0), oma=c(4,4,0,0) )
     for( t in 1:length(Year_Set) ){
       Which = which( Data_Geostat[,'Year'] == Year_Set[t] )
-      plot( x=Data_Geostat[Which,'Lon'], y=Data_Geostat[Which,'Lat'], cex=0.01, main=Year_Set[t], xlim=range(Data_Geostat[,'Lon']), ylim=range(Data_Geostat[,'Lat']), xaxt="n", yaxt="n", ... )
+      plot( x=Data_Geostat[Which,'Lon'], y=Data_Geostat[Which,'Lat'], cex=0.01, main=Year_Set[t], xlim=range(Data_Geostat[,'Lon']), ylim=range(Data_Geostat[,'Lat']), xaxt="n", yaxt="n", col=col[Which], ... )
       map( "world", add=TRUE )
       if( t>(length(Year_Set)-Ncol) ) axis(1)
       if( t%%Ncol == 1 ) axis(2)

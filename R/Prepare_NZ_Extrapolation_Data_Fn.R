@@ -29,11 +29,16 @@ function( strata.limits=NULL, zone=NA, survey="Chatham_rise", Data=NULL, ... ){
   }
 
   # Convert extrapolation-data to an Eastings-Northings coordinate system
-  tmpUTM = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=zone, flip_around_dateline=FALSE)                                                         #$
+  if( is.numeric(zone) ){
+    tmpUTM = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], zone=zone, flip_around_dateline=FALSE)                                                         #$
+    colnames(tmpUTM) = c('E_km','N_km')
+  }else{
+    tmpUTM = SpatialDeltaGLMM::Convert_LL_to_EastNorth_Fn( Lon=Data_Extrap[,'Lon'], Lat=Data_Extrap[,'Lat'], crs=zone )
+  }
 
   # Extra junk
   Data_Extrap = cbind( Data_Extrap, 'Include'=1)
-  Data_Extrap[,c('E_km','N_km')] = tmpUTM[,c('X','Y')]
+  Data_Extrap[,c('E_km','N_km')] = tmpUTM[,c('E_km','N_km')]
 
   # Return
   Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"), "flip_around_dateline"=FALSE, "Area_km2_x"=Area_km2_x)

@@ -22,6 +22,10 @@ function( strata.limits, observations_LL, grid_dim_km=c(2,2), maximum_distance_f
     E_lim = mean(range(observations_UTM[,'X'])) + c(-0.6,0.6)*diff(range(observations_UTM[,'X']))
     N_lim = mean(range(observations_UTM[,'Y'])) + c(-0.6,0.6)*diff(range(observations_UTM[,'Y']))
 
+    # Detect Northern or Southern hemisphere
+    NorthernTF = all( observations_LL[,'Lat']>0 )
+    if( any(observations_LL[,'Lat']>0) & any(observations_LL[,'Lat']<0) ) warning( "PBSmapping doesn't work with observations in both Northern and Southern hemisphere" )
+
     # Make grid
     Data_Extrap = expand.grid( "E_km"=seq(E_lim[1],E_lim[2],by=grid_dim_km[1]), "N_km"=seq(N_lim[1],N_lim[2],by=grid_dim_km[2]), "Area_km2"=prod(grid_dim_km) )
 
@@ -29,7 +33,7 @@ function( strata.limits, observations_LL, grid_dim_km=c(2,2), maximum_distance_f
     TmpUTM = rename_columns( Data_Extrap[,c("E_km","N_km")], newname=c("X","Y"))
     attr(TmpUTM, "projection") = "UTM"
     attr(TmpUTM, "zone") = attr(observations_UTM,"zone")
-    TmpLL = PBSmapping::convUL(TmpUTM)
+    TmpLL = PBSmapping::convUL(TmpUTM, southern=!NorthernTF )
     Data_Extrap = cbind( Data_Extrap, rename_columns(TmpLL,newname=c("Lon","Lat")) )
 
     # Restrict to grid locations near samples

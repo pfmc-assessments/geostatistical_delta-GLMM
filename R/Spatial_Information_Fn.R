@@ -43,8 +43,12 @@ Spatial_Information_Fn = function( n_x, Lon, Lat, Extrapolation_List, Method="Me
     grid_num = RANN::nn2( data=loc_grid, query=loc_i, k=1)$nn.idx[,1]
   }
   if( Method %in% c("Mesh","Grid") ){
-    loc_i = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Lon, Lat=Lat, zone=Extrapolation_List$zone, flip_around_dateline=Extrapolation_List$flip_around_dateline )                                                         #$
-    loc_i = cbind( 'E_km'=loc_i[,'X'], 'N_km'=loc_i[,'Y'])
+    if( is.numeric(Extrapolation_List$zone) ){
+      loc_i = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Lon, Lat=Lat, zone=Extrapolation_List$zone, flip_around_dateline=Extrapolation_List$flip_around_dateline )                                                         #$
+      loc_i = cbind( 'E_km'=loc_i[,'X'], 'N_km'=loc_i[,'Y'])
+    }else{
+      loc_i = SpatialDeltaGLMM::Convert_LL_to_EastNorth_Fn( Lon=Lon, Lat=Lat, crs=Extrapolation_List$zone )
+    }
     # Bounds for 2D AR1 grid
     Grid_bounds = grid_size_km * apply(Extrapolation_List$Data_Extrap[,c('E_km','N_km')]/grid_size_km, MARGIN=2, FUN=function(vec){trunc(range(vec))+c(0,1)})
 
@@ -67,7 +71,7 @@ Spatial_Information_Fn = function( n_x, Lon, Lat, Extrapolation_List, Method="Me
     knot_i = Kmeans$cluster
     loc_x = Kmeans$centers
   }
-  PolygonList = Calc_Polygon_Areas_and_Polygons_Fn( loc_x=loc_x, Data_Extrap=Extrapolation_List[["Data_Extrap"]], a_el=Extrapolation_List[["a_el"]])
+  PolygonList = SpatialDeltaGLMM::Calc_Polygon_Areas_and_Polygons_Fn( loc_x=loc_x, Data_Extrap=Extrapolation_List[["Data_Extrap"]], a_el=Extrapolation_List[["a_el"]])
   a_xl = PolygonList[["a_xl"]]
 
   # Convert loc_x back to location in lat-long coordinates loc_x_LL
@@ -78,7 +82,7 @@ Spatial_Information_Fn = function( n_x, Lon, Lat, Extrapolation_List, Method="Me
   #loc_x_LL = PBSmapping::convUL(tmpUTM)                                                         #$
 
   # Make mesh and info for anisotropy  SpatialDeltaGLMM::
-  MeshList = Calc_Anisotropic_Mesh( Method=Method, loc_x=Kmeans$centers )
+  MeshList = SpatialDeltaGLMM::Calc_Anisotropic_Mesh( Method=Method, loc_x=Kmeans$centers )
 
   # Make matrices for 2D AR1 process
   Dist_grid = dist(loc_grid, diag=TRUE, upper=TRUE)
