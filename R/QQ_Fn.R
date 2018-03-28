@@ -12,6 +12,7 @@
 #' @export
 QQ_Fn <- function(TmbData, 
                   Report, 
+                  DateFile=paste0(getwd(),"/"),
                   save_dir=paste0(DateFile,"/QQ_Fn/"),
                   FileName_PP="Posterior_Predictive",
                   FileName_Phist="Posterior_Predictive-Histogram",
@@ -52,6 +53,7 @@ QQ_Fn <- function(TmbData,
     if(nrow(as.matrix(sigmaM))!=n_e) stop("Error in sigmaM: nrow does not agree with n_e")
     
     # Check save_dir
+    dir.create(save_dir, recursive=TRUE)
     if(!dir.exists(save_dir)) stop(paste0("Wrong directory, cannot save plots: ", save_dir))
     
     # Return list 
@@ -72,7 +74,7 @@ QQ_Fn <- function(TmbData,
         }
        
         # Find where b_i > 0 within category i_e
-        Which = which(TmbData$b_i > 0 & e_i == (i_e-1)) 
+        Which = which(TmbData$b_i > 0 & e_i == (i_e-1))
         Q = rep(NA, length(Which)) # vector to track quantiles for each observation
         y = array(NA, dim=c(length(Which),1000)) # matrix to store samples
         pred_y = var_y = rep(NA, length(Which) ) # vector to track quantiles for each observation
@@ -84,8 +86,8 @@ QQ_Fn <- function(TmbData,
             Return[[i_e]] = list("type"=ObsModel_ez[i_e,], message="QQ not set up for Tweedie distribution")
             next
         }
-        if( !(ObsModel_ez[i_e,1] %in% c(1,2,11,12)) ){
-            Return[[i_e]] = list("type"=ObsModel_ez[i_e,], message="QQ not working except for when TmbData$ObsModel[1] is 1, 2, 11, or 12")
+        if( !(ObsModel_ez[i_e,1] %in% c(1,2)) ){
+            Return[[i_e]] = list("type"=ObsModel_ez[i_e,], message="QQ not working except for when using a Gamma or Lognormal distribution")
             next
         }
         if( length(ObsModel_ez[i_e,])==1 || ObsModel_ez[i_e,2]%in%c(0,3) ){
@@ -95,6 +97,7 @@ QQ_Fn <- function(TmbData,
         }
         if( length(ObsModel_ez[i_e,])>=2 && ObsModel_ez[i_e,2]==1 ){
             for(ObsI in 1:length(Which)){
+                if(sigmaM[e_i[Which[ObsI]]+1,3]!=1) stop("`QQ_Fn` will not work with Poisson-link delta model across all VAST versions given values for turned-off parameters")
                 R1_i = 1 - exp( -1 * sigmaM[e_i[Which[ObsI]]+1,3] * TmbData$a_i[Which[ObsI]] * exp(Report$P1_i[Which[ObsI]]) )
                 pred_y[ObsI] = TmbData$a_i[Which[ObsI]] * exp(Report$P1_i[Which[ObsI]]) / R1_i * exp(Report$P2_i[Which[ObsI]]);
             }
@@ -110,18 +113,6 @@ QQ_Fn <- function(TmbData,
                 b = pow(sigmaM[i_e, 1],2) * pred_y[ObsI];
                 y[ObsI,] = rgamma(n=ncol(y), shape=1/pow(sigmaM[i_e,1],2), scale=b)
                 Q[ObsI] = pgamma(q=TmbData$b_i[Which[ObsI]], shape=1/pow(sigmaM[i_e,1],2), scale=b)
-            }
-            if(ObsModel_ez[i_e,1]==11){
-                ECE = rbinom(n=1000, size=1, prob=1-sigmaM[i_e,2])
-                y[ObsI,] = rlnorm(n=ncol(y), meanlog=log(pred_y[ObsI])-pow(sigmaM[i_e,1],2)/2, sdlog=sigmaM[i_e,1])*(1-ECE) + rlnorm(n=ncol(y), meanlog=log(pred_y[ObsI])-pow(sigmaM[i_e,4],2)/2+log(1+sigmaM[i_e,3]), sdlog=sigmaM[i_e,4])*ECE
-                Q[ObsI] = plnorm(q=TmbData$b_i[Which[ObsI]], meanlog=log(pred_y[ObsI])-pow(sigmaM[i_e,1],2)/2, sdlog=sigmaM[i_e,1])*sigmaM[i_e,2] + plnorm(q=TmbData$b_i[Which[ObsI]], meanlog=log(pred_y[ObsI])-pow(sigmaM[i_e,4],2)/2+log(1+sigmaM[i_e,3]), sdlog=sigmaM[i_e,4])*(1-sigmaM[i_e,2])
-            }
-            if(ObsModel_ez[i_e,1]==12){
-                b = pow(sigmaM[i_e,1],2) * pred_y[ObsI];
-                b2 = pow(sigmaM[i_e,4],2) * pred_y[ObsI] * (1+sigmaM[i_e,3]);
-                ECE = rbinom(n=ncol(y), size=1, prob=1-sigmaM[i_e,2])
-                y[ObsI,] = rgamma(n=ncol(y), shape=1/pow(sigmaM[i_e,1],2), scale=b)*(1-ECE) + rgamma(n=ncol(y), shape=1/pow(sigmaM[i_e,4],2), scale=b2)*ECE
-                Q[ObsI] = pgamma(q=TmbData$b_i[Which[ObsI]], shape=1/pow(sigmaM[i_e,1],2), scale=b)*sigmaM[i_e,2] + pgamma(q=TmbData$b_i[Which[ObsI]], shape=1/pow(sigmaM[i_e,4],2), scale=b2)*(1-sigmaM[i_e,2])
             }
         }
         
