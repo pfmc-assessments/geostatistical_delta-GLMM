@@ -59,10 +59,10 @@ function( TmbData, Version, VesselConfig=c("Vessel"=0,"VesselYear"=0), Q_Config=
   }
 
   # Parameters
-  if( length(Parameters)==1 && Parameters=="generate" ) Parameters = SpatialDeltaGLMM::Param_Fn( Version=Version, DataList=TmbData, RhoConfig=RhoConfig )
+  if( length(Parameters)==1 && Parameters=="generate" ) Parameters = Param_Fn( Version=Version, DataList=TmbData, RhoConfig=RhoConfig )
 
   # Which parameters are turned off
-  if( length(Map)==1 && Map=="generate" ) Map = SpatialDeltaGLMM::Make_Map( Version=Version, TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, RhoConfig=RhoConfig, Aniso=TmbData[['Options_vec']]['Aniso'])
+  if( length(Map)==1 && Map=="generate" ) Map = Make_Map( Version=Version, TmbData=TmbData, VesselConfig=VesselConfig, CovConfig=CovConfig, Q_Config=Q_Config, RhoConfig=RhoConfig, Aniso=TmbData[['Options_vec']]['Aniso'])
   if( "hyperparameters_z"%in%names(Parameters) && TmbData$Options_vec['AreaAbundanceCurveTF']==0 ) Map[["hyperparameters_z"]] = factor( rep(NA,length(Parameters[["hyperparameters_z"]])) )
 
   # Which are random
