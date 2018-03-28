@@ -12,7 +12,6 @@
 #' @export
 QQ_Fn <- function(TmbData, 
                   Report, 
-                  # if_aggregate=F,
                   save_dir=paste0(DateFile,"/QQ_Fn/"),
                   FileName_PP="Posterior_Predictive",
                   FileName_Phist="Posterior_Predictive-Histogram",
@@ -35,19 +34,22 @@ QQ_Fn <- function(TmbData,
         if(is.vector(sigmaM)) 
             # VAST Versions 1.0.0 and 1.1.0
             sigmaM <- rep(1, n_e) %o% Report$SigmaM
-    }
-    # else if("n_p" %in% names(TmbData)){
-    #     # MIST: not supported, as MIST uses different definitions for ObsModel
-    #     return(list(message="The function does not support MIST yet."))
-    # }
-    else{
+    }else{
         # SpatialDeltaGLMM
         n_e <- 1
         e_i <- rep(0,TmbData$n_i)
         ObsModel_ez <- matrix(TmbData$ObsModel, nrow = 1)
         sigmaM <- matrix(Report$SigmaM, nrow = 1)
     }
+    # else if("n_p" %in% names(TmbData)){
+    #     # MIST: not supported, as MIST uses different definitions for ObsModel
+    #     return(list(message="The function does not support MIST yet."))
+    # }
     
+    # Check data
+    if(nlevels(as.factor(e_i))!=n_e) stop("Error in e_i: nlevels does not agree with n_e")
+    if(nrow(as.matrix(ObsModel_ez))!=n_e) stop("Error in ObsModel_ez: nrow does not agree with n_e")
+    if(nrow(as.matrix(sigmaM))!=n_e) stop("Error in sigmaM: nrow does not agree with n_e")
     
     # Check save_dir
     if(!dir.exists(save_dir)) stop(paste0("Wrong directory, cannot save plots: ", save_dir))
@@ -75,34 +77,31 @@ QQ_Fn <- function(TmbData,
         y = array(NA, dim=c(length(Which),1000)) # matrix to store samples
         pred_y = var_y = rep(NA, length(Which) ) # vector to track quantiles for each observation
         
-        # Make plot while calculating posterior predictives
-        if(!is.null(FileName_PP) & !is.null(save_dir)) jpeg(save_PP, width=10, height=3, res=200, units="in")
-        par(mar=c(2,2,2,0), mgp=c(1.25,0.25,0), tck=-0.02)
-        plot(TmbData$b_i[Which], ylab="", xlab="", log="y", main="", col="blue")
-        
-        # Loop through observations
-        for(ObsI in 1:length(Which)){
-            # Calculate pred_y
-            # I can't use R2_i anymore because interpretation changed around March 9, 2017 (due to area-swept change in Poisson-process and Tweedie functions)
-            # However, I CAN use P2_i, which has a stable definition over time (as a linear predictor)
-            if( length(ObsModel_ez[i_e,])==1 || ObsModel_ez[i_e,2]%in%c(0,3) ){
+        # Calculate pred_y
+        # I can't use R2_i anymore because interpretation changed around March 9, 2017 (due to area-swept change in Poisson-process and Tweedie functions)
+        # However, I CAN use P2_i, which has a stable definition over time (as a linear predictor)
+        if( length(ObsModel_ez[i_e,])>=2 && ObsModel_ez[i_e,2]==2 ){
+            Return[[i_e]] = list("type"=ObsModel_ez[i_e,], message="QQ not set up for Tweedie distribution")
+            next
+        }
+        if( !(ObsModel_ez[i_e,1] %in% c(1,2,11,12)) ){
+            Return[[i_e]] = list("type"=ObsModel_ez[i_e,], message="QQ not working except for when TmbData$ObsModel[1] is 1, 2, 11, or 12")
+            next
+        }
+        if( length(ObsModel_ez[i_e,])==1 || ObsModel_ez[i_e,2]%in%c(0,3) ){
+            for(ObsI in 1:length(Which)){
                 pred_y[ObsI] = TmbData$a_i[Which[ObsI]] * exp(Report$P2_i[Which[ObsI]])
             }
-            if( length(ObsModel_ez[i_e,])>=2 && ObsModel_ez[i_e,2]==1 ){
+        }
+        if( length(ObsModel_ez[i_e,])>=2 && ObsModel_ez[i_e,2]==1 ){
+            for(ObsI in 1:length(Which)){
                 R1_i = 1 - exp( -1 * sigmaM[e_i[Which[ObsI]]+1,3] * TmbData$a_i[Which[ObsI]] * exp(Report$P1_i[Which[ObsI]]) )
                 pred_y[ObsI] = TmbData$a_i[Which[ObsI]] * exp(Report$P1_i[Which[ObsI]]) / R1_i * exp(Report$P2_i[Which[ObsI]]);
             }
-            if( length(ObsModel_ez[i_e,])>=2 && ObsModel_ez[i_e,2]==2 ){
-                Return[[i_e]] = list("type"=ObsModel_ez[i_e,], message="QQ not set up for Tweedie distribution")
-                next
-                #pred_y[ObsI] = TmbData$a_i[Which[ObsI]] * exp(Report$P2_i[Which[ObsI]])
-            }
-            if( !(ObsModel_ez[i_e,1] %in% c(1,2,11,12)) ){
-                Return[[i_e]] = list("type"=ObsModel_ez[i_e,], message="QQ not working except for when TmbData$ObsModel[1] is 1, 2, 11, or 12")
-                next
-            }
-            
-            # Simulate quantiles for different distributions
+        }
+        
+        # Simulate quantiles for different distributions: Loop through observations
+        for(ObsI in 1:length(Which)){
             if(ObsModel_ez[i_e,1]==1){
                 y[ObsI,] = rlnorm(n=ncol(y), meanlog=log(pred_y[ObsI])-pow(sigmaM[i_e,1],2)/2, sdlog=sigmaM[i_e,1])   # Plotting in log-space
                 Q[ObsI] = plnorm(q=TmbData$b_i[Which[ObsI]], meanlog=log(pred_y[ObsI])-pow(sigmaM[i_e,1],2)/2, sdlog=sigmaM[i_e,1])
@@ -124,7 +123,15 @@ QQ_Fn <- function(TmbData,
                 y[ObsI,] = rgamma(n=ncol(y), shape=1/pow(sigmaM[i_e,1],2), scale=b)*(1-ECE) + rgamma(n=ncol(y), shape=1/pow(sigmaM[i_e,4],2), scale=b2)*ECE
                 Q[ObsI] = pgamma(q=TmbData$b_i[Which[ObsI]], shape=1/pow(sigmaM[i_e,1],2), scale=b)*sigmaM[i_e,2] + pgamma(q=TmbData$b_i[Which[ObsI]], shape=1/pow(sigmaM[i_e,4],2), scale=b2)*(1-sigmaM[i_e,2])
             }
-            # Add results to plot
+        }
+        
+        # Make plot while calculating posterior predictives
+        if(!is.null(FileName_PP) & !is.null(save_dir)) jpeg(save_PP, width=10, height=3, res=200, units="in")
+        par(mar=c(2,2,2,0), mgp=c(1.25,0.25,0), tck=-0.02)
+        plot(TmbData$b_i[Which], ylab="", xlab="", log="y", main="", col="blue")
+        
+        # Add results to plot: Loop through observations
+        for(ObsI in 1:length(Which)){
             var_y[ObsI] = var( y[ObsI,] )
             Quantiles = quantile(y[ObsI,],prob=c(0.025,0.25,0.75,0.975))
             lines(x=c(ObsI,ObsI), y=Quantiles[2:3], lwd=2)
@@ -135,9 +142,8 @@ QQ_Fn <- function(TmbData,
         }
         if(!is.null(FileName_PP) & !is.null(save_dir)) dev.off()
         
-        
         # Q-Q plot
-        if(!is.null(FileName_Phist) & !is.null(save_dir)) jpeg(save_QQ, width=4, height=4, res=200, units="in")
+        if(!is.null(FileName_Phist) & !is.null(save_dir)) jpeg(save_Phist, width=4, height=4, res=200, units="in")
         par(mfrow=c(1,1), mar=c(2,2,2,0), mgp=c(1.25,0.25,0), tck=-0.02)
         Qtemp = na.omit(Q)
         Order = order(Qtemp)
@@ -146,7 +152,7 @@ QQ_Fn <- function(TmbData,
         if(!is.null(FileName_Phist) & !is.null(save_dir)) dev.off()
         
         # Aggregate predictive distribution
-        if(!is.null(FileName_QQ) & !is.null(save_dir)) jpeg(save_Phist, width=4, height=4, res=200, units="in")
+        if(!is.null(FileName_QQ) & !is.null(save_dir)) jpeg(save_QQ, width=4, height=4, res=200, units="in")
         par(mfrow=c(1,1), mar=c(2,2,2,0), mgp=c(1.25,0.25,0), tck=-0.02)
         hist( log(y), main="Aggregate predictive dist.", xlab="log(Obs)", ylab="Density")
         if(!is.null(FileName_QQ) & !is.null(save_dir)) dev.off()
@@ -161,5 +167,6 @@ QQ_Fn <- function(TmbData,
         Return[[i_e]] = list("type"=ObsModel_ez[i_e,], "Q"=Q, "var_y"=var_y, "pred_y"=pred_y )
     }
     
+    if(length(Return)==1) Return <- Return[[1]] # single species model
     return( Return )
 }
