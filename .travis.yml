@@ -29,6 +29,9 @@ sudo: required
 
 apt_packages:
   - libudunits2-dev
+  - libproj-dev
+  - libgeos-dev
+  - libgdal-dev
 
 r_packages:
   - utils
