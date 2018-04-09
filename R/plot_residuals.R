@@ -56,7 +56,7 @@ plot_residuals = function( Lat_i, Lon_i, TmbData, Report, Q, savedir=getwd(),
     if( length(which_i_in_y)>0 ){
       exp_rate_xy[,yI] = tapply( Report$R1_i[which_i_in_y], INDEX=factor(TmbData$s_i[which_i_in_y],levels=1:TmbData$n_x-1), FUN=mean )
       obs_rate_xy[,yI] = tapply( TmbData$b_i[which_i_in_y]>0, INDEX=factor(TmbData$s_i[which_i_in_y],levels=1:TmbData$n_x-1), FUN=mean )
-      total_num_xy[,yI] = tapply( TmbData$b_i[which_i_in_y]>0, INDEX=factor(TmbData$s_i[which_i_in_y],levels=1:TmbData$n_x-1), FUN=length )
+      total_num_xy[,yI] = tapply( TmbData$b_i[which_i_in_y], INDEX=factor(TmbData$s_i[which_i_in_y],levels=1:TmbData$n_x-1), FUN=length )
     }else{
       total_num_xy[,yI] = 0
     }
@@ -80,7 +80,7 @@ plot_residuals = function( Lat_i, Lon_i, TmbData, Report, Q, savedir=getwd(),
   ##################
 
   # Extract quantile for positive catch rates
-  Q_i = Q[["Q"]]
+  #Q_i = Q[["Q"]]
   which_pos = which(TmbData$b_i>0)
   bvar_ipos = Q[["var_y"]]   # Change name to avoid naming-convention of y with reporting-interval
   bpred_ipos = Q[["pred_y"]]  # Change name to avoid naming-convention of y with reporting-interval
@@ -117,19 +117,21 @@ plot_residuals = function( Lat_i, Lon_i, TmbData, Report, Q, savedir=getwd(),
   # Plots
   #################
 
-  Col = colorRampPalette(colors=c("blue","white","red"))
-  textmargin = "Pearson residual"
-  for( zI in 1:2 ){
-    Q_xy = list( Q1_xy, Q2_xy )[[zI]]
-    zlim = c(-1,1) * ceiling(max(abs(Q_xy),na.rm=TRUE))
-    #Q_xt = ifelse( abs(Q_xt)>3, 3*sign(Q_xt), Q_xt )
-    SpatialDeltaGLMM:::PlotMap_Fn( MappingDetails=MappingDetails, Mat=Q_xy, PlotDF=PlotDF, Col=Col, zlim=zlim, ignore.na=TRUE, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(savedir,"/",c("maps--encounter_pearson_resid","maps--catchrate_pearson_resid")[zI]), Year_Set=paste0("Residuals--",1:ncol(Q_xy)), Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin, add=add, pch=pch, Legend=Legend, mfrow=mfrow, plot_legend_fig=plot_legend_fig, ...)
+  if( !is.null(savedir) ){
+    Col = colorRampPalette(colors=c("blue","white","red"))
+    textmargin = "Pearson residual"
+    for( zI in 1:2 ){
+      Q_xy = list( Q1_xy, Q2_xy )[[zI]]
+      zlim = c(-1,1) * ceiling(max(abs(Q_xy),na.rm=TRUE))
+      #Q_xt = ifelse( abs(Q_xt)>3, 3*sign(Q_xt), Q_xt )
+      SpatialDeltaGLMM:::PlotMap_Fn( MappingDetails=MappingDetails, Mat=Q_xy, PlotDF=PlotDF, Col=Col, zlim=zlim, ignore.na=TRUE, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(savedir,"/",c("maps--encounter_pearson_resid","maps--catchrate_pearson_resid")[zI]), Year_Set=paste0("Residuals--",1:ncol(Q_xy)), Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin, add=add, pch=pch, Legend=Legend, mfrow=mfrow, plot_legend_fig=plot_legend_fig, ...)
+    }
   }
 
   #################
   # Returns
   #################
 
-  Return = list( "Q1_xy"=Q1_xy, "Q2_xy"=Q2_xy )
+  Return = list( "Q1_xy"=Q1_xy, "Q2_xy"=Q2_xy  )  # , "obs_num_xy"=obs_num_xy, "exp_num_xy"=exp_num_xy, "total_num_xy"=total_num_xy
   return( invisible(Return) )
 }
