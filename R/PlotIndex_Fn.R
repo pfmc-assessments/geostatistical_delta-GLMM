@@ -31,7 +31,7 @@
 PlotIndex_Fn <-
 function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(getwd(),"/"), PlotName="Index.png", interval_width=1,
   strata_names=NULL, category_names=NULL, use_biascorr=FALSE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4,
-  treat_missing_as_zero=TRUE, ... ){
+  treat_missing_as_zero=TRUE, create_covariance_table=FALSE, ... ){
 
   # Which parameters
   if( "ln_Index_tl" %in% rownames(TMB::summary.sdreport(Sdreport)) ){
@@ -80,12 +80,16 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
 
   # Extract index
   if( ParName %in% c("Index_tl","Index_ctl","Index_cyl")){
+    Index_ctl = log_Index_ctl = array( NA, dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
     if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
-      log_Index_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==paste0("ln_",ParName))],TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==paste0("ln_",ParName)),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
-      Index_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==ParName)],TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==ParName),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      log_Index_ctl[] = c(Sdreport$unbiased$value[which(names(Sdreport$value)==paste0("ln_",ParName))], TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==paste0("ln_",ParName)),'Std. Error'])
+      Index_ctl[] = c(Sdreport$unbiased$value[which(names(Sdreport$value)==ParName)], TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==ParName),'Std. Error'])
+    }
+    if( !any(is.na(Index_ctl)) ){
+      message("Using bias-corrected estimates for abundance index...")
     }else{
-      log_Index_ctl = array( TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==paste0("ln_",ParName)),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
-      Index_ctl = array( TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==ParName),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      log_Index_ctl[] = TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==paste0("ln_",ParName)),]
+      Index_ctl[] = TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==ParName),]
     }
   }
   if( ParName %in% c("Index_tp")){
@@ -101,7 +105,7 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
     }else{
       Index_ctl = aperm( array( TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==ParName),], dim=c(unlist(TmbData[c('n_t','n_c','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) ), perm=c(2,1,3,4))
       if( "ln_Index_tp" %in% rownames(TMB::summary.sdreport(Sdreport))){
-       log_Index_ctl = aperm( array( TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==paste0("ln_",ParName)),], dim=c(unlist(TmbData[c('n_t','n_c','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) ), perm=c(2,1,3,4))
+        log_Index_ctl = aperm( array( TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==paste0("ln_",ParName)),], dim=c(unlist(TmbData[c('n_t','n_c','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) ), perm=c(2,1,3,4))
       }else{
         log_Index_ctl = log( Index_ctl )
         log_Index_ctl[,,,'Std. Error'] = log_Index_ctl[,,,'Std. Error'] / log_Index_ctl[,,,'Estimate']
@@ -166,5 +170,28 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
 
   # Return stuff
   Return = list( "Table"=Table, "log_Index_ctl"=log_Index_ctl, "Index_ctl"=Index_ctl, "Ylim"=Ylim )
+
+  # Extract and save covariance
+  if( "cov"%in%names(Sdreport) & create_covariance_table==TRUE ){
+    DF = expand.grid( "Category"=1:TmbData$n_c, "Year"=1:TmbData$n_t, "Stratum"=1:TmbData$n_l )
+    Which = which( names(Sdreport$value)==ParName )
+    Cov = Sdreport$cov[Which,Which]
+    Corr = cov2cor(Cov) - diag(nrow(Cov))
+    rowcolDF = cbind( "RowNum"=row(Corr)[lower.tri(Corr,diag=TRUE)], "ColNum"=col(Corr)[lower.tri(Corr,diag=TRUE)] )
+    Table = cbind( DF[rowcolDF[,'ColNum'],], DF[rowcolDF[,'RowNum'],] )
+    colnames(Table) = paste0(colnames(Table), rep(c(1,2),each=3))
+    Table = cbind( Table, "Correlation"=cov2cor(Cov)[lower.tri(Corr,diag=TRUE)], "Covariance"=Cov[lower.tri(Corr,diag=TRUE)] )
+    Table = cbind( Table, "Index1"=Index_ctl[as.matrix(cbind(DF[rowcolDF[,'ColNum'],],1))], "Index2"=Index_ctl[as.matrix(cbind(DF[rowcolDF[,'RowNum'],],1))] )
+    WhichZero = which( (Table[,'Index1']*Table[,'Index2']) == 0 )
+    Table[WhichZero,c('Correlation','Covariance')] = 0
+    Return = c( Return, "Table_of_estimted_covariance"=Table )
+    # Exploratory
+    #WhichHigh = which( abs(Table[,'Correlation'])>0.5 & Table[,'Correlation']<1 )
+    #Table[WhichHigh,]
+    #WhichNotOne = which( Table[,'Correlation']<1 & (Table[,'Year1']=Table[,'Year2']) )
+    #hist( Table[WhichNotOne,'Correlation'] )
+    #summary(Table[WhichNotOne,'Correlation'])
+  }
+
   return( invisible(Return) )
 }
