@@ -81,7 +81,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=
           TmpLL = rbind( Tmp1, cbind('PID'=max(Tmp1[,1])+1, 'POS'=1:length(Which)+max(Tmp1[,2]), 'X'=PlotDF[Which,'Lon'], 'Y'=PlotDF[Which,'Lat'], Mat[Which,]) )
           tmpUTM = TmpLL
           # Convert map to Eastings-Northings
-          if( is.numeric(Extrapolation_List$zone) ){
+          if( is.numeric(zone) ){
             tmpUTM[,c('X','Y')] = as.matrix(SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=TmpLL[,'X'], Lat=TmpLL[,'Y'], zone=zone, flip_around_dateline=ifelse(MappingDetails[[1]]%in%c("world2","world2Hires"),FALSE,FALSE) )[,c('X','Y')])
           }else{
             tmpUTM[,c('X','Y')] = as.matrix(SpatialDeltaGLMM::Convert_LL_to_EastNorth_Fn( Lon=TmpLL[,'X'], Lat=TmpLL[,'Y'], crs=zone )[,c('E_km','N_km')])
