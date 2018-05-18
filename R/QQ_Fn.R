@@ -53,7 +53,7 @@ QQ_Fn <- function(TmbData,
     if(nrow(as.matrix(sigmaM))!=n_e) stop("Error in sigmaM: nrow does not agree with n_e")
     
     # Check save_dir
-    dir.create(save_dir, recursive=TRUE)
+    dir.create(save_dir, recursive=TRUE, showWarnings = FALSE)
     if(!dir.exists(save_dir)) stop(paste0("Wrong directory, cannot save plots: ", save_dir))
     
     # Return list 
