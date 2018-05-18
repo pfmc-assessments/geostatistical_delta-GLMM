@@ -30,7 +30,7 @@
 #' @export
 PlotIndex_Fn <-
 function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(getwd(),"/"), PlotName="Index.png", interval_width=1,
-  strata_names=NULL, category_names=NULL, use_biascorr=FALSE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4,
+  strata_names=NULL, category_names=NULL, use_biascorr=TRUE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4,
   treat_missing_as_zero=TRUE, create_covariance_table=FALSE, ... ){
 
   # Which parameters
@@ -78,18 +78,29 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
     }
   }
 
-  # Extract index
+  # Extract index (using bias-correctino if available and requested)
   if( ParName %in% c("Index_tl","Index_ctl","Index_cyl")){
+    SD = TMB::summary.sdreport(Sdreport)
     Index_ctl = log_Index_ctl = array( NA, dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+    # Index
     if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
-      log_Index_ctl[] = c(Sdreport$unbiased$value[which(names(Sdreport$value)==paste0("ln_",ParName))], TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==paste0("ln_",ParName)),'Std. Error'])
-      Index_ctl[] = c(Sdreport$unbiased$value[which(names(Sdreport$value)==ParName)], TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==ParName),'Std. Error'])
+      Index_ctl[] = SD[which(rownames(SD)==ParName),c('Est. (bias.correct)','Std. Error')]
     }
     if( !any(is.na(Index_ctl)) ){
-      message("Using bias-corrected estimates for abundance index...")
+      message("Using bias-corrected estimates for abundance index (natural-scale)...")
     }else{
-      log_Index_ctl[] = TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==paste0("ln_",ParName)),]
-      Index_ctl[] = TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==ParName),]
+      message("Not using bias-corrected estimates for abundance index (natural-scale)...")
+      Index_ctl[] = SD[which(rownames(SD)==ParName),c('Estimate','Std. Error')]
+    }
+    # Log-Index
+    if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
+      log_Index_ctl[] = SD[which(rownames(SD)==paste0("ln_",ParName)),c('Est. (bias.correct)','Std. Error')]
+    }
+    if( !any(is.na(log_Index_ctl)) ){
+      message("Using bias-corrected estimates for abundance index (log-scale)...")
+    }else{
+      message("Not using bias-corrected estimates for abundance index (log-scale)...")
+      log_Index_ctl[] = SD[which(rownames(SD)==paste0("ln_",ParName)),c('Estimate','Std. Error')]
     }
   }
   if( ParName %in% c("Index_tp")){

@@ -59,16 +59,18 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
   }else{
     message( "Plotting center-of-gravity..." )
 
-    # Extract index
+    # Extract index  (using bias-correctino if available and requested)
     SD = TMB::summary.sdreport(Sdreport)
+    SD_mean_Z_ctm = array( NA, dim=c(unlist(TmbData[c('n_c','n_t','n_m')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
     if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
-      message("Using bias-corrected estimates for center of gravity...")
-      SD_mean_Z_ctm = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==CogName)],TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==CogName),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_m')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
-    }else{
-      SD_mean_Z_ctm = array( TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==CogName),], dim=c(unlist(TmbData[c('n_c','n_t','n_m')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      SD_mean_Z_ctm[] = SD[which(rownames(SD)==CogName),c('Est. (bias.correct)','Std. Error')]
     }
-    # Extract estimates
-    #SD_log_area_Z_tmm = array(SD[which(rownames(SD)=="log_area_Z_tmm"),], dim=c(dim(Report$area_Z_tmm),2))
+    if( !any(is.na(SD_mean_Z_ctm)) ){
+      message("Using bias-corrected estimates for center of gravity...")
+    }else{
+      message("Not using bias-corrected estimates for center of gravity...")
+      SD_mean_Z_ctm[] = SD[which(rownames(SD)==CogName),c('Estimate','Std. Error')]
+    }
 
     # Plot center of gravity
     png( file=FileName_COG, width=6.5, height=TmbData$n_c*2, res=200, units="in")
@@ -113,13 +115,26 @@ Plot_range_shifts = function( Sdreport, Report, TmbData, Year_Set=NULL, PlotDir=
 
     # Extract estimates
     SD = TMB::summary.sdreport(Sdreport)
+    SD_effective_area_ctl = SD_log_effective_area_ctl = array( NA, dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+    # Effective area
     if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
-      message("Using bias-corrected estimates for effective area...")
-      SD_effective_area_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==EffectiveName)],TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==EffectiveName),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
-      SD_log_effective_area_ctl = array( c(Sdreport$unbiased$value[which(names(Sdreport$value)==paste0("log_",EffectiveName))],TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==paste0("log_",EffectiveName)),'Std. Error']), dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      SD_effective_area_ctl[] = SD[which(rownames(SD)==EffectiveName),c('Est. (bias.correct)','Std. Error')]
+    }
+    if( !any(is.na(SD_effective_area_ctl)) ){
+      message("Using bias-corrected estimates for effective area occupied (natural scale)...")
     }else{
-      SD_effective_area_ctl = array( TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==EffectiveName),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
-      SD_log_effective_area_ctl = array( TMB::summary.sdreport(Sdreport)[which(rownames(TMB::summary.sdreport(Sdreport))==paste0("log_",EffectiveName)),], dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(NULL,NULL,NULL,c('Estimate','Std. Error')) )
+      message("Not using bias-corrected estimates for effective area occupied (natural scale)...")
+      SD_effective_area_ctl[] = SD[which(rownames(SD)==EffectiveName),c('Estimate','Std. Error')]
+    }
+    # Log-Effective area
+    if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
+      SD_log_effective_area_ctl[] = SD[which(rownames(SD)==paste0("log_",EffectiveName)),c('Est. (bias.correct)','Std. Error')]
+    }
+    if( !any(is.na(SD_log_effective_area_ctl)) ){
+      message("Using bias-corrected estimates for effective area occupied (log scale)...")
+    }else{
+      message("Not using bias-corrected estimates for effective area occupied (log scale)...")
+      SD_log_effective_area_ctl[] = SD[which(rownames(SD)==paste0("log_",EffectiveName)),c('Estimate','Std. Error')]
     }
 
     # Plot area
