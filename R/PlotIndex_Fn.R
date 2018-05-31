@@ -31,7 +31,7 @@
 PlotIndex_Fn <-
 function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(getwd(),"/"), PlotName="Index.png", interval_width=1,
   strata_names=NULL, category_names=NULL, use_biascorr=TRUE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4,
-  treat_missing_as_zero=TRUE, create_covariance_table=FALSE, ... ){
+  treat_missing_as_zero=FALSE, create_covariance_table=FALSE, ... ){
 
   # Which parameters
   if( "ln_Index_tl" %in% rownames(TMB::summary.sdreport(Sdreport)) ){
@@ -155,7 +155,7 @@ function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(g
     for( cI in 1:TmbData$n_c ){
       # Calculate y-axis limits
       Ylim = c(0, max(Index_ctl[cI,Years2Include,,'Estimate']%o%c(1,1) * exp(log_Index_ctl[cI,Years2Include,,'Std. Error']%o%c(-interval_width,interval_width)),na.rm=TRUE) )
-      if( plot_log==TRUE ) Ylim[1] = min(Index_ctl[cI,Years2Include,,'Estimate']%o%c(1,1) * exp(log_Index_ctl[cI,Years2Include,,'Std. Error']%o%c(-interval_width,interval_width)))
+      if( plot_log==TRUE ) Ylim[1] = min(Index_ctl[cI,Years2Include,,'Estimate']%o%c(1,1) * exp(log_Index_ctl[cI,Years2Include,,'Std. Error']%o%c(-interval_width,interval_width)),na.rm=TRUE)
       if( Calc_design==TRUE ) Ylim[2] = max(Ylim[2], (Design_t[,'Estimate']%o%c(1,1))+Design_t[,'Std. Error']%o%c(-interval_width,interval_width))
       if( Calc_design==TRUE & plot_log==TRUE ) Ylim[2] = min(Ylim[2], (Design_t[,'Estimate']%o%c(1,1))+Design_t[,'Std. Error']%o%c(-interval_width,interval_width))
       # Plot stuff

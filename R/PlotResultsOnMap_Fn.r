@@ -109,6 +109,7 @@ function(plot_set=3, MappingDetails, Report, Sdreport=NULL, Nknots=Inf, PlotDF, 
         if("D_xct"%in%names(Report)) Mat_xt = Report$R1_xct[,cI,]
         if("D_xcy"%in%names(Report)) Mat_xt = Report$R1_xcy[,cI,]
         if(any(c("dhat_ktp","dpred_ktp")%in%names(Report))) stop("Not implemented for SpatialVAM")
+        message( "plot_num=1 doesn't work well when using ObsModel[2]==1" )
       }
       if(plot_num==2){
         # Positive values ("Pos")
