@@ -82,8 +82,24 @@ plot_residuals = function( Lat_i, Lon_i, TmbData, Report, Q, savedir=getwd(),
   # Extract quantile for positive catch rates
   #Q_i = Q[["Q"]]
   which_pos = which(TmbData$b_i>0)
-  bvar_ipos = Q[["var_y"]]   # Change name to avoid naming-convention of y with reporting-interval
-  bpred_ipos = Q[["pred_y"]]  # Change name to avoid naming-convention of y with reporting-interval
+  bvar_ipos = bpred_ipos = NULL
+  # Univariate Q interface
+  if( all(c("var_y","pred_y") %in% names(Q)) ){
+    bvar_ipos = Q[["var_y"]]   # Change name to avoid naming-convention of y with reporting-interval
+    bpred_ipos = Q[["pred_y"]]  # Change name to avoid naming-convention of y with reporting-interval
+  }
+  # Multivariate Q interface
+  if( all(c("var_y","pred_y") %in% names(Q[[1]])) ){
+    bvar_ipos = bpred_ipos = rep(NA, length=length(which_pos))
+    for(i_e in 1:length(Q)){
+      which_pos_and_e = which(TmbData$e_i[which_pos]==(i_e-1))
+      bvar_ipos[which_pos_and_e] = Q[[i_e]][["var_y"]]
+      bpred_ipos[which_pos_and_e] = Q[[i_e]][["pred_y"]]
+    }
+  }
+  if( is.null(bvar_ipos) & is.null(bpred_ipos) ){
+    stop("Something is wrong with `Q` input")
+  }
 
   ### Method #1 -- chi-squared transformation of cumulative function
   # Convert to Chi-squared distribution
