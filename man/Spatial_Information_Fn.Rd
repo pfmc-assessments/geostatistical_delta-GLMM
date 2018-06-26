@@ -4,15 +4,20 @@
 \alias{Spatial_Information_Fn}
 \title{Build objects related to spatial information}
 \usage{
-Spatial_Information_Fn(n_x, Lon, Lat, Extrapolation_List, Method = "Mesh",
+Spatial_Information_Fn(n_x, Lon_i, Lat_i, LON_intensity = Lon_i,
+  LAT_intensity = Lat_i, Extrapolation_List, Method = "Mesh",
   grid_size_km = 50, grid_size_LL = 1, ...)
 }
 \arguments{
 \item{n_x, }{the number of vertices in the SPDE mesh (determines the spatial resolution when Method="Mesh")}
 
-\item{Lon, }{Longitude for each sample}
+\item{Lon_i, }{Longitude for each sample}
 
-\item{Lat, }{Latitude for each sample}
+\item{Lat_i, }{Latitude for each sample}
+
+\item{LON_intensity, }{Longitude for each location to use during k-means algorithm to decide upon the location of knots}
+
+\item{LAT_intensity, }{Latitude for each location to use during k-means algorithm to decide upon the location of knots}
 
 \item{Extrapolation_List, }{the output from \code{Prepare_Extrapolation_Data_Fn}}
 

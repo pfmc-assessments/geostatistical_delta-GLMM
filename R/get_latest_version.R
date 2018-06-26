@@ -9,8 +9,8 @@
 #' the latest, or supplied, version of the VAST code to compile.
 #'
 #' @author Kelli Faye Johnson
-#' @export
 #'
+#' @export
 get_latest_version <- function(version = NULL, package = "VAST") {
   thedir <- system.file("executables", package = package)
 

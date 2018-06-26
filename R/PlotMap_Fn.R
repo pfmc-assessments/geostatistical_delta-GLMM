@@ -67,7 +67,7 @@ function(MappingDetails, Mat, PlotDF, MapSizeRatio=c('Width(in)'=4,'Height(in)'=
         if( Rotate==0 ){
           Map = maps::map(MappingDetails[[1]], MappingDetails[[2]], plot=FALSE)
           plot( 1, type="n", ylim=mean(Ylim)+c(-0.5,0.5)*diff(Ylim), xlim=mean(Xlim)+c(-0.5,0.5)*diff(Xlim), xaxt="n", yaxt="n" )
-          map( Map, add=TRUE )
+          map( Map, add=TRUE )  # , col=land_color, fill=TRUE ->  Using land-fill color produces weird plotting artefacts
           #map(MappingDetails[[1]], MappingDetails[[2]], ylim=mean(Ylim)+c(-0.5,0.5)*diff(Ylim), xlim=mean(Xlim)+c(-0.5,0.5)*diff(Xlim), plot=TRUE)
           Col_Bin = ceiling( f(Mat[Which,,drop=FALSE],zlim=zlim)[,tI]*49 ) + 1
           points(x=PlotDF[Which,'Lon'], y=PlotDF[Which,'Lat'], col=Col(n=50)[Col_Bin], cex=Cex, pch=pch)

@@ -7,9 +7,9 @@
 PlotIndex_Fn(TmbData, Sdreport, Year_Set = NULL, Years2Include = NULL,
   DirName = paste0(getwd(), "/"), PlotName = "Index.png",
   interval_width = 1, strata_names = NULL, category_names = NULL,
-  use_biascorr = FALSE, plot_legend = TRUE, total_area_km2 = NULL,
-  plot_log = FALSE, width = 4, height = 4, treat_missing_as_zero = TRUE,
-  ...)
+  use_biascorr = TRUE, plot_legend = TRUE, total_area_km2 = NULL,
+  plot_log = FALSE, width = 4, height = 4,
+  treat_missing_as_zero = FALSE, create_covariance_table = FALSE, ...)
 }
 \arguments{
 \item{TmbData}{Formatted data inputs, from `SpatialDeltaGLMM::Data_Fn(...)`}
