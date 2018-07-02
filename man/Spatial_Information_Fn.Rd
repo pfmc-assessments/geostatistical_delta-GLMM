@@ -6,7 +6,8 @@
 \usage{
 Spatial_Information_Fn(n_x, Lon_i, Lat_i, LON_intensity = Lon_i,
   LAT_intensity = Lat_i, Extrapolation_List, Method = "Mesh",
-  grid_size_km = 50, grid_size_LL = 1, ...)
+  grid_size_km = 50, grid_size_LL = 1, randomseed = 1, nstart = 100,
+  iter.max = 1000, ...)
 }
 \arguments{
 \item{n_x, }{the number of vertices in the SPDE mesh (determines the spatial resolution when Method="Mesh")}
@@ -26,6 +27,12 @@ Spatial_Information_Fn(n_x, Lon_i, Lat_i, LON_intensity = Lon_i,
 \item{grid_size_km, }{the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid") when not using \code{Method="Spherical_mesh"}}
 
 \item{grid_size_LL, }{the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid") when using \code{Method="Spherical_mesh"}}
+
+\item{randomseed}{a random number seed}
+
+\item{nstart}{the number of times that the k-means algorithm is run while searching for the best solution (default=100)}
+
+\item{iter.max}{the number of iterations used per k-means algorithm (default=1000)}
 
 \item{..., }{additional arguments passed to \code{Calc_Kmeans}}
 }

@@ -13,6 +13,7 @@
 #' @param grid_size_km, the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid") when not using \code{Method="Spherical_mesh"}
 #' @param grid_size_LL, the distance between grid cells for the 2D AR1 grid (determines spatial resolution when Method="Grid") when using \code{Method="Spherical_mesh"}
 #' @param ..., additional arguments passed to \code{Calc_Kmeans}
+#' @inheritParams Calc_Kmeans
 
 #' @return Tagged list containing objects for running a VAST model
 #' \describe{
@@ -27,7 +28,8 @@
 #' }
 
 #' @export
-Spatial_Information_Fn = function( n_x, Lon_i, Lat_i, LON_intensity=Lon_i, LAT_intensity=Lat_i, Extrapolation_List, Method="Mesh", grid_size_km=50, grid_size_LL=1, ... ){
+Spatial_Information_Fn = function( n_x, Lon_i, Lat_i, LON_intensity=Lon_i, LAT_intensity=Lat_i, Extrapolation_List, Method="Mesh", grid_size_km=50, grid_size_LL=1,
+  randomseed=1, nstart=100, iter.max=1000, ... ){
 
   # Convert to an Eastings-Northings coordinate system
   if( Method=="Spherical_mesh" ){
