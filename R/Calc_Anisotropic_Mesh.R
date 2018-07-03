@@ -44,7 +44,7 @@ function(loc_x, Method="Mesh", anisotropic_mesh=NULL, refine=FALSE, ...){
   ################
 
   # Mesh and SPDE for different inputs
-  if(Method %in% c("Mesh","Grid")){
+  if(Method %in% c("Mesh","Grid","Stream_network")){
     loc_isotropic_mesh = loc_x
   }
   if(Method %in% c("Spherical_mesh")){

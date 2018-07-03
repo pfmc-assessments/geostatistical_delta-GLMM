@@ -46,7 +46,7 @@ Spatial_Information_Fn = function( n_x, Lon_i, Lat_i, LON_intensity=Lon_i, LAT_i
     loc_grid = loc_grid[Which,]
     grid_num = RANN::nn2( data=loc_grid, query=loc_i, k=1)$nn.idx[,1]
   }
-  if( Method %in% c("Mesh","Grid") ){
+  if( Method %in% c("Mesh","Grid","Stream_network") ){
     if( is.numeric(Extrapolation_List$zone) ){
       # Locations for samples
       loc_i = SpatialDeltaGLMM::Convert_LL_to_UTM_Fn( Lon=Lon_i, Lat=Lat_i, zone=Extrapolation_List$zone, flip_around_dateline=Extrapolation_List$flip_around_dateline )                                                         #$
@@ -77,7 +77,7 @@ Spatial_Information_Fn = function( n_x, Lon_i, Lat_i, LON_intensity=Lon_i, LAT_i
     knot_i = grid_num
     loc_x = loc_grid
   }
-  if( Method %in% c("Mesh","Spherical_mesh") ){
+  if( Method %in% c("Mesh","Spherical_mesh","Stream_network") ){
     knot_i = NN_i
     loc_x = Kmeans[["centers"]]
   }
@@ -100,7 +100,7 @@ Spatial_Information_Fn = function( n_x, Lon_i, Lat_i, LON_intensity=Lon_i, LAT_i
   M1 = as( ifelse(as.matrix(Dist_grid)==grid_size_km, 1, 0), "dgTMatrix" )
   M2 = as( ifelse(as.matrix(Dist_grid)==sqrt(2)*grid_size_km, 1, 0), "dgTMatrix" )
   if( Method=="Spherical_mesh" ) GridList = list("M0"=M0, "M1"=M1, "M2"=M2, "grid_size_km"=grid_size_LL)
-  if( Method %in% c("Mesh","Grid") ) GridList = list("M0"=M0, "M1"=M1, "M2"=M2, "grid_size_km"=grid_size_km)
+  if( Method %in% c("Mesh","Grid","Stream_network") ) GridList = list("M0"=M0, "M1"=M1, "M2"=M2, "grid_size_km"=grid_size_km)
 
   # Return
   Return = list("MeshList"=MeshList, "GridList"=GridList, "a_xl"=a_xl, "loc_i"=loc_i, "Kmeans"=Kmeans, "knot_i"=knot_i, "Method"=Method, "loc_x"=loc_x, "PolygonList"=PolygonList, "NN_Extrap"=PolygonList$NN_Extrap)
