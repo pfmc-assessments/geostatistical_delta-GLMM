@@ -29,7 +29,11 @@ function( input_grid, strata.limits=NULL, zone=NA, flip_around_dateline=TRUE, ..
 
   # Extra junk
   Data_Extrap = cbind( Data_Extrap, 'Include'=1)
-  Data_Extrap[,c('E_km','N_km')] = tmpUTM[,c('X','Y')]
+  if( all(c("E_km","N_km") %in% colnames(Data_Extrap)) ){
+    Data_Extrap[,c('E_km','N_km')] = tmpUTM[,c('X','Y')]
+  }else{
+    Data_Extrap = cbind( Data_Extrap, 'E_km'=tmpUTM[,'X'], 'N_km'=tmpUTM[,'Y'] )
+  }
 
   # Return
   Return = list( "a_el"=a_el, "Data_Extrap"=Data_Extrap, "zone"=attr(tmpUTM,"zone"), "flip_around_dateline"=flip_around_dateline, "Area_km2_x"=Area_km2_x)
