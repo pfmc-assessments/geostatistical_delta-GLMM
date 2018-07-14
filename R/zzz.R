@@ -120,3 +120,13 @@ PlotAniso_Fn = function( ... ){
 Plot_range_shifts = function( ... ){
   FishStatsUtils::plot_range_index( ... )
 }
+
+#' Copy of FishStatsUtils::plot_data
+#'
+#' Included for continuity when using old scripts
+#'
+#' Please use \code{?FishStatsUtils::plot_data} to see list of arguments and usage
+#' @export
+Plot_data_and_knots = function( ... ){
+  FishStatsUtils::plot_data( ... )
+}
