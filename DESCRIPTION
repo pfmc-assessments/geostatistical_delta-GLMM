@@ -34,6 +34,7 @@ Imports:
     MatrixModels,
     rgdal,
     ThorsonUtilities,
+    FishStatsUtils, 
     abind,
     TMBhelper
 Depends:
@@ -42,6 +43,7 @@ Suggests:
     INLA,
     testthat
 Remotes: james-thorson/utilities,
+    james-thorson/FishStatsUtils,
     kaskr/TMB_contrib_R/TMBhelper
 Additional_repositories: https://www.math.ntnu.no/inla/R/stable
 License: GPL-2
