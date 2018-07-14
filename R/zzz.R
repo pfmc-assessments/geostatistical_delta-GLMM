@@ -28,7 +28,7 @@
 #' Please use \code{?FishStatsUtils::Prepare_Extrapolation_Data_Fn} to see list of arguments and usage
 #' @export
 Prepare_Extrapolation_Data_Fn = function( ... ){
-  FishStatsUtils::make_extrapolation_data( ... )
+  FishStatsUtils::make_extrapolation_info( ... )
 }
 
 #' Copy of FishStatsUtils::make_spatial_info
