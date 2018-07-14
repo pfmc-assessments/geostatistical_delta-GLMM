@@ -87,7 +87,7 @@ PlotResultsOnMap_Fn = function( ... ){
 #'
 #' Please use \code{?FishStatsUtils::plot_encounter_diagnostic} to see list of arguments and usage
 #' @export
-Check_encounter_probability = function( ... ){
+Check_encounter_prob = function( ... ){
   FishStatsUtils::plot_encounter_diagnostic( ... )
 }
 
