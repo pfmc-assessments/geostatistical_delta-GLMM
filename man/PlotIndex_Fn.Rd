@@ -12,4 +12,3 @@ Included for continuity when using old scripts
 \details{
 Please use \code{?FishStatsUtils::plot_biomass_index} to see list of arguments and usage
 }
-

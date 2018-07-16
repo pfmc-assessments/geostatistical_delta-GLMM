@@ -130,3 +130,13 @@ Plot_range_shifts = function( ... ){
 Plot_data_and_knots = function( ... ){
   FishStatsUtils::plot_data( ... )
 }
+
+#' Copy of FishStatsUtils::plot_lines
+#'
+#' Included for continuity when using old scripts
+#'
+#' Please use \code{?FishStatsUtils::plot_lines} to see list of arguments and usage
+#' @export
+Plot_Points_and_Bounds_Fn = function( ... ){
+  FishStatsUtils::plot_lines( ... )
+}
