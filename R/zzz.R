@@ -28,7 +28,7 @@
 #' Please use \code{?FishStatsUtils::Prepare_Extrapolation_Data_Fn} to see list of arguments and usage
 #' @export
 Prepare_Extrapolation_Data_Fn = function( ... ){
-  .Deprecated( new="make_extrapolation_info", package="FishStatsUtils" )
+  .Deprecated( new="FishStatsUtils::make_extrapolation_info" )
   FishStatsUtils::make_extrapolation_info( ... )
 }
 
@@ -39,7 +39,7 @@ Prepare_Extrapolation_Data_Fn = function( ... ){
 #' Please use \code{?FishStatsUtils::make_spatial_info} to see list of arguments and usage
 #' @export
 Spatial_Information_Fn = function( ... ){
-  .Deprecated( new="make_spatial_info", package="FishStatsUtils" )
+  .Deprecated( new="FishStatsUtils::make_spatial_info" )
   FishStatsUtils::make_spatial_info( ... )
 }
 
@@ -50,7 +50,7 @@ Spatial_Information_Fn = function( ... ){
 #' Please use \code{?FishStatsUtils::make_map_info} to see list of arguments and usage
 #' @export
 MapDetails_Fn = function( ... ){
-  .Deprecated( new="make_map_info", package="FishStatsUtils" )
+  .Deprecated( new="FishStatsUtils::make_map_info" )
   FishStatsUtils::make_map_info( ... )
 }
 
@@ -61,7 +61,7 @@ MapDetails_Fn = function( ... ){
 #' Please use \code{?FishStatsUtils::plot_quantile_diagnostic} to see list of arguments and usage
 #' @export
 QQ_Fn = function( ... ){
-  .Deprecated( new="plot_quantile_diagnostic", package="FishStatsUtils" )
+  .Deprecated( new="FishStatsUtils::plot_quantile_diagnostic" )
   FishStatsUtils::plot_quantile_diagnostic( ... )
 }
 
@@ -72,7 +72,7 @@ QQ_Fn = function( ... ){
 #' Please use \code{?FishStatsUtils::plot_biomass_index} to see list of arguments and usage
 #' @export
 PlotIndex_Fn = function( ... ){
-  .Deprecated( new="plot_biomass_index", package="FishStatsUtils" )
+  .Deprecated( new="FishStatsUtils::plot_biomass_index" )
   FishStatsUtils::plot_biomass_index( ... )
 }
 
@@ -83,7 +83,7 @@ PlotIndex_Fn = function( ... ){
 #' Please use \code{?FishStatsUtils::plot_maps} to see list of arguments and usage
 #' @export
 PlotResultsOnMap_Fn = function( ... ){
-  .Deprecated( new="plot_maps", package="FishStatsUtils" )
+  .Deprecated( new="FishStatsUtils::plot_maps" )
   FishStatsUtils::plot_maps( ... )
 }
 
@@ -94,7 +94,7 @@ PlotResultsOnMap_Fn = function( ... ){
 #' Please use \code{?FishStatsUtils::plot_encounter_diagnostic} to see list of arguments and usage
 #' @export
 Check_encounter_prob = function( ... ){
-  .Deprecated( new="plot_encounter_diagnostic", package="FishStatsUtils" )
+  .Deprecated( new="FishStatsUtils::plot_encounter_diagnostic" )
   FishStatsUtils::plot_encounter_diagnostic( ... )
 }
 
@@ -105,7 +105,7 @@ Check_encounter_prob = function( ... ){
 #' Please use \code{?FishStatsUtils::plot_residuals} to see list of arguments and usage
 #' @export
 plot_residuals = function( ... ){
-  .Deprecated( new="plot_residuals", package="FishStatsUtils" )
+  .Deprecated( new="FishStatsUtils::plot_residuals" )
   FishStatsUtils::plot_residuals( ... )
 }
 
@@ -116,7 +116,7 @@ plot_residuals = function( ... ){
 #' Please use \code{?FishStatsUtils::plot_anisotropy} to see list of arguments and usage
 #' @export
 PlotAniso_Fn = function( ... ){
-  .Deprecated( new="plot_anisotropy", package="FishStatsUtils" )
+  .Deprecated( new="FishStatsUtils::plot_anisotropy" )
   FishStatsUtils::plot_anisotropy( ... )
 }
 
@@ -127,7 +127,7 @@ PlotAniso_Fn = function( ... ){
 #' Please use \code{?FishStatsUtils::plot_range_index} to see list of arguments and usage
 #' @export
 Plot_range_shifts = function( ... ){
-  .Deprecated( new="plot_range_index", package="FishStatsUtils" )
+  .Deprecated( new="FishStatsUtils::plot_range_index" )
   FishStatsUtils::plot_range_index( ... )
 }
 
@@ -138,7 +138,7 @@ Plot_range_shifts = function( ... ){
 #' Please use \code{?FishStatsUtils::plot_data} to see list of arguments and usage
 #' @export
 Plot_data_and_knots = function( ... ){
-  .Deprecated( new="plot_data", package="FishStatsUtils" )
+  .Deprecated( new="FishStatsUtils::plot_data" )
   FishStatsUtils::plot_data( ... )
 }
 
@@ -149,6 +149,6 @@ Plot_data_and_knots = function( ... ){
 #' Please use \code{?FishStatsUtils::plot_lines} to see list of arguments and usage
 #' @export
 Plot_Points_and_Bounds_Fn = function( ... ){
-  .Deprecated( new="plot_lines", package="FishStatsUtils" )
+  .Deprecated( new="FishStatsUtils::plot_lines" )
   FishStatsUtils::plot_lines( ... )
 }
