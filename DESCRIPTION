@@ -45,7 +45,7 @@ Suggests:
 Remotes: james-thorson/utilities,
     james-thorson/FishStatsUtils,
     kaskr/TMB_contrib_R/TMBhelper
-Additional_repositories: https://www.math.ntnu.no/inla/R/stable
+Additional_repositories: https://inla.r-inla-download.org/R/stable
 License: GPL-2
 LazyData: yes
 BuildVignettes: yes
