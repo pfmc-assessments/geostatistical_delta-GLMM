@@ -13,30 +13,9 @@ Description: SpatialDeltaGLMM is an R package for implementing a spatial delta-
     speed, replicability, peer-review, and interpretation of index standardization.
     methods
 Imports:
-    graphics,
-    utils,
-    mapproj,
-    maptools,
-    deldir,
-    PBSmapping,
-    RANN,
-    stats,
-    colorspace,
-    RandomFields,
-    RandomFieldsUtils,
-    shape,
-    devtools,
-    mixtools,
-    sp,
-    maps,
-    mapdata,
+    FishStatsUtils,
     TMB,
-    MatrixModels,
-    rgdal,
-    ThorsonUtilities,
-    FishStatsUtils, 
-    abind,
-    TMBhelper
+    utils    
 Depends:
     R (>= 3.1.0),
 Suggests:
