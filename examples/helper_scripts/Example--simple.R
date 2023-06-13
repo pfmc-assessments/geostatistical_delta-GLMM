@@ -1,7 +1,7 @@
 
 
 # Install geostatistical delta-GLMM package
-devtools::install_github("nwfsc-assess/geostatistical_delta-GLMM")
+devtools::install_github("pfmc-assessments/geostatistical_delta-GLMM")
 devtools::install_github("james-thorson/utilities")
 
 # setwd("C:/Users/James.Thorson/Desktop/Project_git/geostatistical_delta-GLMM/examples/")

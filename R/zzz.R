@@ -5,7 +5,7 @@
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("###########################################################################################")
   packageStartupMessage("Loading package SpatialDeltaGLMM, developed by James Thorson for the Northwest Fisheries Science Center")
-  packageStartupMessage("For details and citation guidance, please see https://github.com/nwfsc-assess/geostatistical_delta-GLMM/#description-of-package")
+  packageStartupMessage("For details and citation guidance, please see https://github.com/pfmc-assessments/geostatistical_delta-GLMM/#description-of-package")
   packageStartupMessage("###########################################################################################")
   if( !"INLA" %in% utils::installed.packages()[,1] ){
     packageStartupMessage("Installing INLA...")

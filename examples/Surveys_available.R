@@ -1,6 +1,6 @@
 
 
-#devtools::install_github("nwfsc-assess/geostatistical_delta-GLMM")
+#devtools::install_github("pfmc-assessments/geostatistical_delta-GLMM")
 #devtools::install_github("james-thorson/FishData")
 library( mapdata )
 LocalDir = "C:/Users/James.Thorson/Desktop/UW Hideaway/Website/FishViz/"
